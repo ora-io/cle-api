@@ -1,0 +1,36 @@
+{
+  "name": "@hyperoracle/zkgraph-api",
+  "version": "0.0.5",
+  "description": "API for interacting with Hyper Oracle zkGraphs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyperoracle/zkgraph-api.git"
+  },
+  "keywords": [
+    "zkgraph",
+    "api",
+    "hyperoracle",
+    "ho",
+    "zkg"
+  ],
+  "author": "Norman (nom4dv3) & Suning (msfew)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hyperoracle/zkgraph-api/issues"
+  },
+  "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
+  "dependencies": {
+    "@types/node": "^20.4.5",
+    "bn.js": "^5.2.1",
+    "ethers": "^5.7.2",
+    "js-yaml": "^4.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
+    "zkwasm-service-helper": "github:DelphinusLab/zkWasm-service-helper"
+  }
+}
