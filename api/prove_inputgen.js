@@ -7,7 +7,7 @@ import {
   import { loadZKGraphConfig } from "../common/config_utils.js";
   import { providers } from "ethers";
   import { getRawReceipts, getBlockByNumber } from "../common/ethers_helper.js";
-  import { rlpDecodeAndEventFilter } from "../common/api_helper.js";
+  import { eventFetchFilter } from "../common/api_helper.js";
   import {
     fromHexString,
     toHexString,
@@ -15,7 +15,7 @@ import {
     trimPrefix,
   } from "../common/utils.js";
   import { currentNpmScriptName, logDivider, logLoadingAnimation, logReceiptAndEvents } from "../common/log_utils.js";
-  
+
 /**
  * Generate the private and public inputs in hex string format
  * @param {string} yamlPath 
@@ -30,45 +30,7 @@ export async function proveInputGen(yamlPath, rpcUrl, blockid, expectedStateStr,
 
     expectedStateStr = trimPrefix(expectedStateStr, "0x");
     
-  // Read block id
-  if (typeof blockid === "string"){
-    blockid = blockid.length >= 64 ? blockid : parseInt(blockid) //e.g. 17633573
-  }
-  
-  // Load config
-  const [source_address, source_esigs] = loadZKGraphConfig(yamlPath);
-  
-  const provider = new providers.JsonRpcProvider(rpcUrl);
-  
-  // Fetch raw receipts
-  let rawreceiptList = await getRawReceipts(provider, blockid);
-  
-  // RLP Decode and Filter
-  const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
-    rawreceiptList,
-    fromHexString(source_address),
-    source_esigs.map((esig) => fromHexString(esig)),
-  );
-  
-  // Gen Offsets
-  let [rawReceipts, matchedEventOffsets] = genStreamAndMatchedEventOffsets(
-    filteredRawReceiptList,
-    filteredEventList,
-  );
-  
-
-  if (enableLog){
-      // Log receipt number from block, and filtered events
-      logReceiptAndEvents(
-        rawreceiptList,
-        blockid,
-        matchedEventOffsets,
-        filteredEventList,
-      );
-  }
-  
-  // may remove
-  matchedEventOffsets = Uint32Array.from(matchedEventOffsets);
+    const [rawReceipts, matchedEventOffsets] = await eventFetchFilter(yamlPath, rpcUrl, blockid, enableLog)
   
   // Declare inputs
   let privateInputStr, publicInputStr;

@@ -1,6 +1,11 @@
 import { TxReceipt } from "./tx_receipt.js";
+import { providers } from "ethers";
+import { getRawReceipts } from "./ethers_helper.js";
 import { trimPrefix, fromHexString } from "./utils.js";
+import { loadZKGraphConfig } from "./config_utils.js";
+import { logReceiptAndEvents } from "./log_utils.js";
 import assert from "assert";
+
 
 function eventTo7Offsets(event, receiptBaseOffset) {
   let rst = [event.address_offset[0] + receiptBaseOffset];
@@ -84,4 +89,53 @@ export function formatVarLenInput(input) {
     Math.ceil(inp.length / 2),
   )}${formatHexStringInput(inp)}`;
   return formatted;
+}
+
+export async function eventFetchFilter(yamlPath, rpcUrl, blockid, enableLog){
+
+    // Parse block id
+    if (typeof blockid === "string"){
+        blockid = blockid.length >= 64 ? blockid : parseInt(blockid) //e.g. 17633573
+    }
+
+    // Load config
+    const [source_address, source_esigs] = loadZKGraphConfig(yamlPath);
+
+    if (enableLog) {
+        console.log("[*] Source contract address:", source_address);
+        console.log("[*] Source events signatures:", source_esigs, "\n");
+    }
+
+    const provider = new providers.JsonRpcProvider(rpcUrl);
+
+    // Fetch raw receipts
+    const rawreceiptList = await getRawReceipts(provider, blockid);
+
+    // RLP Decode and Filter
+    const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
+      rawreceiptList,
+      fromHexString(source_address),
+      source_esigs.map((esig) => fromHexString(esig)),
+    );
+
+    // Gen Offsets
+    let [rawReceipts, matchedEventOffsets] = genStreamAndMatchedEventOffsets(
+      filteredRawReceiptList,
+      filteredEventList,
+    );
+
+    if (enableLog){
+        // Log
+        logReceiptAndEvents(
+          rawreceiptList,
+          blockid,
+          matchedEventOffsets,
+          filteredEventList,
+        );
+    }
+
+    // may remove
+    matchedEventOffsets = Uint32Array.from(matchedEventOffsets);
+
+    return [rawReceipts, matchedEventOffsets]
 }
