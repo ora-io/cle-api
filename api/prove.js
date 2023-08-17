@@ -15,16 +15,16 @@ import {
  * @param {string} wasmPath - the relative path to the wasm bin file
  * @param {string} privateInputStr - the packed private input in hex string
  * @param {string} publicInputStr - the packed public input in hex string
- * @param {string} zkwasmProverUrl 
- * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm 
+ * @param {string} zkwasmProverUrl - the url of the zkwasm prover
+ * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
  * @param {boolean} enableLog - enable logging or not
  * @returns {[string, object]} - 1st arg: err, return null when succ, string when failed; 2nd arg: proof details in json
  */
 export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmProverUrl, userPrivateKey, enableLog=true) {
     let err = null;
     let result = {"instances":null, "proof":null, "aux":null, "md5": null, "taskId": null};
-  
-  // Prove mode
+
+    // Prove mode
     const compiledWasmBuffer = readFileSync(wasmPath);
     const privateInputArray = privateInputStr.trim().split(" ");
     const publicInputArray = publicInputStr.trim().split(" ");
@@ -33,7 +33,7 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
     const md5 = ZkWasmUtil.convertToMd5(compiledWasmBuffer).toUpperCase();
 
     result['md5'] = md5
-    
+
     let [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
       zkwasmProverUrl,
       userPrivateKey,
@@ -115,7 +115,7 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
 
 
         // logDivider();
-        
+
         err = null
         result['instances'] = instances
         result['proof'] = proof
