@@ -20,15 +20,15 @@ import path from "path";
  * @param {boolean} enableLog 
  * @returns {[string, object]} - errmsg, result = {'md5': md5, 'taskId': taskId}
  */
-export async function setup(wasmPath, userPrivateKey, ZkwasmProviderUrl="https://zkwasm-explorer.delphinuslab.com:8090", isLocal = false, enableLog = true) {
+export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
     let err = null
     let result = {'md5': null, 'taskId': null}
 
     let cirSz;
-    if (isLocal) {
-        cirSz = 20;
-    } else {
-        cirSz = 22;
+    if (circuitSize >= 18 && circuitSize <= 30){
+        cirSz = circuitSize
+    } else { // if too ridiculous, set to default
+        cirSz = isLocal ? 20 : 22;
     }
     // Message and form data
     const name = path.basename(wasmPath); // only use in zkwasm, can diff from local files
@@ -112,7 +112,7 @@ export async function setup(wasmPath, userPrivateKey, ZkwasmProviderUrl="https:/
         }
     }
 
-    return err, result
+    return [err, result]
 }
 
 
