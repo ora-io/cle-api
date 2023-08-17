@@ -14,6 +14,7 @@ export async function zkwasm_setup(
   description_url,
   avator_url,
   circuit_size,
+  ZkwasmProviderUrl
 ) {
   let isSetUpSuccess = true;
 
@@ -45,7 +46,7 @@ export async function zkwasm_setup(
   let requestConfig = {
     method: "post",
     maxBodyLength: Infinity,
-    url: url.postNewWasmImage().url,
+    url: url.postNewWasmImage(ZkwasmProviderUrl).url,
     headers: {
       ...formData.getHeaders(),
     },

@@ -11,7 +11,7 @@ import {
 } from "../requests/zkwasm_taskdetails.js";
 import path from "path";
 
-export async function setup(wasmPath, userPrivateKey, isLocal = false, enableLog = true) {
+export async function setup(wasmPath, userPrivateKey, ZkwasmProviderUrl="https://zkwasm-explorer.delphinuslab.com:8090", isLocal = false, enableLog = true) {
     let cirSz;
     if (isLocal) {
         cirSz = 20;
@@ -39,6 +39,7 @@ export async function setup(wasmPath, userPrivateKey, isLocal = false, enableLog
         description_url_encoded,
         avator_url,
         circuit_size,
+        ZkwasmProviderUrl
     );
     if (isSetUpSuccess) {
         if(enableLog) {
