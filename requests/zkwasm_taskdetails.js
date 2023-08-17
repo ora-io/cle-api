@@ -2,15 +2,15 @@ import axios from "axios";
 import url from "./url.js";
 import { handleAxiosError } from "./error_handle.js";
 
-export async function zkwasm_taskdetails(taskId) {
+export async function zkwasm_taskdetails(zkwasmProverUrl, taskId) {
   // let isSetUpSuccess = true;
 
   let requestConfig = {
     method: "get",
     maxBodyLength: Infinity,
-    url: url.getTaskDetails(taskId).url,
+    url: url.getTaskDetails(zkwasmProverUrl, taskId).url,
     headers: {
-      ...url.getTaskDetails().contentType,
+      ...url.getTaskDetails(zkwasmProverUrl).contentType,
     },
   };
 
@@ -33,6 +33,7 @@ export async function zkwasm_taskdetails(taskId) {
 
 // TODO: timeout
 export async function waitTaskStatus(
+  zkwasmProverUrl,
   taskId,
   statuslist,
   interval,
@@ -49,7 +50,7 @@ export async function waitTaskStatus(
   // var [response, isSetUpSuccess, errorMessage] = await zkwasm_taskdetails(taskId)
   return new Promise((resolve, reject) => {
     const checkStatus = async () => {
-      var [response, error] = await zkwasm_taskdetails(taskId);
+      var [response, error] = await zkwasm_taskdetails(zkwasmProverUrl, taskId);
 
       if (error != null) {
         let [errMsg, isRetry] = handleAxiosError(error);

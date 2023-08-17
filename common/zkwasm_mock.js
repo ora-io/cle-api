@@ -1,4 +1,5 @@
 import { fromHexString, toHexString } from "./utils.js";
+import { ZKGraphRequireFailed } from "./error.js";
 export class HostMemory {
   constructor(max_size) {
     this.mem = new Uint8Array(max_size);
@@ -75,8 +76,8 @@ export class ZKWASMMock {
 
   static require(a) {
     if (!a) {
-      console.log("[-] zkwasm require condition is false");
-      throw Error("Abort execution");
+    //   console.log("[-] zkwasm require condition is false");
+      throw new ZKGraphRequireFailed("Abort execution since the require condition is false.");
       //TODO: change to graceful kill rather than throw Error?
     }
   }

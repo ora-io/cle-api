@@ -1,4 +1,3 @@
-import { config } from "../../config.js";
 
 class EndPoint {
   constructor(url, isProtected, contentType) {
@@ -9,38 +8,38 @@ class EndPoint {
 }
 
 export default {
-  postNewWasmImage: () =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/setup`, false),
-  fetchConfiguredMD5: () =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/tasks?tasktype=Setup`, false),
-  checkWasmImageStatus: (md5, taskType = null) =>
+  postNewWasmImage: (zkwasmProverUrl) =>
+    new EndPoint(`${zkwasmProverUrl}/setup`, false),
+  fetchConfiguredMD5: (zkwasmProverUrl) =>
+    new EndPoint(`${zkwasmProverUrl}/tasks?tasktype=Setup`, false),
+  checkWasmImageStatus: (zkwasmProverUrl, md5, taskType = null) =>
     new EndPoint(
-      `${config.ZkwasmProviderUrl}/tasks?md5=${md5}${
+      `${zkwasmProverUrl}/tasks?md5=${md5}${
         taskType ? "&tasktype=" + taskType : ""
       }`,
       false,
     ),
-  deployWasmImageURL: () =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/deploy`, false, {
+  deployWasmImageURL: (zkwasmProverUrl) =>
+    new EndPoint(`${zkwasmProverUrl}/deploy`, false, {
       "Content-Type": "application/json",
     }),
-  proveWasmImageURL: () =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/prove`, false, {
+  proveWasmImageURL: (zkwasmProverUrl) =>
+    new EndPoint(`${zkwasmProverUrl}/prove`, false, {
       "Content-Type": "application/json",
     }),
-  getTaskDetails: (taskId) =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/tasks?id=${taskId}`, false, {
+  getTaskDetails: (zkwasmProverUrl, taskId) =>
+    new EndPoint(`${zkwasmProverUrl}/tasks?id=${taskId}`, false, {
       "Content-Type": "application/json",
     }),
-  searchImageURL: (md5) =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/image?md5=${md5}`, false),
-  getUserBalance: (address) =>
+  searchImageURL: (zkwasmProverUrl, md5) =>
+    new EndPoint(`${zkwasmProverUrl}/image?md5=${md5}`, false),
+  getUserBalance: (zkwasmProverUrl, address) =>
     new EndPoint(
-      `${config.ZkwasmProviderUrl}/user?user_address=${address}`,
+      `${zkwasmProverUrl}/user?user_address=${address}`,
       false,
     ),
-  sendTXHash: (address) =>
-    new EndPoint(`${config.ZkwasmProviderUrl}/pay`, false, {
+  sendTXHash: (zkwasmProverUrl, address) =>
+    new EndPoint(`${zkwasmProverUrl}/pay`, false, {
       "Content-Type": "application/json",
     }),
   uploadToPinata: () =>

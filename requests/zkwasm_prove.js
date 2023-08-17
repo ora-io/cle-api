@@ -5,6 +5,7 @@ import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
 
 export async function zkwasm_prove(
+  zkwasmProverUrl,
   user_privatekey,
   image_md5,
   public_inputs,
@@ -46,9 +47,9 @@ export async function zkwasm_prove(
   let requestConfig = {
     method: "post",
     maxBodyLength: Infinity,
-    url: url.proveWasmImageURL().url,
+    url: url.proveWasmImageURL(zkwasmProverUrl).url,
     headers: {
-      ...url.proveWasmImageURL().contentType,
+      ...url.proveWasmImageURL(zkwasmProverUrl).contentType,
     },
     data: req,
   };
