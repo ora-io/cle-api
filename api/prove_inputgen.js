@@ -2,19 +2,13 @@ import {
     formatVarLenInput,
     formatIntInput,
     formatHexStringInput,
-    genStreamAndMatchedEventOffsets,
   } from "../common/api_helper.js";
-  import { loadZKGraphConfig } from "../common/config_utils.js";
-  import { providers } from "ethers";
-  import { getRawReceipts, getBlockByNumber } from "../common/ethers_helper.js";
+  import { getBlockByNumber } from "../common/ethers_helper.js";
   import { eventFetchFilter } from "../common/api_helper.js";
   import {
-    fromHexString,
     toHexString,
-    toHexStringBytes32Reverse,
     trimPrefix,
   } from "../common/utils.js";
-  import { currentNpmScriptName, logDivider, logLoadingAnimation, logReceiptAndEvents } from "../common/log_utils.js";
 
 /**
  * Generate the private and public inputs in hex string format
@@ -24,7 +18,7 @@ import {
  * @param {string} expectedStateStr 
  * @param {boolean} isLocal 
  * @param {boolean} enableLog 
- * @returns 
+ * @returns {[string, string]} - private input string, public input string
  */
 export async function proveInputGen(yamlPath, rpcUrl, blockid, expectedStateStr, isLocal=false, enableLog=true) {
 

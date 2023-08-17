@@ -1,4 +1,3 @@
-import { proveInputGen } from "../api/prove_inputgen.js"
 import { ZKWASMMock } from "../common/zkwasm_mock.js";
 import { instantiateWasm, setupZKWasmMock } from "../common/bundle.js";
 import { ZKGraphRequireFailed } from "../common/error.js";

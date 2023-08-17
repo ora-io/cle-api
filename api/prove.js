@@ -1,4 +1,3 @@
-// usage: node prove.js [--inputgen/test] <blocknum/blockhash> <state> -> wasm input
 import {
   toHexStringBytes32Reverse,
 } from "../common/utils.js";
@@ -24,9 +23,7 @@ import {
 export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmProverUrl, userPrivateKey, enableLog=true) {
     let err = null;
     let result = {"instances":null, "proof":null, "aux":null, "md5": null, "taskId": null};
-
-    // let [privateInputStr, publicInputStr] = await proveInputGen(yamlPath, rpcUrl, blockid, expectedStateStr, isLocal, enableLog)
-    
+  
   // Prove mode
     const compiledWasmBuffer = readFileSync(wasmPath);
     const privateInputArray = privateInputStr.trim().split(" ");
