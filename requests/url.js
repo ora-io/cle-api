@@ -42,6 +42,6 @@ export default {
     new EndPoint(`${zkwasmProverUrl}/pay`, false, {
       "Content-Type": "application/json",
     }),
-  uploadToPinata: () =>
-    new EndPoint(`${config.PinataEndpoint}`, true)
+  uploadToPinata: (pinataEndpoint) =>
+    new EndPoint(`${pinataEndpoint}`, true)
 };
