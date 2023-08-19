@@ -21,6 +21,8 @@ export function handleAxiosError(error) {
       errMsg = `ERR_BAD_REQUEST: ${error.response.status} ${error.response.statusText}.`;
       break;
     default:
+      console.log("in handleAxiosError:")
+      console.log(error)
       errMsg = `HTTP ERROR: ${error.response.status} ${error.response.statusText}.`;
       break;
   }

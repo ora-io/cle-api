@@ -7,13 +7,14 @@ import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
 
 export async function zkwasm_setup(
+  ZkwasmProviderUrl,
   name,
   image_md5,
   image,
   user_privatekey,
   description_url,
   avator_url,
-  circuit_size,
+  circuit_size
 ) {
   let isSetUpSuccess = true;
 
@@ -45,7 +46,7 @@ export async function zkwasm_setup(
   let requestConfig = {
     method: "post",
     maxBodyLength: Infinity,
-    url: url.postNewWasmImage().url,
+    url: url.postNewWasmImage(ZkwasmProviderUrl).url,
     headers: {
       ...formData.getHeaders(),
     },
@@ -56,7 +57,7 @@ export async function zkwasm_setup(
   let _;
   const response = await axios.request(requestConfig).catch((error) => {
     [errorMessage, _] = handleAxiosError(error);
-    if (errorMessage != "Error: Image already exists!") {
+    if (errorMessage != "Error: Image already exists!" && !errorMessage.startsWith('Payment error')) {
       console.log(error);
       console.log("Error in zkwasm_setup. Please retry.");
     }
