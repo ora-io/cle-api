@@ -1,13 +1,13 @@
 import axios from "axios";
 import url from "./url.js";
 
-export async function zkwasm_imagedetails(md5) {
+export async function zkwasm_imagedetails(zkwasmProverUrl, md5) {
   let requestConfig = {
     method: "get",
     maxBodyLength: Infinity,
-    url: url.searchImageURL(md5).url,
+    url: url.searchImageURL(zkwasmProverUrl, md5).url,
     headers: {
-      ...url.searchImageURL().contentType,
+      ...url.searchImageURL(zkwasmProverUrl, md5).contentType,
     },
   };
 
