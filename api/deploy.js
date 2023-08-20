@@ -1,4 +1,4 @@
-import { zkwasm_deploy } from "../requests/zkwasm_deploy.js";
+import { zkwasm_deploy, get_deployed } from "../requests/zkwasm_deploy.js";
 import { ZkWasmUtil } from "zkwasm-service-helper";
 import { readFileSync } from "fs";
 import { logLoadingAnimation } from "../common/log_utils.js";
@@ -58,12 +58,12 @@ if (isDeploySuccess) {
     const [res, _] = await get_deployed(zkwasmProviderUrl, md5);
 
     const verificationContractAddress = res.data.result[0].deployment.find(
-      (x) => x.chain_id == targetNetwork.value
+      (x) => x.chain_id == chainid
     ).address;
 
     if (enableLog === true) {
       console.log(
-        `[+] CONTRACT ADDRESS ON ${targetNetwork.name.toUpperCase()}: ${verificationContractAddress}`,
+        `[+] CONTRACT ADDRESS: ${verificationContractAddress}`,
         "\n"
       );
     }
