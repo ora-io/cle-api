@@ -3,7 +3,7 @@ import fs from "fs";
 import {ZkWasmUtil} from "zkwasm-service-helper";
 import {
     logLoadingAnimation
-} from "../common/utils.js";
+} from "../common/log_utils.js";
 import {zkwasm_setup} from "../requests/zkwasm_setup.js";
 import {
     waitTaskStatus,
