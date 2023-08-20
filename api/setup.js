@@ -12,12 +12,12 @@ import {
 import path from "path";
 
 /**
- * 
- * @param {string} wasmPath 
- * @param {string} userPrivateKey 
- * @param {string} ZkwasmProviderUrl 
- * @param {boolean} isLocal 
- * @param {boolean} enableLog 
+ * Set up zkwasm image with given wasm file.
+ * @param {string} wasmPath
+ * @param {string} userPrivateKey
+ * @param {string} ZkwasmProviderUrl
+ * @param {boolean} isLocal
+ * @param {boolean} enableLog
  * @returns {[string, object]} - errmsg, result = {'md5': md5, 'taskId': taskId}
  */
 export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
@@ -80,7 +80,7 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
                 0,
             ); //TODO: timeout
         } catch (error) {
-            
+
             if(enableLog) {
                 loading.stopAndClear();
                 console.error(error);
