@@ -44,9 +44,8 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
 
     // Set up form data
     let data = new FormData();
-    data.append("file", createReadStream(mappingPath));
-    data.append("source_address", source_address);
-    data.append("source_sigs_array", concatHexStrings(source_esigs));
+    data.append("asFile", createReadStream(mappingPath));
+    data.append("yamlFile", createReadStream(yamlPath));
 
     // Set up request config
     let requestConfig = {
