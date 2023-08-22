@@ -79,6 +79,6 @@ export async function verify(
       return false;
     });
 
-  if (enableLog === true) console.log(`[+] VERIFICATION SUCCESS!`, "\n");
+  if (enableLog === true && result !== false) console.log(`[+] VERIFICATION SUCCESS!`, "\n");
   return true;
 }
