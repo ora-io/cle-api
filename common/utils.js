@@ -57,13 +57,56 @@ export function bytesToBN(data) {
   return bns;
 }
 
+function hexToBNs(hexString){
+    let bytes = new Array(Math.ceil(hexString.length/16));
+    for (var i = 0; i < hexString.length; i += 16) {
+      bytes[i] = new BN(hexString.slice(i, Math.min(i+16, hexString.length)), 16, 'le');
+    }
+    return bytes;
+  }
+
+function parseArg(input) {
+    let inputArray = input.split(":");
+    let value = inputArray[0];
+    let type = inputArray[1];
+    let re1 = new RegExp(/^[0-9A-Fa-f]+$/); // hexdecimal
+    let re2 = new RegExp(/^\d+$/); // decimal
+  
+    // Check if value is a number
+    if(!(re1.test(value.slice(2)) || re2.test(value))) {
+      console.log("Error: input value is not an interger number");
+      return null;
+    }
+  
+    // Convert value byte array
+    if(type == "i64") {
+      let v;
+      if(value.slice(0, 2) == "0x") {
+        v = new BN(value.slice(2), 16);
+      } else {
+        v = new BN(value);
+      }
+      return [v];
+    } else if(type == "bytes" || type == "bytes-packed") {
+      if(value.slice(0, 2) != "0x") {
+        console.log("Error: bytes input need start with 0x");
+        return null;
+      }
+      let bytes = hexToBNs(value.slice(2));
+      return bytes;
+    } else {
+      console.log("Unsupported input data type: %s", type);
+      return null;
+    }
+  }
+
 // https://github.com/zkcrossteam/g1024/blob/916c489fefa65ce8d4ee1a387f2bd4a3dcca8337/src/data/image.ts#L95
 export function parseArgs(raw) {
   let parsedInputs = new Array();
   for (var input of raw) {
     input = input.trim();
     if (input !== "") {
-      let args = ZkWasmUtil.parseArg(input);
+      let args = parseArg(input);
       if (args != null) {
         parsedInputs.push(args);
       } else {
