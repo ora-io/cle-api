@@ -131,7 +131,7 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
         if (enableLog) {
             loading.stopAndClear();
 
-            console.log("[-] PROVE FAILED.", "\n");
+            console.log("[-] PROVE OR DRYRUN FAILED.", "\n");
 
             console.log(`[-] ${err}`, "\n");
         }
