@@ -68,7 +68,7 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
 
       let taskDetails;
       try {
-        taskDetails = await waitTaskStatus(zkwasmProverUrl, taskId, ["Done", "Fail"], 3000, 0); //TODO: timeout
+        taskDetails = await waitTaskStatus(zkwasmProverUrl, taskId, ["Done", "Fail", "DryRunFailed"], 3000, 0); //TODO: timeout
       } catch (error) {
         loading.stopAndClear();
         console.error(error);
