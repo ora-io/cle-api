@@ -54,7 +54,7 @@ export async function verify(
   const deployedContractAddress = deployedContractInfo.address;
 
   // Inputs for verification
-  const instances = bytesToBN(taskDetails.instances);
+  const instances = bytesToBN(taskDetails.batch_instances);
   const proof = bytesToBN(taskDetails.proof);
   const aux = bytesToBN(taskDetails.aux);
   let arg = parseArgs(taskDetails.public_inputs).map((x) => x.toString(10));
