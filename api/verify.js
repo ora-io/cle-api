@@ -25,6 +25,8 @@ export async function verify(
   ZkwasmProviderUrl,
   enableLog = true
 ) {
+  let verificationResult;
+
   const networkName = loadZKGraphDestination(yamlPath)[0].network;
   const targetNetwork = getTargetNetwork(networkName);
 
@@ -32,7 +34,7 @@ export async function verify(
   const taskDetails = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ["Done", "Fail"], 3000, 0); //TODO: timeout
   if (taskDetails.status !== "Done") {
     if (enableLog === true) console.log("[-] PROVE TASK IS NOT DONE. EXITING...", "\n");
-    return false;
+    verificationResult = false;
   }
 
   // Get deployed contract address of verification contract.
@@ -49,7 +51,7 @@ export async function verify(
       "\n"
       );
     }
-    return false;
+    verificationResult = false;
   }
   const deployedContractAddress = deployedContractInfo.address;
 
@@ -74,11 +76,15 @@ export async function verify(
     .catch((err) => {
       if (enableLog === true) {
         console.log(`[-] VERIFICATION FAILED.`, "\n");
-        console.log(`[*] Error: ${err}`, "\n");
+        console.log(`[*] ${err}`, "\n");
       }
-      return false;
+      verificationResult = false;
     });
 
-  if (enableLog === true && result !== false) console.log(`[+] VERIFICATION SUCCESS!`, "\n");
-  return true;
+  if (verificationResult !== false) {
+    if (enableLog === true) console.log(`[+] VERIFICATION SUCCESS!`, "\n");
+    verificationResult = true;
+  }
+
+  return verificationResult;
 }
