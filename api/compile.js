@@ -5,6 +5,39 @@ import { concatHexStrings } from "../common/utils.js";
 import axios from "axios";
 import FormData from "form-data";
 
+const innerPrePrePath = 'build/tmp/inner_pre_pre.wasm'
+const innerPrePath = 'build/tmp/inner_pre.wasm'
+const innerPreWatPath = 'build/tmp/inner_pre.wat'
+const innerPath = 'build/tmp/inner.wasm'
+
+const wasmStartName = "__as_start"
+
+export function compileInner(){
+
+
+    const commands = [
+      `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}`, 
+      `npx wasm-opt -Oz ${innerPrePrePath} -o ${innerPrePath} --disable-bulk-memory --disable-mutable-globals`,
+      `npx wasm2wat ${innerPrePath} -o ${innerPreWatPath} --inline-exports --generate-names --disable-bulk-memory --disable-mutable-globals`,
+      `npx wat2wasm ${innerPreWatPath} -r -o ${innerPath}`
+    ];
+
+    // `wasm-opt -Oz ${tmpInnerPrePre} -o ${tmpInnerPre} --disable-bulk-memory --disable-mutable-globals
+
+    // wasm2wat ${tmpInnerPre} -o ${tmpInnerPreWat} --inline-exports --generate-names --disable-bulk-memory --disable-mutable-globals
+    
+    // wat2wasm ${tmpInnerPreWat} -r -o ${tmpInner}`
+    const combinedCommand = commands.join(" && ");
+
+    try {
+      execSync(combinedCommand, { encoding: "utf-8" });
+      return null;
+    } catch (error) {
+    //   console.log(error)
+      return error;
+    }
+}
+
 /**
  * Compile the given zkgraph {$mappingPath, $yamlPath}
  * @param {string} wasmPath
@@ -19,6 +52,8 @@ import FormData from "form-data";
 export async function compile(wasmPath, watPath, mappingPath, yamlPath, compilerServerEndpoint, isLocal = false, enableLog=true) {
   let isCompilationSuccess;
 
+  // TODO: check existence of node_modules/@hyperoracle/zkgraph-lib, if not, return error msg
+
   // Local Compile
   if (isLocal === true) {
     const commands = [
@@ -32,6 +67,7 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
     } catch (error) {
       isCompilationSuccess = false;
     }
+    
   }
   // Remote Compile
   else {
@@ -42,9 +78,15 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       console.log("[*] Source events signatures:", source_esigs, "\n");
     }
 
+    let err = compileInner();
+    if (err != null){
+        return false;
+    }
+
     // Set up form data
     let data = new FormData();
     data.append("asFile", createReadStream(mappingPath));
+    // data.append("innerWasmFile", createReadStream(innerPath));
     data.append("yamlFile", createReadStream(yamlPath));
 
     // Set up request config
@@ -92,12 +134,12 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       console.log("[+] Output written to `build` folder.");
       console.log("[+] COMPILATION SUCCESS!", "\n");
     }
-    return true;
   } else {
     if (enableLog) {
       // Log status
       console.log("\n" + "[-] ERROR WHEN COMPILING." + "\n");
     }
-    return false;
   }
+
+  return isCompilationSuccess
 }
