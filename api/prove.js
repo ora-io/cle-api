@@ -22,7 +22,7 @@ import {
  */
 export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmProverUrl, userPrivateKey, enableLog=true) {
     let err = null;
-    let result = {"instances":null, "proof":null, "aux":null, "md5": null, "taskId": null};
+    let result = {"instances":null, "batch_instances":null, "proof":null, "aux":null, "md5": null, "taskId": null};
 
     // Prove mode
     const compiledWasmBuffer = readFileSync(wasmPath);
@@ -85,6 +85,7 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
 
 
         const instances = toHexStringBytes32Reverse(taskDetails.instances);
+        const batch_instances = toHexStringBytes32Reverse(taskDetails.batch_instances);
         const proof = toHexStringBytes32Reverse(taskDetails.proof);
         const aux = toHexStringBytes32Reverse(taskDetails.aux);
 
@@ -118,6 +119,7 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
 
         err = null
         result['instances'] = instances
+        result['batch_instances'] = batch_instances
         result['proof'] = proof
         result['aux'] = aux
         result['taskId'] = taskId
