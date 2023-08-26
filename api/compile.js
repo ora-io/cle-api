@@ -1,14 +1,14 @@
 import { execSync } from "child_process";
-import { createReadStream, readFileSync } from "fs";
+import { createReadStream, readFileSync, writeFileSync } from "fs";
 import { loadZKGraphConfig } from "../common/config_utils.js";
-import { concatHexStrings } from "../common/utils.js";
+import { concatHexStrings, fromHexString } from "../common/utils.js";
 import axios from "axios";
 import FormData from "form-data";
 
 const innerPrePrePath = 'build/tmp/inner_pre_pre.wasm'
-const innerPrePath = 'build/tmp/inner_pre.wasm'
-const innerPreWatPath = 'build/tmp/inner_pre.wat'
-const innerPath = 'build/tmp/inner.wasm'
+// const innerPrePath = 'build/tmp/inner_pre.wasm'
+// const innerPreWatPath = 'build/tmp/inner_pre.wat'
+// const innerPath = 'build/tmp/inner.wasm'
 
 const wasmStartName = "__as_start"
 
@@ -17,9 +17,9 @@ export function compileInner(){
 
     const commands = [
       `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}`, 
-      `npx wasm-opt -Oz ${innerPrePrePath} -o ${innerPrePath} --disable-bulk-memory --disable-mutable-globals`,
-      `npx wasm2wat ${innerPrePath} -o ${innerPreWatPath} --inline-exports --generate-names --disable-bulk-memory --disable-mutable-globals`,
-      `npx wat2wasm ${innerPreWatPath} -r -o ${innerPath}`
+    //   `npx wasm-opt -Oz ${innerPrePrePath} -o ${innerPrePath} --disable-bulk-memory --disable-mutable-globals`,
+    //   `npx wasm2wat ${innerPrePath} -o ${innerPreWatPath} --inline-exports --generate-names --disable-bulk-memory --disable-mutable-globals`,
+    //   `npx wat2wasm ${innerPreWatPath} -r -o ${innerPath}`
     ];
 
     // `wasm-opt -Oz ${tmpInnerPrePre} -o ${tmpInnerPre} --disable-bulk-memory --disable-mutable-globals
@@ -50,7 +50,7 @@ export function compileInner(){
  * @returns {boolean} - the upload result
  */
 export async function compile(wasmPath, watPath, mappingPath, yamlPath, compilerServerEndpoint, isLocal = false, enableLog=true) {
-  let isCompilationSuccess;
+  let isCompilationSuccess = true;
 
   // TODO: check existence of node_modules/@hyperoracle/zkgraph-lib, if not, return error msg
 
@@ -83,10 +83,11 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
         return false;
     }
 
+
     // Set up form data
     let data = new FormData();
-    data.append("asFile", createReadStream(mappingPath));
-    // data.append("innerWasmFile", createReadStream(innerPath));
+    // data.append("asFile", createReadStream(mappingPath));
+    data.append("wasmFile", createReadStream(innerPrePrePath));
     data.append("yamlFile", createReadStream(yamlPath));
 
     // Set up request config
@@ -113,8 +114,8 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       const wasmModuleHex = response.data["wasmModuleHex"];
       const wasmWat = response.data["wasmWat"];
       const message = response.data["message"];
-      fs.writeFileSync(wasmPath, fromHexString(wasmModuleHex));
-      fs.writeFileSync(watPath, wasmWat);
+      writeFileSync(wasmPath, fromHexString(wasmModuleHex));
+      writeFileSync(watPath, wasmWat);
     }
   }
 
