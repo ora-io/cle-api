@@ -1,11 +1,8 @@
-import FormData from "form-data";
 import axios from "axios";
 import url from "./url.js";
 import { Wallet } from "ethers";
-import { ZkWasmUtil } from "zkwasm-service-helper";
 import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
-import { testNets } from "../common/constants.js";
 
 // Deploy verification contract
 export async function zkwasm_deploy(chain_id, user_privatekey, image_md5, zkwasmProverUrl) {

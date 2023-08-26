@@ -1,7 +1,5 @@
 import BN from "bn.js";
-import { ZkWasmUtil } from "zkwasm-service-helper";
-import { testNets } from "./constants.js";
-import { logDivider } from "./log_utils.js";
+import { networks } from "./constants.js";
 
 export function fromHexString(hexString) {
   hexString = hexString.startsWith("0x") ? hexString.slice(2) : hexString;
@@ -71,13 +69,13 @@ function parseArg(input) {
     let type = inputArray[1];
     let re1 = new RegExp(/^[0-9A-Fa-f]+$/); // hexdecimal
     let re2 = new RegExp(/^\d+$/); // decimal
-  
+
     // Check if value is a number
     if(!(re1.test(value.slice(2)) || re2.test(value))) {
       console.log("Error: input value is not an interger number");
       return null;
     }
-  
+
     // Convert value byte array
     if(type == "i64") {
       let v;
@@ -118,7 +116,7 @@ export function parseArgs(raw) {
 }
 
 export function getTargetNetwork(inputtedNetworkName) {
-  const validNetworkNames = testNets.map((net) => net.name.toLowerCase());
+  const validNetworkNames = networks.map((net) => net.name.toLowerCase());
   if (!validNetworkNames.includes(inputtedNetworkName.toLowerCase())) {
     // console.log(`[-] NETWORK NAME "${inputtedNetworkName}" IS INVALID.`, "\n");
     // console.log(`[*] Valid networks: ${validNetworkNames.join(", ")}.`, "\n");
@@ -126,7 +124,7 @@ export function getTargetNetwork(inputtedNetworkName) {
     // process.exit(1);
     return;
   }
-  const targetNetwork = testNets.find(
+  const targetNetwork = networks.find(
     (net) => net.name.toLowerCase() === inputtedNetworkName.toLowerCase()
   );
   return targetNetwork;
