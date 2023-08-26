@@ -1,4 +1,4 @@
-import {loadZKGraphDestination} from "../common/config_utils.js";
+import {loadZKGraphDestinations} from "../common/config_utils.js";
 import {
   waitTaskStatus,
 } from "../requests/zkwasm_taskdetails.js";
@@ -27,7 +27,7 @@ export async function verify(
 ) {
   let verificationResult;
 
-  const networkName = loadZKGraphDestination(yamlPath)[0].network;
+  const networkName = loadZKGraphDestinations(yamlPath)[0].network;
   const targetNetwork = getTargetNetwork(networkName);
 
   // Check task status of prove.

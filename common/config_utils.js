@@ -43,7 +43,7 @@ export function loadZKGraphName(fname) {
 
 export function applyZKGraphConfig(configObj) {} //placeholder
 
-export function loadZKGraphDestination(fname) {
+export function loadZKGraphDestinations(fname) {
   const config = loadYaml(fname);
   return config.dataDestinations;
   // [

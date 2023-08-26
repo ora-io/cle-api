@@ -4,7 +4,7 @@ import {
   abiFactory,
   AddressZero,
 } from "../common/constants.js";
-import {loadZKGraphDestination} from "../common/config_utils.js";
+import {loadZKGraphDestinations} from "../common/config_utils.js";
 
 /**
  * Publish and register zkGraph onchain.
@@ -24,8 +24,8 @@ export async function publish(
   userPrivateKey,
   enableLog = true,
 ) {
-  const networkName = loadZKGraphDestination(yamlPath)[0].network;
-  const destinationContractAddress = loadZKGraphDestination(yamlPath)[0].destination.address;
+  const networkName = loadZKGraphDestinations(yamlPath)[0].network;
+  const destinationContractAddress = loadZKGraphDestinations(yamlPath)[0].destination.address;
 
   const provider = new providers.getDefaultProvider(
     networkName
