@@ -6,9 +6,6 @@ import axios from "axios";
 import FormData from "form-data";
 
 const innerPrePrePath = 'build/tmp/inner_pre_pre.wasm'
-// const innerPrePath = 'build/tmp/inner_pre.wasm'
-// const innerPreWatPath = 'build/tmp/inner_pre.wat'
-// const innerPath = 'build/tmp/inner.wasm'
 
 const wasmStartName = "__as_start"
 
@@ -17,16 +14,8 @@ export function compileInner(){
 
     const commands = [
       `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}`, 
-    //   `npx wasm-opt -Oz ${innerPrePrePath} -o ${innerPrePath} --disable-bulk-memory --disable-mutable-globals`,
-    //   `npx wasm2wat ${innerPrePath} -o ${innerPreWatPath} --inline-exports --generate-names --disable-bulk-memory --disable-mutable-globals`,
-    //   `npx wat2wasm ${innerPreWatPath} -r -o ${innerPath}`
     ];
 
-    // `wasm-opt -Oz ${tmpInnerPrePre} -o ${tmpInnerPre} --disable-bulk-memory --disable-mutable-globals
-
-    // wasm2wat ${tmpInnerPre} -o ${tmpInnerPreWat} --inline-exports --generate-names --disable-bulk-memory --disable-mutable-globals
-    
-    // wat2wasm ${tmpInnerPreWat} -r -o ${tmpInner}`
     const combinedCommand = commands.join(" && ");
 
     try {
