@@ -5,10 +5,12 @@ import {
   AddressZero,
 } from "../common/constants.js";
 import {loadZKGraphDestinations} from "../common/config_utils.js";
+import {logLoadingAnimation} from "../common/log_utils.js";
 
 /**
  * Publish and register zkGraph onchain.
  * @param {string} yamlPath - the relative path to the yaml file
+ * @param {string} rpcUrl - the rpc url of the target network
  * @param {string} deployedContractAddress - the deployed verification contract address
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
@@ -18,6 +20,7 @@ import {loadZKGraphDestinations} from "../common/config_utils.js";
  */
 export async function publish(
   yamlPath,
+  rpcUrl,
   deployedContractAddress,
   ipfsHash,
   bountyRewardPerTrigger,
@@ -27,9 +30,7 @@ export async function publish(
   const networkName = loadZKGraphDestinations(yamlPath)[0].network;
   const destinationContractAddress = loadZKGraphDestinations(yamlPath)[0].destination.address;
 
-  const provider = new providers.getDefaultProvider(
-    networkName
-  );
+  const provider = new providers.JsonRpcProvider(rpcUrl);
 
   const wallet = new Wallet(userPrivateKey, provider);
 
@@ -53,12 +54,22 @@ export async function publish(
     return "";
   });
 
+  let loading;
+  if (enableLog === true) {
+    console.log("[*] Please wait for publish tx... (estimated: 30 sec)", "\n");
+    loading = logLoadingAnimation();
+  }
+
   const txReceipt = await tx.wait(1).catch((err) => {
-    if (enableLog === true) console.log(`[-] ERROR WHEN WAITING FOR TX: ${err}`, "\n");
+    if (enableLog === true) {
+      console.log(`[-] ERROR WHEN WAITING FOR TX: ${err}`, "\n")
+      loading.stopAndClear();
+    };
     return "";
   });
 
   if (enableLog === true) {
+    loading.stopAndClear();
     console.log(`[+] ZKGRAPH PUBLISHED SUCCESSFULLY!`, "\n");
     console.log(
       `[*] Transaction confirmed in block ${txReceipt.blockNumber} on ${networkName}`
