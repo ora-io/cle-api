@@ -69,6 +69,9 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
 
     let err = compileInner();
     if (err != null){
+        if (enableLog === true) {
+            console.log(`[-] ${err}`);
+        }
         return false;
     }
 
@@ -108,27 +111,25 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
     }
   }
 
-  // Log and return result
-  if (isCompilationSuccess === true) {
-    if (enableLog) {
-      // Log compiled file size by line count
-      const compiledFileContent = readFileSync(watPath, "utf-8");
-      const compiledFileLineCount = compiledFileContent.split("\n").length;
-      console.log(
-        "[*]",
-        compiledFileLineCount,
-        compiledFileLineCount > 1 ? "lines" : "line",
-        `in ${watPath}`
-      );
-      // Log status
-      console.log("[+] Output written to `build` folder.");
-      console.log("[+] COMPILATION SUCCESS!", "\n");
-    }
-  } else {
-    if (enableLog) {
-      // Log status
-      console.log("\n" + "[-] ERROR WHEN COMPILING." + "\n");
-    }
+  if (enableLog === true) {
+      // Log and return result
+      if (isCompilationSuccess === true) {
+          // Log compiled file size by line count
+          const compiledFileContent = readFileSync(watPath, "utf-8");
+          const compiledFileLineCount = compiledFileContent.split("\n").length;
+          console.log(
+            "[*]",
+            compiledFileLineCount,
+            compiledFileLineCount > 1 ? "lines" : "line",
+            `in ${watPath}`
+          );
+          // Log status
+          console.log("[+] Output written to `build` folder.");
+          console.log("[+] COMPILATION SUCCESS!", "\n");
+      } else {
+          // Log status
+          console.log("\n" + "[-] ERROR WHEN COMPILING." + "\n");
+      }
   }
 
   return isCompilationSuccess
