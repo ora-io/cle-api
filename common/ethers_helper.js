@@ -2,9 +2,15 @@ import { ethers, Wallet, providers } from "ethers";
 import { formatEther } from "ethers/lib/utils.js";
 
 export async function getRawReceipts(ethersProvider, blockid) {
+    // Parse block id
+    if (typeof blockid === "string"){
+        blockid = blockid.length >= 64 ? blockid : parseInt(blockid)
+    }
+
   if (Number.isFinite(blockid)) {
     blockid = "0x" + blockid.toString(16);
   }
+
   return ethersProvider.send("debug_getRawReceipts", [blockid]);
 }
 
