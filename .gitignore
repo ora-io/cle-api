@@ -3,4 +3,4 @@ package-lock.json
 
 .idea/
 yarn.lock
-tests/
+tests/config.js
