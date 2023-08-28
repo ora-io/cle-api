@@ -91,13 +91,7 @@ export function formatVarLenInput(input) {
   return formatted;
 }
 
-export async function eventFetchFilter(yamlPath, rpcUrl, blockid, enableLog){
-
-    // Parse block id
-    if (typeof blockid === "string"){
-        blockid = blockid.length >= 64 ? blockid : parseInt(blockid) //e.g. 17633573
-    }
-
+export async function filterEvents(yamlPath, rawreceiptList, enableLog){
     // Load config
     const [source_address, source_esigs] = loadZKGraphConfig(yamlPath);
 
@@ -105,11 +99,6 @@ export async function eventFetchFilter(yamlPath, rpcUrl, blockid, enableLog){
         console.log("[*] Source contract address:", source_address);
         console.log("[*] Source events signatures:", source_esigs, "\n");
     }
-
-    const provider = new providers.JsonRpcProvider(rpcUrl);
-
-    // Fetch raw receipts
-    const rawreceiptList = await getRawReceipts(provider, blockid);
 
     // RLP Decode and Filter
     const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
@@ -128,7 +117,6 @@ export async function eventFetchFilter(yamlPath, rpcUrl, blockid, enableLog){
         // Log
         logReceiptAndEvents(
           rawreceiptList,
-          blockid,
           matchedEventOffsets,
           filteredEventList,
         );

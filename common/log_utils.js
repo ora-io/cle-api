@@ -49,7 +49,7 @@ export function logLoadingAnimation() {
 
 export function logReceiptAndEvents(
   rawreceiptList,
-  blockid,
+//   blockid,
   matchedEventOffsets,
   filteredEventList,
 ) {
@@ -57,9 +57,8 @@ export function logReceiptAndEvents(
     "[*]",
     rawreceiptList.length,
     rawreceiptList.length > 1
-      ? "receipts fetched from block"
-      : "receipt fetched from block",
-    blockid,
+      ? "receipts fetched"
+      : "receipt fetched",
   );
   console.log(
     "[*]",
