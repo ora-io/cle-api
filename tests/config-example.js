@@ -1,5 +1,5 @@
 export const config = {
-    "provider": {
+    "provider": { // Erigon node rpc are highly recommended here.
         "mainnet": "http://{url}",
         "sepolia": "http://{url}"
     },
