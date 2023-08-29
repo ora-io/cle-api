@@ -13,6 +13,11 @@ export const networks = [
       expectedEth: 0.5,
       hex: "0x5"
   },
+  {
+    name: "Mainnet",
+    label: "Mainnet",
+    value: 1,
+  }
 ]
 
 export const contract_abi = {
