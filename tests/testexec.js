@@ -6,10 +6,14 @@ let basePath = import.meta.url + '/../../'
 import { providers } from "ethers";
 import { config } from "./config.js";
 
-let rpcUrl = config.Provider.mainnet;
+let rpcUrl = config.JsonRpcProvider.sepolia;
+let blocknum = {
+    'sepolia': 2279547,
+    'mainnet': 17633573
+}
 
 const provider = new providers.JsonRpcProvider(rpcUrl);
-let rawReceiptList = await zkgapi.getRawReceipts(provider, 17633573, false);
+let rawReceiptList = await zkgapi.getRawReceipts(provider, blocknum.sepolia, false);
 // console.log(rawReceiptList)
 
 // let stateu8a = await zkgapi.execute(
@@ -17,7 +21,7 @@ let rawReceiptList = await zkgapi.getRawReceipts(provider, 17633573, false);
 //     'tests/build/zkgraph_local.wasm', 
 //     "tests/testsrc/zkgraph.yaml", 
 //     rpcUrl,
-//     17633573, 
+//     blocknum.sepolia, 
 //     true, 
 //     true
 // )

@@ -14,7 +14,7 @@ let blockid = 17633573
 
 // Get rawReceiptList, blockNumber, blockHash, receiptsRoot first to test proveInputGenOnRawReceipts
 import { config } from "./config.js";
-let rpcUrl = config.Provider.mainnet;
+let rpcUrl = config.JsonRpcProvider.sepolia;
 
 import { providers } from "ethers";
 import { getBlockByNumber } from "../common/ethers_helper.js";
