@@ -39,6 +39,10 @@ async function getRawLogsFromTxsReceipt(ethersProvider, blockNumber, ignoreFaile
             continue;
         }
 
+        if (receipt.status === undefined) {
+            throw new Error("[-] Can't get tx status, please make sure provider is enabled Byzantium.")
+        }
+
         let txRawLogs = [];
         let txRawReceipt = ["0x" + receipt.status.toString(16), "0x" + receipt.cumulativeGasUsed.toNumber().toString(16), receipt.logsBloom];
 
@@ -89,7 +93,7 @@ export async function getRawReceipts(ethersProvider, blockid, useDebugRPC=false)
     if (useDebugRPC){
         return await getRawReceiptsWithDebugRPC(ethersProvider, blockid)
     } else {
-        
+
         // Parse block id
         if (typeof blockid === "string" && blockid.length >= 64){
             throw Error("[-] please provide a valid block number.")
