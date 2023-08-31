@@ -4,14 +4,15 @@ import FormData from "form-data";
 import axios from "axios";
 import { handleAxiosError } from "./error_handle.js";
 import { computeAddress } from "ethers/lib/utils.js";
-import { config } from "../../config.js";
 
 export async function pinata_upload(
   user_privatekey,
   wasmPath,
   mappingPath,
   yamlPath,
-  zkGraphName
+  zkGraphName,
+  pinataEndpoint,
+  pinataJWT,
 ) {
   let isUploadSuccess = true;
 
@@ -42,9 +43,9 @@ export async function pinata_upload(
   let requestConfig = {
     method: "post",
     maxBodyLength: Infinity,
-    url: url.uploadToPinata().url,
+    url: url.uploadToPinata(pinataEndpoint).url,
     headers: {
-      Authorization: `Bearer ${config.PinataJWT}`,
+      Authorization: `Bearer ${pinataJWT}`,
       ...formData.getHeaders(),
     },
     data: formData,

@@ -1,14 +1,11 @@
-import FormData from "form-data";
 import axios from "axios";
 import url from "./url.js";
 import { Wallet } from "ethers";
-import { ZkWasmUtil } from "zkwasm-service-helper";
 import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
-import { testNets } from "../common/constants.js";
 
 // Deploy verification contract
-export async function zkwasm_deploy(chain_id, user_privatekey, image_md5) {
+export async function zkwasm_deploy(chain_id, user_privatekey, image_md5, zkwasmProverUrl) {
   let isDeploySuccess = true;
 
   const address = computeAddress(user_privatekey).toLowerCase();
@@ -31,10 +28,10 @@ export async function zkwasm_deploy(chain_id, user_privatekey, image_md5) {
   let requestConfig = {
     method: "post",
     maxBodyLength: Infinity,
-    url: url.deployWasmImageURL().url,
+    url: url.deployWasmImageURL(zkwasmProverUrl).url,
     data: requestData,
     headers: {
-      "Content-Type": url.deployWasmImageURL().contentType["Content-Type"],
+      "Content-Type": url.deployWasmImageURL(zkwasmProverUrl).contentType["Content-Type"],
     },
   };
 
@@ -47,11 +44,11 @@ export async function zkwasm_deploy(chain_id, user_privatekey, image_md5) {
   return [response, isDeploySuccess, errorMessage];
 }
 
-export async function get_deployed(image_md5) {
+export async function get_deployed(zkwasmProverUrl, image_md5) {
   let requestConfig = {
     method: "get",
     maxBodyLength: Infinity,
-    url: url.searchImageURL(image_md5).url
+    url: url.searchImageURL(zkwasmProverUrl, image_md5).url
   };
 
   let errorMessage = null;

@@ -1,4 +1,6 @@
 node_modules/
 package-lock.json
 
-tests/
+.idea/
+yarn.lock
+tests/config.js

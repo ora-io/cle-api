@@ -1,5 +1,11 @@
-export { execute } from "./api/exec.js";
-export { proveInputGen } from "./api/prove_inputgen.js";
+export { execute, executeOnRawReceipts } from "./api/exec.js";
+export { proveInputGen, proveInputGenOnRawReceipts } from "./api/prove_inputgen.js";
 export { proveMock } from "./api/prove_mock.js";
 export { prove } from "./api/prove.js";
+export { upload } from "./api/upload.js";
 export { setup } from "./api/setup.js";
+export { compile, compileInner } from "./api/compile.js";
+export { deploy } from "./api/deploy.js";
+export { publish } from "./api/publish.js";
+export { verify } from "./api/verify.js";
+export { getRawReceipts, getBlockByNumber } from "./common/ethers_helper.js";
