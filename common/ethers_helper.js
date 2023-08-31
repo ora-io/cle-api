@@ -7,6 +7,9 @@ import { RLP } from '@ethereumjs/rlp'
 async function getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx) {
     // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
     const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", [blockNumber]);
+    if(blockReceipts == null){
+        throw new Error("[-] Can't get block receipts, please make sure blocknum is valid")
+    }
     let rawReceipt = []
     for (const receipt of blockReceipts) {
         if (ignoreFailedTx && receipt.status !== "0x1") {
