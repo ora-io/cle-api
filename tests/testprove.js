@@ -3,7 +3,16 @@ import * as zkgapi from "../index.js"
 
 let isLocal = true
 let enableLog = true
-let blockid = 17633573
+let blocknumfortest = {
+    'sepolia': 2279547,
+    'mainnet': 17633573
+}
+let zkgstatefortest = {
+    'sepolia': '0xa60ecf32309539dd84f27a9563754dca818b815e',
+    'mainnet': 'b4fc6d0168e52d35cacd2c6185b44281ec28c9dc'
+    
+}
+
 // let [pri, pub] = await zkgapi.proveInputGen(
 //     "tests/testsrc/zkgraph.yaml", 
 //     rpcUrl,
@@ -20,9 +29,9 @@ import { providers } from "ethers";
 import { getBlockByNumber } from "../common/ethers_helper.js";
 
 const provider = new providers.JsonRpcProvider(rpcUrl);
-let rawReceiptList = await zkgapi.getRawReceipts(provider, blockid);
+let rawReceiptList = await zkgapi.getRawReceipts(provider, blocknumfortest.sepolia);
 // Get block
-const simpleblock = await provider.getBlock(blockid).catch(() => {
+const simpleblock = await provider.getBlock(blocknumfortest.sepolia).catch(() => {
     console.err("[-] ERROR: Failed to getBlock()", "\n");
     process.exit(1);
   });
@@ -44,7 +53,7 @@ let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
     blockNumber,
     blockHash,
     receiptsRoot,
-    'b4fc6d0168e52d35cacd2c6185b44281ec28c9dc',
+    zkgstatefortest.sepolia,
     isLocal, 
     enableLog)
 
