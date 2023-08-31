@@ -1,4 +1,4 @@
-import { fromHexString, areEqualArrays } from "./utils.js";
+import { fromHexString } from "./utils.js";
 import { Event } from "./event.js";
 
 import RLP from "./rlp.js";
@@ -43,18 +43,14 @@ export class TxReceipt {
     }
   }
 
-  filter(wanted_address, wanted_esigs) {
+  filter(wantedAddressList, wantedEsigsList) {
     const events = this.toValidEvents();
     const rst = [];
     for (let i = 0; i < events.length; i++) {
-      if (areEqualArrays(events[i].address, wanted_address)) {
-        let esig = events[i].topics[0];
-        for (let j = 0; j < wanted_esigs.length; j++) {
-          if (areEqualArrays(esig, wanted_esigs[j])) {
-            rst.push(events[i]);
-            break;
-          }
-        }
+      if (events[i].match(wantedAddressList, wantedEsigsList)){
+        rst.push(events[i]);
+        // TODO: double check: what if there's more than 1 events matched?
+        // break;
       }
     }
     return rst;
