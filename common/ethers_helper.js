@@ -64,7 +64,7 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider, blockNumber, ignore
     if (isErigon) {
         return await getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx);
     } else {
-        console.log("The RPC does not support erigon rpc, fetching data may be slow");
+        console.warn("The RPC does not support erigon rpc, fetching data may be slow");
         return await getRawLogsFromTxsReceipt(ethersProvider, blockNumber, ignoreFailedTx);
     }
 }
