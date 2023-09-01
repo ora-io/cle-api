@@ -2,7 +2,7 @@ import { TxReceipt } from "./tx_receipt.js";
 import { providers } from "ethers";
 import { getRawReceipts } from "./ethers_helper.js";
 import { trimPrefix, fromHexString } from "./utils.js";
-import { loadZKGraphConfig } from "./config_utils.js";
+import { loadZKGraphSources } from "./config_utils.js";
 import { logReceiptAndEvents } from "./log_utils.js";
 import assert from "assert";
 
@@ -27,14 +27,14 @@ function cleanReceipt(r) {
   return trimPrefix(trimPrefix(r, "0x"), "02");
 }
 
-export function rlpDecodeAndEventFilter(rawreceiptList, srcAddr, srcEsigs) {
+export function rlpDecodeAndEventFilter(rawreceiptList, srcAddrList, srcEsigsList) {
   const filteredRawReceiptList = [];
   const filteredEventsList = [];
 
   for (let i in rawreceiptList) {
     const es = TxReceipt.fromRawStr(rawreceiptList[i]).filter(
-      srcAddr,
-      srcEsigs,
+      srcAddrList,
+      srcEsigsList,
     );
     if (es.length > 0) {
       filteredRawReceiptList.push(rawreceiptList[i]);
@@ -93,18 +93,25 @@ export function formatVarLenInput(input) {
 
 export async function filterEvents(yamlPath, rawreceiptList, enableLog){
     // Load config
-    const [source_address, source_esigs] = loadZKGraphConfig(yamlPath);
+    const [sourceAddressList, sourceEsigsList] = loadZKGraphSources(yamlPath);
 
     if (enableLog) {
-        console.log("[*] Source contract address:", source_address);
-        console.log("[*] Source events signatures:", source_esigs, "\n");
+        // if (sourceAddressList.length <= 1) {
+        //     console.log("[*] Source address", sourceAddressList);
+        //     console.log("[*] Source events signatures:", sourceEsigsList, "\n");
+        // } else {
+            console.log("[*] Data Sources:");
+            for (let i = 0; i < sourceAddressList.length; i++){
+                console.log("    ("+i+") Address:", sourceAddressList[i], '\n        Event Sigs:', sourceEsigsList[i], "\n");
+            }
+        // }
     }
 
     // RLP Decode and Filter
     const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
       rawreceiptList,
-      fromHexString(source_address),
-      source_esigs.map((esig) => fromHexString(esig)),
+      sourceAddressList.map((addr) => fromHexString(addr)),
+      sourceEsigsList.map((esigList) => esigList.map((esig) => fromHexString(esig))),
     );
 
     // Gen Offsets

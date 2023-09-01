@@ -7,6 +7,9 @@ import { RLP } from '@ethereumjs/rlp'
 async function getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx) {
     // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
     const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", [blockNumber]);
+    if(blockReceipts == null){
+        throw new Error("[-] Can't get block receipts, please make sure blocknum is valid")
+    }
     let rawReceipt = []
     for (const receipt of blockReceipts) {
         if (ignoreFailedTx && receipt.status !== "0x1") {
@@ -34,6 +37,10 @@ async function getRawLogsFromTxsReceipt(ethersProvider, blockNumber, ignoreFaile
         const receipt = await ethersProvider.getTransactionReceipt(txHash);
         if (ignoreFailedTx && receipt.status !== 1) {
             continue;
+        }
+
+        if (receipt.status === undefined) {
+            throw new Error("[-] Can't get tx status, please make sure provider is enabled Byzantium.")
         }
 
         let txRawLogs = [];
@@ -64,7 +71,7 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider, blockNumber, ignore
     if (isErigon) {
         return await getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx);
     } else {
-        console.log("The RPC does not support erigon rpc, fetching data may be slow");
+        console.warn("The RPC does not support erigon rpc, fetching data may be slow");
         return await getRawLogsFromTxsReceipt(ethersProvider, blockNumber, ignoreFailedTx);
     }
 }
@@ -86,7 +93,7 @@ export async function getRawReceipts(ethersProvider, blockid, useDebugRPC=false)
     if (useDebugRPC){
         return await getRawReceiptsWithDebugRPC(ethersProvider, blockid)
     } else {
-        
+
         // Parse block id
         if (typeof blockid === "string" && blockid.length >= 64){
             throw Error("[-] please provide a valid block number.")

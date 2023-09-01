@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "release": "npm publish --access public",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "testexec": "node tests/testexec.js",
+    "testprove": "node tests/testprove.js"
   },
   "type": "module",
   "repository": {
