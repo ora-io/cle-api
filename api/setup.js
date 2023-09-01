@@ -98,9 +98,6 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
                 "\n",
             );
 
-            // Log extra new line before divider.
-            console.log();
-
             taskPrettyPrint(taskDetails, "[*] ");
         }
     } else {
