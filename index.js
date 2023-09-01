@@ -9,3 +9,4 @@ export { deploy } from "./api/deploy.js";
 export { publish } from "./api/publish.js";
 export { verify } from "./api/verify.js";
 export { getRawReceipts, getBlockByNumber } from "./common/ethers_helper.js";
+export  * as Error from "./common/error.js"
