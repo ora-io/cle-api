@@ -6,7 +6,8 @@
   "scripts": {
     "release": "npm publish --access public",
     "testexec": "node tests/testexec.js",
-    "testprove": "node tests/testprove.js"
+    "testprove": "node tests/testprove.js",
+    "testsetup": "node tests/testsetup.js"
   },
   "type": "module",
   "repository": {
