@@ -54,15 +54,24 @@ export async function zkwasm_setup(
   };
 
   let errorMessage = "";
-  let _;
-  const response = await axios.request(requestConfig).catch((error) => {
-    [errorMessage, _] = handleAxiosError(error);
-    if (errorMessage != "Error: Image already exists!" && !errorMessage.startsWith('Payment error')) {
-      console.log(error);
-      console.log("Error in zkwasm_setup. Please retry.");
+  let isRetry;
+  let response
+  let retry_time = 1;
+  for (let i = 0; i < retry_time + 1; i++){
+    
+        response = await axios.request(requestConfig).catch((error) => {
+        [errorMessage, isRetry] = handleAxiosError(error);
+        if (!isRetry && errorMessage != "Error: Image already exists!" && !errorMessage.startsWith('Payment error')) {
+          console.error(error);
+          console.error("Error in zkwasm_setup. Please retry.");
+        }
+        isSetUpSuccess = false;
+        // errorMessage = error.response.data;
+      });
+      if (!isRetry) {
+        break;
+      }
+      console.log(errorMessage, "retrying..")
     }
-    isSetUpSuccess = false;
-    // errorMessage = error.response.data;
-  });
   return [response, isSetUpSuccess, errorMessage];
 }
