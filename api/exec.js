@@ -36,8 +36,7 @@ export async function execute(basePath, wasmPath, yamlPath, rpcUrl, blockid, isL
  * @param {string} basePath 
  * @param {string} wasmPath 
  * @param {string} yamlPath 
- * @param {string} rpcUrl 
- * @param {number | string} blockid 
+ * @param {Array<string>} rawreceiptList 
  * @param {boolean} isLocal 
  * @param {boolean} enableLog 
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
