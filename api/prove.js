@@ -40,7 +40,9 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
       md5,
       publicInputArray,
       privateInputArray,
-    );
+    ).catch((error) => {
+      throw error;
+    });
 
     if (enableLog) {
         console.log(`[*] IMAGE MD5: ${md5}`, "\n");
@@ -68,11 +70,14 @@ export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmPro
 
       let taskDetails;
       try {
-        taskDetails = await waitTaskStatus(zkwasmProverUrl, taskId, ["Done", "Fail", "DryRunFailed"], 3000, 0); //TODO: timeout
+        taskDetails = await waitTaskStatus(zkwasmProverUrl, taskId, ["Done", "Fail", "DryRunFailed"], 3000, 0).catch((err) => {
+          throw err;
+        }) //TODO: timeout
       } catch (error) {
         loading.stopAndClear();
-        console.error(error);
-        process.exit(1);
+        throw error;
+        // console.error(error);
+        // process.exit(1);
       }
 
       if (taskDetails.status === "Done") {

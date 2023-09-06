@@ -45,13 +45,15 @@ export async function publish(
       ipfsHash
     )
     .catch((err) => {
-      if (enableLog === true) console.log(`[-] ERROR WHEN CONSTRUCTING TX: ${err}`, "\n");
-      return "";
+      throw err;
+      // if (enableLog === true) console.log(`[-] ERROR WHEN CONSTRUCTING TX: ${err}`, "\n");
+      // return "";
     });
 
   const signedTx = await wallet.signTransaction(tx).catch((err) => {
-    if (enableLog === true) console.log(`[-] ERROR WHEN SIGNING TX: ${err}`, "\n");
-    return "";
+    throw err;
+    // if (enableLog === true) console.log(`[-] ERROR WHEN SIGNING TX: ${err}`, "\n");
+    // return "";
   });
 
   let loading;
@@ -61,6 +63,7 @@ export async function publish(
   }
 
   const txReceipt = await tx.wait(1).catch((err) => {
+    throw err;
     if (enableLog === true) {
       console.log(`[-] ERROR WHEN WAITING FOR TX: ${err}`, "\n")
       loading.stopAndClear();
