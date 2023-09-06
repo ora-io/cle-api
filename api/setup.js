@@ -128,9 +128,6 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
             `[${taskStatus === "SUCCESS" ? "+" : "-"}] SET UP ${taskStatus}`,
             "\n",
         );
-
-        // Log extra new line before divider.
-        console.log();
     }
     // } else {
         // if(enableLog) {
