@@ -107,12 +107,8 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       const wasmModuleHex = response.data["wasmModuleHex"];
       const wasmWat = response.data["wasmWat"];
       const message = response.data["message"];
-      writeFileSync(wasmPath, fromHexString(wasmModuleHex)).catch((error) => {
-        throw error;
-      })
-      writeFileSync(watPath, wasmWat).catch((error) => {
-        throw error;
-      })
+      writeFileSync(wasmPath, fromHexString(wasmModuleHex))
+      writeFileSync(watPath, wasmWat)
     }
   }
 
