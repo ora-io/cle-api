@@ -20,7 +20,7 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
  * @param {string} ZkwasmProviderUrl
  * @param {boolean} isLocal
  * @param {boolean} enableLog
- * @returns {[string, object]} - errmsg, result = {'md5': md5, 'taskId': taskId}
+ * @returns {{string, boolean, string}} - md5, success, taskId = {'md5': md5, 'success': success, 'taskId': taskId}
  */
 export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
     let result = {'md5': null, 'taskId': null, 'success': null}
