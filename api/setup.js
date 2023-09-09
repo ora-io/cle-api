@@ -20,7 +20,7 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
  * @param {string} ZkwasmProviderUrl
  * @param {boolean} isLocal
  * @param {boolean} enableLog
- * @returns {{string, boolean, string}} - md5, success, taskId = {'md5': md5, 'success': success, 'taskId': taskId}
+ * @returns {[string, object]} - errmsg, result = {'md5': md5, 'taskId': taskId}
  */
 export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
     let result = {'md5': null, 'taskId': null, 'success': null}
@@ -30,6 +30,9 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
         cirSz = circuitSize
     } else { // if too ridiculous, set to default
         cirSz = isLocal ? 20 : 22;
+        if (enableLog){
+            console.warn("[-] Warning: circuit size [", cirSz,"] was impractical, reset to default:", cirSz)
+        }
     }
     // Message and form data
     const name = path.basename(wasmPath); // only use in zkwasm, can diff from local files
@@ -43,35 +46,65 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
         console.log(`[+] IMAGE MD5: ${md5}`, "\n");
     }
 
-    let response;
+    let taskDetails;
     let taskId;
     let setupStatus;
-    try{
-        response = await zkwasm_setup(
-            ZkwasmProviderUrl,
-            name,
-            md5,
-            image,
-            userPrivateKey,
-            description_url_encoded,
-            avator_url,
-            circuit_size
-        );
+    let isNeedWait = false;
+
+    await zkwasm_setup(
+        ZkwasmProviderUrl,
+        name,
+        md5,
+        image,
+        userPrivateKey,
+        description_url_encoded,
+        avator_url,
+        circuit_size
+    ).then(async (response) => {
         taskId = response.data.result.id;
 
-        let loading
+        isNeedWait = true;
+
         if(enableLog) {
             console.log(
                 `[+] SET UP TASK STARTED. TASK ID: ${taskId}`,
                 "\n",
             );
+        };
+    }).catch (async (error) => {
+        // return the last status if exists
+        if (error instanceof ImageAlreadyExists){
+            // check if there's any "Reset" task before
+            let res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Reset');
+            // if no "Reset", check "Setup"
+            if (res.data.result.total == 0){
+                res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Setup')
+            }
 
+            taskDetails = res.data.result.data[0];
+            taskId = res.data.result.data[0]._id.$oid;
+            setupStatus = res.data.result.data[0].status;
+
+            isNeedWait = (setupStatus == "Pending" || setupStatus == "Processing");
+
+            if(enableLog) {
+                console.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`, "\n",
+            );
+            }
+        } else {
+            throw error;
+        }
+    });
+
+    let loading;
+
+    if (isNeedWait){
+        if(enableLog) {
             console.log("[*] Please wait for image set up... (estimated: 1-5 min)", "\n");
-
             loading = logLoadingAnimation();
         }
 
-        const taskDetails = await waitTaskStatus(
+        taskDetails = await waitTaskStatus(
             ZkwasmProviderUrl,
             taskId,
             ["Done", "Fail"],
@@ -80,68 +113,27 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
         ); //TODO: timeout
         setupStatus = taskDetails.status;
 
-        taskPrettyPrint(taskDetails, "[*] ");
-            // if(enableLog) {
-            //     loading.stopAndClear();
-            //     console.error(error);
-            // }
-            // return "Unexpected error, please contact the dev if you can't solve it.", result
-        // } finally {
         if(enableLog) {
             loading.stopAndClear();
         }
-        // }
-
-    } catch (error){
-        if (error instanceof ImageAlreadyExists){
-            // return the last status;
-            // taskId = getSetupTaskIdByImage(md5)
-            let res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Reset');
-
-            // console.log(res.data.result.data[0]);
-            if (res.data.result.total == 0){
-                res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Setup')
-                // console.log(res);
-                // console.log(res.data.result.data[0]);
-            //     setupStatus = res.data.result.data[0].status;
-            // } else {
-            }
-            setupStatus = res.data.result.data[0].status;
-            taskId = res.data.result.data[0]._id.$oid;
-            if(enableLog) {
-                console.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`, "\n",
-            );
-            }
-        } else {
-            throw error;
-        }
     }
 
-    // if (isSetUpSuccess) {
-
-
-
     if(enableLog) {
+        taskPrettyPrint(taskDetails, "[*] ");
 
         const taskStatus = setupStatus === "Done" ? "SUCCESS" : "FAILED";
         console.log(
             `[${taskStatus === "SUCCESS" ? "+" : "-"}] SET UP ${taskStatus}`,
             "\n",
         );
-    }
-    // } else {
-        // if(enableLog) {
-        //     console.log(`[*] IMAGE MD5: ${md5}`, "\n");
 
-        //     // Log status
-        //     console.log(`[-] ${errorMessage}`, "\n");
-        // }
-    // }
+        // Log extra new line before divider.
+        console.log();
+    }
 
     result['md5'] = md5
     result['success'] = setupStatus === "Done" ? true : false;
     result['taskId'] = taskId;
     return result
 }
-
 
