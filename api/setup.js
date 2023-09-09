@@ -16,11 +16,12 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
 /**
  * Set up zkwasm image with given wasm file.
  * @param {string} wasmPath
+ * @param {number} circuitSize
  * @param {string} userPrivateKey
  * @param {string} ZkwasmProviderUrl
  * @param {boolean} isLocal
  * @param {boolean} enableLog
- * @returns {[string, object]} - errmsg, result = {'md5': md5, 'taskId': taskId}
+ * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
 export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
     let result = {'md5': null, 'taskId': null, 'success': null}
@@ -126,9 +127,6 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
             `[${taskStatus === "SUCCESS" ? "+" : "-"}] SET UP ${taskStatus}`,
             "\n",
         );
-
-        // Log extra new line before divider.
-        console.log();
     }
 
     result['md5'] = md5
