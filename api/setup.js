@@ -43,11 +43,12 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
         console.log(`[+] IMAGE MD5: ${md5}`, "\n");
     }
 
-    let response;
+    let taskDetails;
     let taskId;
     let setupStatus;
-    try{
-        response = await zkwasm_setup(
+    let isNeedWait = false;
+    // try{
+        await zkwasm_setup(
             ZkwasmProviderUrl,
             name,
             md5,
@@ -56,22 +57,87 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
             description_url_encoded,
             avator_url,
             circuit_size
-        );
-        taskId = response.data.result.id;
+        ).then(async (response) => {
+            taskId = response.data.result.id;
+            
+            isNeedWait = true;
+            
+            if(enableLog) {
+                console.log(
+                    `[+] SET UP TASK STARTED. TASK ID: ${taskId}`,
+                    "\n",
+                );
+    
+                // loading = logLoadingAnimation();
+            };
 
-        let loading
+
+            // const taskDetails = await waitTaskStatus(
+            //     ZkwasmProviderUrl,
+            //     taskId,
+            //     ["Done", "Fail"],
+            //     3000,
+            //     0,
+            // ); //TODO: timeout
+            // setupStatus = taskDetails.status;
+            
+                // if(enableLog) {
+                //     loading.stopAndClear();
+                //     console.error(error);
+                // }
+                // return "Unexpected error, please contact the dev if you can't solve it.", result
+            // } finally {
+            // if(enableLog) {
+            //     taskPrettyPrint(taskDetails, "[*] ");
+            //     loading.stopAndClear();
+            // }
+        }).catch (async (error) => {
+            if (error instanceof ImageAlreadyExists){
+                // return the last status;
+                // taskId = getSetupTaskIdByImage(md5)
+                let res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Reset');
+                
+                // console.log(res.data.result.data[0]);
+                if (res.data.result.total == 0){
+                    res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Setup')
+                    // console.log(res);
+                    // console.log(res.data.result.data[0]);
+                //     setupStatus = res.data.result.data[0].status;
+                // } else {
+                }
+
+                taskDetails = res.data.result.data[0];
+                taskId = res.data.result.data[0]._id.$oid;
+                setupStatus = res.data.result.data[0].status;
+
+                isNeedWait = (setupStatus == "Pending" || setupStatus == "Processing");
+
+                if(enableLog) {
+                    console.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`, "\n",
+                );
+                }
+            } else {
+                throw error;
+            }
+        });
+
+        
+        // }
+
+    
+
+    // if (isSetUpSuccess) {
+
+
+    let loading;
+
+    if (isNeedWait){
         if(enableLog) {
-            console.log(
-                `[+] SET UP TASK STARTED. TASK ID: ${taskId}`,
-                "\n",
-            );
-
             console.log("[*] Please wait for image set up... (estimated: 1-5 min)", "\n");
-
             loading = logLoadingAnimation();
         }
-        
-        const taskDetails = await waitTaskStatus(
+
+        taskDetails = await waitTaskStatus(
             ZkwasmProviderUrl,
             taskId,
             ["Done", "Fail"],
@@ -79,49 +145,14 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
             0,
         ); //TODO: timeout
         setupStatus = taskDetails.status;
-        
-        taskPrettyPrint(taskDetails, "[*] ");
-            // if(enableLog) {
-            //     loading.stopAndClear();
-            //     console.error(error);
-            // }
-            // return "Unexpected error, please contact the dev if you can't solve it.", result
-        // } finally {
+
         if(enableLog) {
             loading.stopAndClear();
         }
-        // }
-
-    } catch (error){
-        if (error instanceof ImageAlreadyExists){
-            // return the last status;
-            // taskId = getSetupTaskIdByImage(md5)
-            let res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Reset');
-            
-            // console.log(res.data.result.data[0]);
-            if (res.data.result.total == 0){
-                res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Setup')
-                // console.log(res);
-                // console.log(res.data.result.data[0]);
-            //     setupStatus = res.data.result.data[0].status;
-            // } else {
-            }
-            setupStatus = res.data.result.data[0].status;
-            taskId = res.data.result.data[0]._id.$oid;
-            if(enableLog) {
-                console.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`, "\n",
-            );
-            }
-        } else {
-            throw error;
-        }
     }
 
-    // if (isSetUpSuccess) {
-
-
-
     if(enableLog) {
+        taskPrettyPrint(taskDetails, "[*] ");
 
         const taskStatus = setupStatus === "Done" ? "SUCCESS" : "FAILED";
         console.log(
