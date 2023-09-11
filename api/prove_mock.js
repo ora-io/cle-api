@@ -4,12 +4,12 @@ import { ZKGraphRequireFailed } from "../common/error.js";
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
- * @param {string} yamlPath 
- * @param {string} rpcUrl 
- * @param {number | string} blockid 
- * @param {string} expectedStateStr 
- * @param {boolean} isLocal 
- * @param {boolean} enableLog 
+ * @param {string} yamlPath
+ * @param {string} rpcUrl
+ * @param {number | string} blockid
+ * @param {string} expectedStateStr
+ * @param {boolean} isLocal
+ * @param {boolean} enableLog
  * @returns {boolean} - the mock testing result
  */
 export async function proveMock(basePath, wasmPath, privateInputStr, publicInputStr) {
@@ -19,10 +19,12 @@ export async function proveMock(basePath, wasmPath, privateInputStr, publicInput
     mock.set_public_input(publicInputStr);
     setupZKWasmMock(mock);
 
-    const { zkmain } = await instantiateWasm(wasmPath, basePath);
+    const { zkmain } = await instantiateWasm(wasmPath, basePath).catch((error) => {
+        throw error
+    });
 
     try {
-        zkmain(); 
+        zkmain();
     } catch (e){
         if (e instanceof ZKGraphRequireFailed){
             return false

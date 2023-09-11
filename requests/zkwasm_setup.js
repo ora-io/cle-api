@@ -5,6 +5,7 @@ import { Wallet } from "ethers";
 import { ZkWasmUtil } from "zkwasm-service-helper";
 import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
+import { ImageAlreadyExists, PaymentError } from "../common/error.js";
 
 export async function zkwasm_setup(
   ZkwasmProviderUrl,
@@ -53,25 +54,33 @@ export async function zkwasm_setup(
     data: formData,
   };
 
+  let response;
+
   let errorMessage = "";
   let isRetry;
-  let response
+  //TODO: should change to setTimeInterval.
   let retry_time = 1;
   for (let i = 0; i < retry_time + 1; i++){
     
-        response = await axios.request(requestConfig).catch((error) => {
+    response = await axios.request(requestConfig).catch((error) => {
         [errorMessage, isRetry] = handleAxiosError(error);
-        if (!isRetry && errorMessage != "Error: Image already exists!" && !errorMessage.startsWith('Payment error')) {
-          console.error(error);
-          console.error("Error in zkwasm_setup. Please retry.");
+        if (isRetry){
+            // pass
+        } else if (errorMessage == "Error: Image already exists!"){
+            throw new ImageAlreadyExists(errorMessage);
+        } else if (errorMessage.startsWith('Payment error')){
+            throw new PaymentError(errorMessage);
+        } else {
+            // console.error("Error in zkwasm_setup. Please retry.");
+            throw error;
         }
-        isSetUpSuccess = false;
         // errorMessage = error.response.data;
       });
       if (!isRetry) {
         break;
       }
+      // for debug purpose, can delete after stable.
       console.log(errorMessage, "retrying..")
     }
-  return [response, isSetUpSuccess, errorMessage];
+  return response;
 }

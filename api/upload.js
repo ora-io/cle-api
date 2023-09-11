@@ -34,7 +34,9 @@ export async function upload(
     zkGraphName,
     pinataEndpoint,
     pinataJWT,
-  );
+  ).catch((error) => {
+    throw error;
+  });
 
   if (isUploadSuccess) {
     if (enableLog) {

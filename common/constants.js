@@ -66,7 +66,7 @@ export const contract_abi = {
   ],
 }
 
-export const addressFactory = '0x48116A4E299732201530ee88dDbd4FBE5e1f9B79';
+export const addressFactory = '0x6130cBBfa2C405a4c8FA1471b98dB2c7D99028B6';
 export const abiFactory = [
     "function getAllZkg() external view returns (address[] memory)",
     "function registry(address _bountyToken, uint256 _bountyReward, address _verifier, address _destAddr, string memory _graphURI) external returns (address graph)",

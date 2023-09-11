@@ -10,8 +10,6 @@ const innerPrePrePath = 'build/tmp/inner_pre_pre.wasm'
 const wasmStartName = "__as_start"
 
 export function compileInner(){
-
-
     const commands = [
       `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}  --memoryBase 70000`, 
     ];
@@ -55,8 +53,9 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       isCompilationSuccess = true;
     } catch (error) {
       isCompilationSuccess = false;
+      throw error;
     }
-    
+
   }
   // Remote Compile
   else {
@@ -69,10 +68,11 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
 
     let err = compileInner();
     if (err != null){
-        if (enableLog === true) {
-            console.log(`[-] ${err}`);
-        }
-        return false;
+        throw err;
+        // if (enableLog === true) {
+        //     console.log(`[-] ${err}`);
+        // }
+        // return false;
     }
 
 
@@ -95,10 +95,11 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
 
     // Send request
     const response = await axios.request(requestConfig).catch((error) => {
-      if (enableLog === true) {
-        console.log(`[-] ${error.message} ${error.code}`);
-      }
-      isCompilationSuccess = false;
+      throw error;
+      // if (enableLog === true) {
+      //   console.log(`[-] ${error.message} ${error.code}`);
+      // }
+      // isCompilationSuccess = false;
     });
 
     if (isCompilationSuccess) {
@@ -106,8 +107,8 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       const wasmModuleHex = response.data["wasmModuleHex"];
       const wasmWat = response.data["wasmWat"];
       const message = response.data["message"];
-      writeFileSync(wasmPath, fromHexString(wasmModuleHex));
-      writeFileSync(watPath, wasmWat);
+      writeFileSync(wasmPath, fromHexString(wasmModuleHex))
+      writeFileSync(watPath, wasmWat)
     }
   }
 
