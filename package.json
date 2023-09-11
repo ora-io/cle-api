@@ -1,6 +1,6 @@
 {
   "name": "@hyperoracle/zkgraph-api",
-  "version": "0.0.25",
+  "version": "0.1.1",
   "description": "API for interacting with Hyper Oracle zkGraphs",
   "main": "index.js",
   "scripts": {
