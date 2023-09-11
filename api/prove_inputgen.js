@@ -83,10 +83,10 @@ export async function proveInputGenOnRawReceipts(yamlPath, rawreceiptList, block
       formatHexStringInput(receiptsRoot);
   }
 
-  if (enableLog){
-    console.log("[+] ZKGRAPH STATE OUTPUT:", expectedStateStr, "\n");
-    console.log("[+] PRIVATE INPUT FOR ZKWASM:", "\n" + privateInputStr, "\n");
-    console.log("[+] PUBLIC INPUT FOR ZKWASM:", "\n" + publicInputStr, "\n");
-  }
+//   if (enableLog){
+//     console.log("[+] ZKGRAPH STATE OUTPUT:", expectedStateStr, "\n");
+//     console.log("[+] PRIVATE INPUT FOR ZKWASM:", "\n" + privateInputStr, "\n");
+//     console.log("[+] PUBLIC INPUT FOR ZKWASM:", "\n" + publicInputStr, "\n");
+//   }
   return [privateInputStr, publicInputStr]
 }
