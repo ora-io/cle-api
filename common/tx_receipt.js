@@ -49,6 +49,7 @@ export class TxReceipt {
     for (let i = 0; i < events.length; i++) {
       if (events[i].match(wantedAddressList, wantedEsigsList)){
         rst.push(events[i]);
+        // TODO: double check: what if there's more than 1 events matched?
         // break;
       }
     }

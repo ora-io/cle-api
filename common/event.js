@@ -38,6 +38,36 @@ export class Event {
     );
     console.log("");
   }
+  //TODO: deprecated, can rm
+  match_one(wantedAddress, wantedEsigs){
+    if (areEqualArrays(this.address, wantedAddress)) {
+        let esig = this.topics[0];
+        for (let j = 0; j < wantedEsigs.length; j++) {
+          if (areEqualArrays(esig, wantedEsigs[j])) {
+            rst.push(this);
+            break;
+          }
+        }
+      }
+  }
+
+  match(wantedAddressList, wantedEsigsList){
+    if (wantedAddressList.length != wantedEsigsList.length) {
+        throw new Error("[-] source address list length != source event signature list length.")
+    }
+    for (let i = 0; i < wantedAddressList.length; i ++){
+        if (areEqualArrays(this.address, wantedAddressList[i])) {
+            let esig = this.topics[0];
+            let wantedEsigs = wantedEsigsList[i];
+            for (let j = 0; j < wantedEsigs.length; j++) {
+                if (areEqualArrays(esig, wantedEsigs[j])) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
+  }
 
   match_one(wantedAddress, wantedEsigs){
     if (areEqualArrays(this.address, wantedAddress)) {
