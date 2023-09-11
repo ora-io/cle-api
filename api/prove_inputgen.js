@@ -54,7 +54,7 @@ export async function proveInputGenOnRawReceipts(yamlPath, rawreceiptList, block
     expectedStateStr = trimPrefix(expectedStateStr, "0x");
     
     const [rawReceipts, matchedEventOffsets] = await filterEvents(yamlPath, rawreceiptList, enableLog)
-  
+    
   // Declare inputs
   let privateInputStr, publicInputStr;
   
@@ -78,10 +78,10 @@ export async function proveInputGenOnRawReceipts(yamlPath, rawreceiptList, block
       formatHexStringInput(receiptsRoot);
   }
 
-  if (enableLog){
-    console.log("[+] ZKGRAPH STATE OUTPUT:", expectedStateStr, "\n");
-    console.log("[+] PRIVATE INPUT FOR ZKWASM:", "\n" + privateInputStr, "\n");
-    console.log("[+] PUBLIC INPUT FOR ZKWASM:", "\n" + publicInputStr, "\n");
-  }
+//   if (enableLog){
+//     console.log("[+] ZKGRAPH STATE OUTPUT:", expectedStateStr, "\n");
+//     console.log("[+] PRIVATE INPUT FOR ZKWASM:", "\n" + privateInputStr, "\n");
+//     console.log("[+] PUBLIC INPUT FOR ZKWASM:", "\n" + publicInputStr, "\n");
+//   }
   return [privateInputStr, publicInputStr]
 }
