@@ -41,11 +41,12 @@ if (isDeploySuccess) {
   try {
     taskDetails = await waitTaskStatus(zkwasmProviderUrl, taskId, ["Done", "Fail"], 3000, 0); //TODO: timeout
   } catch (error) {
-    if (enableLog === true) {
-      loading.stopAndClear();
-      console.error(error);
-    }
-    return "";
+    throw error;
+    // if (enableLog === true) {
+    //   loading.stopAndClear();
+    //   console.error(error);
+    // }
+    // return "";
   }
 
   if (taskDetails.status === "Done") {

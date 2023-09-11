@@ -30,6 +30,22 @@ async function instantiate(module, imports = {}) {
         // to compatible with c-wasm
         console.log(arg);
       },
+    //   printDec(arg) {
+    //     process.stdout.write(arg);
+    //   },
+    //   printHex(arg) {
+    //     process.stdout.write(arg.toString(16));
+    //   },
+    //   printSp() {
+    //     process.stdout.write(' ');
+    //   },
+    //   printLn() {
+    //     console.log();
+    //   },
+    //   c_log(arg) {
+    //     // to compatible with c-wasm
+    //     console.log('c_log: ', arg);
+    //   },
     }),
   };
   const { exports } = await WebAssembly.instantiate(module, adaptedImports);

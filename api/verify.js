@@ -31,7 +31,10 @@ export async function verify(
   const targetNetwork = getTargetNetwork(networkName);
 
   // Check task status of prove.
-  const taskDetails = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ["Done", "Fail"], 3000, 0); //TODO: timeout
+  const taskDetails = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ["Done", "Fail"], 3000, 0).catch((err) => {
+    throw err;
+  })
+   //TODO: timeout
   if (taskDetails.status !== "Done") {
     if (enableLog === true) console.log("[-] PROVE TASK IS NOT DONE. EXITING...", "\n");
     verificationResult = false;
@@ -39,7 +42,9 @@ export async function verify(
 
   // Get deployed contract address of verification contract.
   const imageId = taskDetails.md5;
-  const [imageStatus, error] = await zkwasm_imagedetails(ZkwasmProviderUrl, imageId);
+  const [imageStatus, error] = await zkwasm_imagedetails(ZkwasmProviderUrl, imageId).catch((err) => {
+    throw err;
+  });
   const imageDeployment = imageStatus.data.result[0].deployment;
   const deployedContractInfo = imageDeployment.find(
     (x) => x.chain_id === targetNetwork.value
@@ -74,11 +79,12 @@ export async function verify(
     .verify(proof, instances, aux, [arg])
     .call()
     .catch((err) => {
-      if (enableLog === true) {
-        console.log(`[-] VERIFICATION FAILED.`, "\n");
-        console.log(`[*] ${err}`, "\n");
-      }
-      verificationResult = false;
+      throw err;
+      // if (enableLog === true) {
+      //   console.log(`[-] VERIFICATION FAILED.`, "\n");
+      //   console.log(`[*] ${err}`, "\n");
+      // }
+      // verificationResult = false;
     });
 
   if (verificationResult !== false) {
