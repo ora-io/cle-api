@@ -1,4 +1,4 @@
-import { fromHexString, toHexString } from "./utils.js";
+import { fromHexString, toHexString, areEqualArrays } from "./utils.js";
 export class Event {
   constructor(
     address,
@@ -37,6 +37,36 @@ export class Event {
       withoffsets ? this.data_offset : "",
     );
     console.log("");
+  }
+
+  match_one(wantedAddress, wantedEsigs){
+    if (areEqualArrays(this.address, wantedAddress)) {
+        let esig = this.topics[0];
+        for (let j = 0; j < wantedEsigs.length; j++) {
+          if (areEqualArrays(esig, wantedEsigs[j])) {
+            rst.push(this);
+            break;
+          }
+        }
+      }
+  }
+
+  match(wantedAddressList, wantedEsigsList){
+    if (wantedAddressList.length != wantedEsigsList.length) {
+        throw new Error("[-] source address list length != source event signature list length.")
+    }
+    for (let i = 0; i < wantedAddressList.length; i ++){
+        if (areEqualArrays(this.address, wantedAddressList[i])) {
+            let esig = this.topics[0];
+            let wantedEsigs = wantedEsigsList[i];
+            for (let j = 0; j < wantedEsigs.length; j++) {
+                if (areEqualArrays(esig, wantedEsigs[j])) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
   }
 
   static fromRlp(rlpdata) {
