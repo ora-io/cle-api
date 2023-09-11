@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 import { createReadStream, readFileSync, writeFileSync } from "fs";
-import { loadZKGraphConfig } from "../common/config_utils.js";
+import { loadZKGraphSources } from "../common/config_utils.js";
 import { concatHexStrings, fromHexString } from "../common/utils.js";
 import axios from "axios";
 import FormData from "form-data";
@@ -13,7 +13,7 @@ export function compileInner(){
 
 
     const commands = [
-      `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}`, 
+      `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}  --memoryBase 70000`, 
     ];
 
     const combinedCommand = commands.join(" && ");
@@ -46,7 +46,7 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
   // Local Compile
   if (isLocal === true) {
     const commands = [
-      `npx asc node_modules/@hyperoracle/zkgraph-lib/main_local.ts -t ${watPath} -O --noAssert -o ${wasmPath} --disable bulk-memory --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --exportRuntime --runtime stub`, // note: need --exportRuntime or --bindings esm; (--target release)
+      `npx asc node_modules/@hyperoracle/zkgraph-lib/main_local.ts -t ${watPath} -O --noAssert -o ${wasmPath} --disable bulk-memory --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --exportRuntime --runtime stub --memoryBase 70000`, // note: need --exportRuntime or --bindings esm; (--target release)
     ];
     const combinedCommand = commands.join(" && ");
 
@@ -61,7 +61,7 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
   // Remote Compile
   else {
     // Load config
-    const [source_address, source_esigs] = loadZKGraphConfig(yamlPath);
+    const [source_address, source_esigs] = loadZKGraphSources(yamlPath);
     if (enableLog === true) {
       console.log("[*] Source contract address:", source_address);
       console.log("[*] Source events signatures:", source_esigs, "\n");
