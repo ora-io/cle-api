@@ -74,7 +74,7 @@ if (isDeploySuccess) {
     if (enableLog === true) {
       loading.stopAndClear();
       console.log("[-] DEPLOY FAILED.", "\n");
-      console.log(`[-] ${taskDetails.internal_message}`, "\n");
+      console.log(`[-] ${taskDetails.internal_message}`);
     }
 
     return "";
