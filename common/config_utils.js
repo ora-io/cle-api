@@ -1,5 +1,6 @@
 import yaml from "js-yaml";
 import fs from "fs";
+import semver from "semver";
 import { ethers } from "ethers";
 
 function loadYaml(fname) {
@@ -16,8 +17,8 @@ function loadYaml(fname) {
 export function healthCheck(config) {
 
   // 1. specVersion check
-  if (config.specVersion === "0.0.1") {
-    throw new Error("Invalid specVersion, it should be = 0.0.1");
+  if (semver.gt(config.specVersion, '0.0.1')) {
+    throw new Error("Invalid specVersion, it should be <= 0.0.1");
   }
 
   // 3. datasources can have multiple objects, but should not be empty
@@ -42,7 +43,7 @@ export function healthCheck(config) {
     }
 
     // 2. apiVersion → zkgraph-lib version check
-    if (dataSource.mapping.apiVersion === "0.0.1") {
+    if (semver.gt(dataSource.mapping.apiVersion, '0.0.1')) {
       throw new Error("Invalid apiVersion, it should be <= 0.0.1");
     }
 
