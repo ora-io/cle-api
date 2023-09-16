@@ -84,8 +84,10 @@ export function yamlhealthCheck(config) {
   }
 
   // 11. data destination must have network and destination
-  if (!config.dataDestinations || !config.dataDestinations[0].network || !config.dataDestinations[0].destination) {
-    throw new Error("dataDestinations object is missing required fields");
+  if (config.dataDestinations) {
+    if (!config.dataDestinations[0].network || !config.dataDestinations[0].destination) {
+      throw new Error("dataDestinations object is missing required fields");
+    }
   }
 
   // 12. the network must be same as the source network
@@ -95,17 +97,20 @@ export function yamlhealthCheck(config) {
   // }
 
   // 13. address must be the ethereum address and not address zero
-  if (!isEthereumAddress(config.dataDestinations[0].destination)) {
+  if (!isEthereumAddress(config.dataDestinations[0].destination.address)) {
     throw new Error("Invalid Ethereum address in dataDestinations");
   }
 }
 
 export function isEthereumAddress(address) {
-  if (!/^0x[a-fA-F0-9]{40}$/.test(address) || address === '0x0000000000000000000000000000000000000000') {
+  try {
+    const parsedAddress = ethers.utils.getAddress(address);
+    return parsedAddress !== '0x0000000000000000000000000000000000000000';
+  } catch (error) {
     return false;
   }
-  return true;
 }
+
 
 export function loadZKGraphSources(fname) {
   const config = loadYaml(fname);
