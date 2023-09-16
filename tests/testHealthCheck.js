@@ -34,3 +34,10 @@ try {
     console.log(e);
 }
 
+try {
+    const yaml5 = loadYaml('tests/testsrc/zkgraph5.yaml');
+    healthCheck(yaml5);
+    console.log("valid yaml5");
+} catch(e) {
+    console.log(e);
+}

@@ -89,14 +89,22 @@ export function healthCheck(config) {
   }
 
   // 12. the network must be same as the source network
-  if (config.dataDestinations[0].network !== sourceNetworks[0]) {
-    throw new Error("dataDestinations network must match dataSources network");
-  }
+  // TODO: right now we don't check the block hash, so skip the same network check
+  // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
+  //   throw new Error("dataDestinations network must match dataSources network");
+  // }
 
   // 13. address must be the ethereum address and not address zero
-  if (!/^0x[a-fA-F0-9]{40}$/.test(config.dataDestinations[0].destination.address) || config.dataDestinations[0].destination.address === '0x0000000000000000000000000000000000000000') {
+  if (!isEthereumAddress(config.dataDestinations[0].destination)) {
     throw new Error("Invalid Ethereum address in dataDestinations");
   }
+}
+
+export function isEthereumAddress(address) {
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address) || address === '0x0000000000000000000000000000000000000000') {
+    return false;
+  }
+  return true;
 }
 
 export function loadZKGraphSources(fname) {
