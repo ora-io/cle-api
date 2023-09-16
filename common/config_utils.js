@@ -14,7 +14,7 @@ export function loadYaml(fname) {
   }
 }
 
-export function healthCheck(config) {
+export function yamlhealthCheck(config) {
   // 1. specVersion check
 
   if (!config.specVersion || typeof config.specVersion !== 'string' || config.specVersion.trim() === '') {
@@ -109,7 +109,7 @@ export function isEthereumAddress(address) {
 
 export function loadZKGraphSources(fname) {
   const config = loadYaml(fname);
-  healthCheck(config)
+  yamlhealthCheck(config);
 //   const source_address = config.dataSources[0].source.address;
 
   let loadFromDataSource = (dataSource) => {
