@@ -88,6 +88,11 @@ export function yamlhealthCheck(config) {
     if (!config.dataDestinations[0].network || !config.dataDestinations[0].destination) {
       throw new Error("dataDestinations object is missing required fields");
     }
+
+    // 13. address must be the ethereum address and not address zero
+    if (!isEthereumAddress(config.dataDestinations[0].destination.address)) {
+      throw new Error("Invalid Ethereum address in dataDestinations");
+    }
   }
 
   // 12. the network must be same as the source network
@@ -95,11 +100,6 @@ export function yamlhealthCheck(config) {
   // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
   //   throw new Error("dataDestinations network must match dataSources network");
   // }
-
-  // 13. address must be the ethereum address and not address zero
-  if (!isEthereumAddress(config.dataDestinations[0].destination.address)) {
-    throw new Error("Invalid Ethereum address in dataDestinations");
-  }
 }
 
 export function isEthereumAddress(address) {
