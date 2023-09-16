@@ -12,11 +12,6 @@ dataSources:
       apiVersion: 0.0.1
       language: wasm/assemblyscript
       file: ./mapping.ts
-      eventHandlers:
-        - event: "Sync(uint112,uint112)"
-          handler: handleEvents
-        - event: "Sync1(uint112,uint112)"
-          handler: handleEvents
   - kind: ethereum/contract
     network: sepolia
     source:
@@ -33,4 +28,4 @@ dataDestinations:
   - kind: ethereum/contract
     network: sepolia
     destination:
-      address: "0x5c7a6cf20cbd3eef32e19b9cad4eca17c432a794"
+      address: "{Your Destination Contract Address Here}"

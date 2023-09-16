@@ -4,7 +4,7 @@ description: "Demo graph for zkAutomation. Use the source contract address as th
 repository: https://github.com/hyperoracle/zkgraph
 dataSources:
   - kind: ethereum/contract
-    network: sepolia
+    network: mainnet
     source:
       address: '0xa60ecf32309539dd84f27a9563754dca818b815e'
     mapping:
@@ -33,4 +33,4 @@ dataDestinations:
   - kind: ethereum/contract
     network: sepolia
     destination:
-      address: "0x5c7a6cf20cbd3eef32e19b9cad4eca17c432a794"
+      address: "{Your Destination Contract Address Here}"

@@ -3,7 +3,7 @@ import fs from "fs";
 import semver from "semver";
 import { ethers } from "ethers";
 
-function loadYaml(fname) {
+export function loadYaml(fname) {
   try {
     // Read the YAML file contents
     const fileContents = fs.readFileSync(fname, "utf8");
@@ -15,8 +15,12 @@ function loadYaml(fname) {
 }
 
 export function healthCheck(config) {
-
   // 1. specVersion check
+
+  if (!config.specVersion || typeof config.specVersion !== 'string' || config.specVersion.trim() === '') {
+    throw new Error("specVersion is missing or empty");
+  }
+
   if (semver.gt(config.specVersion, '0.0.1')) {
     throw new Error("Invalid specVersion, it should be <= 0.0.1");
   }
@@ -43,6 +47,10 @@ export function healthCheck(config) {
     }
 
     // 2. apiVersion → zkgraph-lib version check
+    if (!dataSource.mapping.apiVersion || typeof dataSource.mapping.apiVersion !== 'string' || dataSource.mapping.apiVersion.trim() === '') {
+      throw new Error("apiVersion is missing or empty in one of the dataSources");
+    }
+
     if (semver.gt(dataSource.mapping.apiVersion, '0.0.1')) {
       throw new Error("Invalid apiVersion, it should be <= 0.0.1");
     }
