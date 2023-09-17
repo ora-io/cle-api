@@ -11,3 +11,4 @@ export { verify } from "./api/verify.js";
 export { getRawReceipts, getBlockByNumber } from "./common/ethers_helper.js";
 export  * as Error from "./common/error.js"
 export { waitTaskStatus } from './requests/zkwasm_taskdetails.js';
+export { taskDispatch } from './api/task_dispatcher.js';
