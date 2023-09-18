@@ -35,7 +35,8 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
     "zkwasm-service-helper": "github:DelphinusLab/zkWasm-service-helper",
-    "web3-eth-contract": "^1.8.2"
+    "web3-eth-contract": "^1.8.2",
+    "semver": "^7.5.4"
   },
   "files": [
     "api",
