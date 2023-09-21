@@ -12,6 +12,7 @@ export { getRawReceipts, getBlockByNumber } from "./common/ethers_helper.js";
 export  * as Error from "./common/error.js"
 export {yamlhealthCheck} from './common/config_utils.js';
 export { waitTaskStatus } from './requests/zkwasm_taskdetails.js';
+export { taskDispatch } from './api/task_dispatcher.js';
 export { zkwasm_setup } from './requests/zkwasm_setup.js';
 export { zkwasm_prove } from './requests/zkwasm_prove.js';
 export { zkwasm_deploy } from './requests/zkwasm_deploy.js';
