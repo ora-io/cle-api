@@ -5,7 +5,7 @@ import * as zkgapi from "../index.js"
 
 let yamlPath = "tests/testsrc/zkgraph.yaml"
 let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
-let proveTaskId = "64e727a6abac08978a1415f9"
+let proveTaskId = "650ecd68a476965e5d9524ca"
 
 let enableLog = true
 
