@@ -18,10 +18,8 @@ export function compileInner(){
 
     try {
       execSync(combinedCommand, { encoding: "utf-8" });
-      return null;
     } catch (error) {
-    //   console.log(error)
-      return error;
+      throw error;
     }
 }
 
@@ -66,14 +64,7 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
       console.log("[*] Source events signatures:", source_esigs, "\n");
     }
 
-    let err = compileInner();
-    if (err != null){
-        throw err;
-        // if (enableLog === true) {
-        //     console.log(`[-] ${err}`);
-        // }
-        // return false;
-    }
+    compileInner();
 
 
     // Set up form data

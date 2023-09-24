@@ -1,6 +1,6 @@
 {
   "name": "@hyperoracle/zkgraph-api",
-  "version": "0.0.25",
+  "version": "0.1.2",
   "description": "API for interacting with Hyper Oracle zkGraphs",
   "exports": {
     ".": {
@@ -16,7 +16,8 @@
     "release": "npm publish --access public",
     "testexec": "node tests/testexec.js",
     "testprove": "node tests/testprove.js",
-    "testsetup": "node tests/testsetup.js"
+    "testsetup": "node tests/testsetup.js",
+    "testverify": "node tests/testverify.js"
   },
   "type": "module",
   "repository": {
@@ -43,8 +44,9 @@
     "js-yaml": "^4.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
+    "sm-service-helper": "github:DelphinusLab/zkWasm-service-helper",
     "web3-eth-contract": "^1.8.2",
-    "zkwasm-service-helper": "github:DelphinusLab/zkWasm-service-helper"
+    "semver": "^7.5.4"
   },
   "files": [
     "api",

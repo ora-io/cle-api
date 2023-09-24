@@ -3,7 +3,6 @@ import {
 } from "../common/utils.js";
 import { logLoadingAnimation } from "../common/log_utils.js";
 import { zkwasm_prove } from "../requests/zkwasm_prove.js";
-import { readFileSync } from "fs";
 import { ZkWasmUtil } from "zkwasm-service-helper";
 import {
   waitTaskStatus,
@@ -12,7 +11,7 @@ import {
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {string} wasmPath - the relative path to the wasm bin file
+ * @param {string} wasmUnit8Array - the uint8Array format of wasm bin file
  * @param {string} privateInputStr - the packed private input in hex string
  * @param {string} publicInputStr - the packed public input in hex string
  * @param {string} zkwasmProverUrl - the url of the zkwasm prover
@@ -20,16 +19,15 @@ import {
  * @param {boolean} enableLog - enable logging or not
  * @returns {object} - proof details in json
  */
-export async function prove(wasmPath, privateInputStr, publicInputStr, zkwasmProverUrl, userPrivateKey, enableLog=true) {
+export async function prove(wasmUnit8Array, privateInputStr, publicInputStr, zkwasmProverUrl, userPrivateKey, enableLog=true) {
     let result = {"instances":null, "batch_instances":null, "proof":null, "aux":null, "md5": null, "taskId": null};
 
     // Prove mode
-    const compiledWasmBuffer = readFileSync(wasmPath);
     const privateInputArray = privateInputStr.trim().split(" ");
     const publicInputArray = publicInputStr.trim().split(" ");
 
     // Message and form data
-    const md5 = ZkWasmUtil.convertToMd5(compiledWasmBuffer).toUpperCase();
+    const md5 = ZkWasmUtil.convertToMd5(wasmUnit8Array).toUpperCase();
 
     result['md5'] = md5
 

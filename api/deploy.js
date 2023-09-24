@@ -1,21 +1,20 @@
 import { zkwasm_deploy, get_deployed } from "../requests/zkwasm_deploy.js";
 import { ZkWasmUtil } from "zkwasm-service-helper";
-import { readFileSync } from "fs";
 import { logLoadingAnimation } from "../common/log_utils.js";
 import { waitTaskStatus } from "../requests/zkwasm_taskdetails.js";
 
 /**
  * Deploy verification contract for the given image {$wasmPath}
- * @param {string} wasmPath - the relative path to the wasm bin file
+ * @param {string} wasmUnit8Array - the uint8Array format of wasm bin file
  * @param {number} chainid - the chain id of the target network
  * @param {string} zkwasmProviderUrl - the url of the zkwasm prover
  * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - the deployed verification contract address if success, empty string otherwise
  */
-export async function deploy(wasmPath, chainid, zkwasmProviderUrl, userPrivateKey, enableLog = true) {
+export async function deploy(wasmUnit8Array, chainid, zkwasmProviderUrl, userPrivateKey, enableLog = true) {
   // Get md5
-  const md5 = ZkWasmUtil.convertToMd5(readFileSync(wasmPath)).toUpperCase();
+  const md5 = ZkWasmUtil.convertToMd5(wasmUnit8Array).toUpperCase();
   if (enableLog === true) console.log(`[*] IMAGE MD5: ${md5}`, "\n");
 
   let [response, isDeploySuccess, errorMessage] = await zkwasm_deploy(
