@@ -4,7 +4,6 @@ import { ZKGraphRequireFailed } from "../common/error.js";
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
- * @param {string} yamlPath
  * @param {string} rpcUrl
  * @param {number | string} blockid
  * @param {string} expectedStateStr
@@ -13,7 +12,7 @@ import { ZKGraphRequireFailed } from "../common/error.js";
  * @returns {boolean} - the mock testing result
  */
 export async function proveMock(basePath, wasmPath, privateInputStr, publicInputStr) {
-    // let [privateInputStr, publicInputStr] = await proveInputGen(yamlPath, rpcUrl, blockid, expectedStateStr, isLocal, enableLog)
+    // let [privateInputStr, publicInputStr] = await proveInputGen(yamlContent, rpcUrl, blockid, expectedStateStr, isLocal, enableLog)
     const mock = new ZKWASMMock();
     mock.set_private_input(privateInputStr);
     mock.set_public_input(publicInputStr);

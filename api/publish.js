@@ -9,7 +9,7 @@ import {logLoadingAnimation} from "../common/log_utils.js";
 
 /**
  * Publish and register zkGraph onchain.
- * @param {string} yamlPath - the relative path to the yaml file
+ * @param {string} yamlContent - the content to the yaml file
  * @param {string} rpcUrl - the rpc url of the target network
  * @param {string} deployedContractAddress - the deployed verification contract address
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
@@ -19,7 +19,7 @@ import {logLoadingAnimation} from "../common/log_utils.js";
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function publish(
-  yamlPath,
+  yamlContent,
   rpcUrl,
   deployedContractAddress,
   ipfsHash,
@@ -27,8 +27,8 @@ export async function publish(
   userPrivateKey,
   enableLog = true,
 ) {
-  const networkName = loadZKGraphDestinations(yamlPath)[0].network;
-  const destinationContractAddress = loadZKGraphDestinations(yamlPath)[0].destination.address;
+  const networkName = loadZKGraphDestinations(yamlContent)[0].network;
+  const destinationContractAddress = loadZKGraphDestinations(yamlContent)[0].destination.address;
 
   const provider = new providers.JsonRpcProvider(rpcUrl);
 

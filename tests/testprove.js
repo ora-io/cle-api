@@ -1,3 +1,5 @@
+import fs from "fs";
+
 // import * as zkgapi from "@hyperoracle/zkgraph-api"
 import * as zkgapi from "../index.js"
 
@@ -47,8 +49,9 @@ const receiptsRoot = block.receiptsRoot;
 // console.log(blockHash)
 // console.log(receiptsRoot)
 
+const yamlContent =fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
 let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
-    "tests/testsrc/zkgraph.yaml", 
+    yamlContent,
     rawReceiptList, 
     blockNumber,
     blockHash,
@@ -71,8 +74,11 @@ let mock_succ = await zkgapi.proveMock(
 console.log('mock succ:', mock_succ)
 
 
+// const wasm = fs.readFileSync("tests/build/zkgraph_local.wasm");
+// const wasmUnit8Array = new Uint8Array(wasm);
+
 // let [err, result] = await zkgapi.prove(
-//     'tests/build/zkgraph_local.wasm', 
+//     wasmUnit8Array, 
 //     pri,
 //     pub,
 //     "https://zkwasm-explorer.delphinuslab.com:8090",

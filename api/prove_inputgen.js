@@ -9,11 +9,12 @@ import {
     toHexString,
     trimPrefix,
   } from "../common/utils.js";
+  import { loadZKGraphSources } from "../common/config_utils.js";
 import { providers } from "ethers";
 
 /**
  * Generate the private and public inputs in hex string format
- * @param {string} yamlPath
+ * @param {string} yamlContent
  * @param {string} rpcUrl
  * @param {number | string} blockid
  * @param {string} expectedStateStr
@@ -21,7 +22,7 @@ import { providers } from "ethers";
  * @param {boolean} enableLog
  * @returns {[string, string]} - private input string, public input string
  */
-export async function proveInputGen(yamlPath, rpcUrl, blockid, expectedStateStr, isLocal=false, enableLog=true) {
+export async function proveInputGen(yamlContent, rpcUrl, blockid, expectedStateStr, isLocal=false, enableLog=true) {
     const provider = new providers.JsonRpcProvider(rpcUrl);
 
     // Fetch raw receipts
@@ -49,14 +50,15 @@ export async function proveInputGen(yamlPath, rpcUrl, blockid, expectedStateStr,
     const blockHash = block.hash;
     const receiptsRoot = block.receiptsRoot;
 
-    return await proveInputGenOnRawReceipts(yamlPath, rawreceiptList, blockNumber, blockHash, receiptsRoot, expectedStateStr, isLocal, enableLog)
+    return await proveInputGenOnRawReceipts(yamlContent, rawreceiptList, blockNumber, blockHash, receiptsRoot, expectedStateStr, isLocal, enableLog)
 }
 
-export async function proveInputGenOnRawReceipts(yamlPath, rawreceiptList, blockNumber, blockHash, receiptsRoot, expectedStateStr, isLocal=false, enableLog=true) {
+export async function proveInputGenOnRawReceipts(yamlContent, rawreceiptList, blockNumber, blockHash, receiptsRoot, expectedStateStr, isLocal=false, enableLog=true) {
 
     expectedStateStr = trimPrefix(expectedStateStr, "0x");
 
-    const [rawReceipts, matchedEventOffsets] = await filterEvents(yamlPath, rawreceiptList, enableLog).catch((error) => {
+    const [sourceAddressList, sourceEsigsList] = loadZKGraphSources(yamlContent);
+    const [rawReceipts, matchedEventOffsets] = await filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog).catch((error) => {
       throw error;
     });
 

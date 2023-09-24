@@ -1,8 +1,9 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+
 import { TxReceipt } from "./tx_receipt.js";
-import { providers } from "ethers";
-import { getRawReceipts } from "./ethers_helper.js";
 import { trimPrefix, fromHexString } from "./utils.js";
-import { loadZKGraphSources } from "./config_utils.js";
 import { logReceiptAndEvents } from "./log_utils.js";
 import assert from "assert";
 
@@ -91,10 +92,7 @@ export function formatVarLenInput(input) {
   return formatted;
 }
 
-export async function filterEvents(yamlPath, rawreceiptList, enableLog){
-    // Load config
-    const [sourceAddressList, sourceEsigsList] = loadZKGraphSources(yamlPath);
-
+export async function filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog){
     if (enableLog) {
         // if (sourceAddressList.length <= 1) {
         //     console.log("[*] Source address", sourceAddressList);
@@ -134,3 +132,20 @@ export async function filterEvents(yamlPath, rawreceiptList, enableLog){
 
     return [rawReceipts, matchedEventOffsets]
 }
+
+export function createFileFromUint8Array(array, fileName) {
+  // Check if running in a Node.js environment
+  if (typeof window === 'undefined') {
+    const tempDir = os.tmpdir();
+    const filePath = path.join(tempDir, fileName)
+    fs.writeFileSync(filePath, array);
+    return fs.createReadStream(filePath);
+  } else {
+    // Running in a browser environment
+    return new File( [array], fileName, {
+      type: "application/wasm",
+      lastModified: Date.now()
+  });
+  }
+}
+

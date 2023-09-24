@@ -13,21 +13,21 @@ import { contract_abi } from "../common/constants.js";
 
 /**
  * Verify zk proof onchain.
- * @param {string} yamlPath
+ * @param {string} yamlContent
  * @param {string} proveTaskId
  * @param {string} ZkwasmProviderUrl
  * @param {boolean} enableLog
  * @returns {boolean} - true if verification success, false otherwise.
  */
 export async function verify(
-  yamlPath,
+  yamlContent,
   proveTaskId,
   ZkwasmProviderUrl,
   enableLog = true
 ) {
   let verificationResult;
 
-  const networkName = loadZKGraphDestinations(yamlPath)[0].network;
+  const networkName = loadZKGraphDestinations(yamlContent)[0].network;
   const targetNetwork = getTargetNetwork(networkName);
 
   // Check task status of prove.

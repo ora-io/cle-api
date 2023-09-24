@@ -5,19 +5,20 @@ import {
 import { instantiateWasm } from "../common/bundle.js";
 import { providers } from "ethers";
 import { getRawReceipts } from "../common/ethers_helper.js";
+import { loadZKGraphSources } from "../common/config_utils.js";
 
 /**
- * Execute the given zkgraph {$wasmPath, $yamlPath} in the context of $blockid
+ * Execute the given zkgraph {$wasmPath, $yamlContent} in the context of $blockid
  * @param {string} basePath
  * @param {string} wasmPath
- * @param {string} yamlPath
+ * @param {string} yamlContent
  * @param {string} rpcUrl
  * @param {number | string} blockid
  * @param {boolean} isLocal
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
-export async function execute(basePath, wasmPath, yamlPath, rpcUrl, blockid, isLocal=false, enableLog=true) {
+export async function execute(basePath, wasmPath, yamlContent, rpcUrl, blockid, isLocal=false, enableLog=true) {
 
     const provider = new providers.JsonRpcProvider(rpcUrl);
 
@@ -30,23 +31,24 @@ export async function execute(basePath, wasmPath, yamlPath, rpcUrl, blockid, isL
         console.log(`[*] Run zkgraph on block ${blockid}\n`);
     }
 
-    return await executeOnRawReceipts(basePath, wasmPath, yamlPath, rawreceiptList, isLocal, enableLog)
+    return await executeOnRawReceipts(basePath, wasmPath, yamlContent, rawreceiptList, isLocal, enableLog)
 }
 
 /**
- * Execute the given zkgraph {$wasmPath, $yamlPath} in the context of $blockid
+ * Execute the given zkgraph {$wasmPath, $yamlContent} in the context of $blockid
  * @param {string} basePath
  * @param {string} wasmPath
- * @param {string} yamlPath
+ * @param {string} yamlContent
  * @param {Array<string>} rawreceiptList
  * @param {boolean} isLocal
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
-export async function executeOnRawReceipts(basePath, wasmPath, yamlPath, rawreceiptList, isLocal=false, enableLog=true) {
+export async function executeOnRawReceipts(basePath, wasmPath, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
 
+    const [sourceAddressList, sourceEsigsList] = loadZKGraphSources(yamlContent);
     // Fetch receipts and filter
-    const [rawReceipts, matchedEventOffsets] = await filterEvents(yamlPath, rawreceiptList, enableLog).catch((error) => {
+    const [rawReceipts, matchedEventOffsets] = await filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog).catch((error) => {
       throw error;
     })
 

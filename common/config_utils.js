@@ -14,6 +14,15 @@ export function loadYaml(fname) {
   }
 }
 
+export function loadYamlContent(fileContent) {
+  try {
+    // Parse the YAML content
+    return yaml.load(fileContent);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export function yamlhealthCheck(config) {
   // 1. specVersion check
 
@@ -112,8 +121,8 @@ export function isEthereumAddress(address) {
 }
 
 
-export function loadZKGraphSources(fname) {
-  const config = loadYaml(fname);
+export function loadZKGraphSources(yamlContent) {
+  const config = loadYamlContent(yamlContent);
   yamlhealthCheck(config);
 
   let loadFromDataSource = (dataSource) => {
@@ -139,8 +148,8 @@ export function loadZKGraphName(fname) {
 }
 
 
-export function loadZKGraphDestinations(fname) {
-  const config = loadYaml(fname);
+export function loadZKGraphDestinations(fileContent) {
+  const config = loadYamlContent(fileContent);
   return config.dataDestinations;
 
 }

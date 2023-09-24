@@ -1,3 +1,5 @@
+import fs from "fs";
+
 // import * as zkgapi from "@hyperoracle/zkgraph-api"
 import * as zkgapi from "../index.js"
 
@@ -7,6 +9,8 @@ let proveTaskId = "64e727a6abac08978a1415f9"
 
 let enableLog = true
 
-let result = await zkgapi.verify(yamlPath, proveTaskId, ZkwasmProviderUrl, enableLog)
+
+const yamlContent = fs.readFileSync(yamlPath, "utf8");
+let result = await zkgapi.verify(yamlContent, proveTaskId, ZkwasmProviderUrl, enableLog)
 
 console.log(result)
