@@ -7,7 +7,8 @@
     "release": "npm publish --access public",
     "testexec": "node tests/testexec.js",
     "testprove": "node tests/testprove.js",
-    "testsetup": "node tests/testsetup.js"
+    "testsetup": "node tests/testsetup.js",
+    "testverify": "node tests/testverify.js"
   },
   "type": "module",
   "repository": {
