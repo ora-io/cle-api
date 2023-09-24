@@ -1,5 +1,3 @@
-import {readFileSync} from "fs";
-import fs from "fs";
 import {ZkWasmUtil} from "zkwasm-service-helper";
 import {
     logLoadingAnimation
@@ -9,13 +7,14 @@ import {
     waitTaskStatus,
     taskPrettyPrint,
 } from "../requests/zkwasm_taskdetails.js";
-import path from "path";
+import { createFileFromUint8Array } from "../common/api_helper.js";
 import { ImageAlreadyExists } from "../common/error.js";
 import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
 
 /**
  * Set up zkwasm image with given wasm file.
- * @param {string} wasmPath
+ * @param {string} wasmName
+ * @param {string} wasmUnit8Array
  * @param {number} circuitSize
  * @param {string} userPrivateKey
  * @param {string} ZkwasmProviderUrl
@@ -23,7 +22,7 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
  * @param {boolean} enableLog
  * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
-export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
+export async function setup(wasmName, wasmUnit8Array, circuitSize, userPrivateKey, ZkwasmProviderUrl, isLocal = false, enableLog = true) {
     let result = {'md5': null, 'taskId': null, 'success': null}
 
     let cirSz;
@@ -35,10 +34,9 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
             console.warn("[-] Warning: circuit size [", cirSz,"] was impractical, reset to default:", cirSz)
         }
     }
-    // Message and form data
-    const name = path.basename(wasmPath); // only use in zkwasm, can diff from local files
-    const md5 = ZkWasmUtil.convertToMd5(readFileSync(wasmPath)).toUpperCase();
-    const image = fs.createReadStream(wasmPath);
+
+    const md5 = ZkWasmUtil.convertToMd5(wasmUnit8Array).toUpperCase();
+    const image = createFileFromUint8Array(wasmUnit8Array, wasmName);
     const description_url_encoded = "";
     const avator_url = "";
     const circuit_size = cirSz;
@@ -54,7 +52,7 @@ export async function setup(wasmPath, circuitSize, userPrivateKey, ZkwasmProvide
 
     await zkwasm_setup(
         ZkwasmProviderUrl,
-        name,
+        wasmName,  // only use in zkwasm, can diff from local files
         md5,
         image,
         userPrivateKey,
