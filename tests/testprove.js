@@ -63,11 +63,10 @@ let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
 // console.log(pri)
 // console.log(pub)
 
-let basePath = import.meta.url + '/../../'
-
+const wasm = fs.readFileSync("tests/build/zkgraph_local.wasm");
+const wasmUnit8Array = new Uint8Array(wasm);
 let mock_succ = await zkgapi.proveMock(
-        basePath,
-        'tests/build/zkgraph_local.wasm', 
+        wasmUnit8Array, 
         pri,
         pub)
 

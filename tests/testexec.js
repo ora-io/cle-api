@@ -18,11 +18,12 @@ const provider = new providers.JsonRpcProvider(rpcUrl);
 let rawReceiptList = await zkgapi.getRawReceipts(provider, blocknumfortest.sepolia, false);
 // console.log(rawReceiptList)
 
+const wasm = fs.readFileSync("tests/build/zkgraph_local.wasm");
+const wasmUnit8Array = new Uint8Array(wasm);
 const yamlContent = fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
 
 let stateu8a_3 = await zkgapi.executeOnRawReceipts(
-    basePath, 
-    'tests/build/zkgraph_local.wasm', 
+    wasmUnit8Array, 
     yamlContent, 
     rawReceiptList,
     true, 

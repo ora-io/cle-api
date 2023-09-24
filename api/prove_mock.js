@@ -11,14 +11,14 @@ import { ZKGraphRequireFailed } from "../common/error.js";
  * @param {boolean} enableLog
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(basePath, wasmPath, privateInputStr, publicInputStr) {
+export async function proveMock(wasmUnit8Array, privateInputStr, publicInputStr) {
     // let [privateInputStr, publicInputStr] = await proveInputGen(yamlContent, rpcUrl, blockid, expectedStateStr, isLocal, enableLog)
     const mock = new ZKWASMMock();
     mock.set_private_input(privateInputStr);
     mock.set_public_input(publicInputStr);
     setupZKWasmMock(mock);
 
-    const { zkmain } = await instantiateWasm(wasmPath, basePath).catch((error) => {
+    const { zkmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
     });
 
