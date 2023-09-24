@@ -163,9 +163,8 @@ async function instantiate(module, imports = {}) {
 //     {},
 //   ))(new URL("../../build/zkgraph_full.wasm", import.meta.url));
 
-export const instantiateWasm = async (wasmpath, basedir) => {
+export const instantiateWasm = async (wasmUnit8Array) => {
 
-  let url = new URL(wasmpath, basedir);
   return instantiate(
     await (async () => {
       // try {
@@ -175,7 +174,7 @@ export const instantiateWasm = async (wasmpath, basedir) => {
       // }
       // catch {
         return globalThis.WebAssembly.compile(
-          await (await import("node:fs/promises")).readFile(url),
+          wasmUnit8Array.buffer
         );
       // }
     })(),

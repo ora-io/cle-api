@@ -1,4 +1,4 @@
-import {loadZKGraphDestinations} from "../common/config_utils.js";
+import { loadZKGraphNetworks } from "../common/config_utils.js";
 import {
   waitTaskStatus,
 } from "../requests/zkwasm_taskdetails.js";
@@ -13,21 +13,21 @@ import { contract_abi } from "../common/constants.js";
 
 /**
  * Verify zk proof onchain.
- * @param {string} yamlPath
+ * @param {string} yamlContent
  * @param {string} proveTaskId
  * @param {string} ZkwasmProviderUrl
  * @param {boolean} enableLog
  * @returns {boolean} - true if verification success, false otherwise.
  */
 export async function verify(
-  yamlPath,
+  yamlContent,
   proveTaskId,
   ZkwasmProviderUrl,
   enableLog = true
 ) {
   let verificationResult;
 
-  const networkName = loadZKGraphDestinations(yamlPath)[0].network;
+  const networkName = loadZKGraphNetworks(yamlContent);
   const targetNetwork = getTargetNetwork(networkName);
 
   // Check task status of prove.
