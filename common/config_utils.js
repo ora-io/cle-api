@@ -153,3 +153,37 @@ export function loadZKGraphDestinations(fileContent) {
   return config.dataDestinations;
 
 }
+
+export function loadZKGraphNetworks(fileContent) {
+  const sourceNetworks = [];
+  const destinationNetworks = [];
+  const config = loadYamlContent(fileContent);
+
+  // Load network from dataSources
+  config.dataSources.forEach((dataSource) => {
+    sourceNetworks.push(dataSource.network);
+  });
+
+  // Load network from dataDestinations
+  if (config.dataDestinations) {
+    destinationNetworks.push(config.dataDestinations[0].network);
+  }
+
+  // If sourceNetworks has multiple networks, throw error
+  if (new Set(sourceNetworks).size > 1) {
+    throw new Error("Different networks in dataSources is not supported.");
+  }
+
+  // If destinationNetworks has multiple networks, throw error
+  if (new Set(destinationNetworks).size > 1) {
+    throw new Error("Different networks in dataDestinations is not supported.");
+  }
+
+  // If destinationNetworks is not empty, use destinationNetworks' network
+  if (destinationNetworks.length !== 0) {
+    return destinationNetworks[0];
+  } else {
+    // If destinationNetworks is empty, use sourceNetworks' network
+    return sourceNetworks[0];
+  }
+}
