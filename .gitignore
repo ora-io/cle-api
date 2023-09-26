@@ -4,3 +4,4 @@ package-lock.json
 .idea/
 yarn.lock
 tests/config.js
+dist
