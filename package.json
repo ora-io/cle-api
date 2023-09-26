@@ -2,8 +2,17 @@
   "name": "@hyperoracle/zkgraph-api",
   "version": "0.1.2",
   "description": "API for interacting with Hyper Oracle zkGraphs",
-  "main": "index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
   "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "prepublishOnly": "npm run build",
     "release": "npm publish --access public",
     "testexec": "node tests/testexec.js",
     "testprove": "node tests/testprove.js",
@@ -29,13 +38,10 @@
   },
   "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
   "dependencies": {
-    "@types/node": "^20.4.5",
     "bn.js": "^5.2.1",
     "ethers": "^5.7.2",
     "js-yaml": "^4.1.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "zkwasm-service-helper": "github:DelphinusLab/zkWasm-service-helper",
+    "zkWasm-service-helper": "github:DelphinusLab/zkWasm-service-helper",
     "web3-eth-contract": "^1.8.2",
     "semver": "^7.5.4"
   },
@@ -44,6 +50,19 @@
     "common",
     "requests",
     "index.js",
-    "README.md"
-  ]
+    "README.md",
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "rollup": "^3.29.3",
+    "rollup-plugin-dts": "^6.0.2",
+    "rollup-plugin-esbuild": "^6.0.1"
+  }
 }
