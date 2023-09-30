@@ -1,5 +1,5 @@
 import { zkwasm_deploy, get_deployed } from "../requests/zkwasm_deploy.js";
-import { ZkWasmUtil } from "zkwasm-service-helper";
+import { ZkWasmUtil } from "zkWasm-service-helper";
 import { logLoadingAnimation } from "../common/log_utils.js";
 import { waitTaskStatus } from "../requests/zkwasm_taskdetails.js";
 
