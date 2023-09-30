@@ -1,5 +1,5 @@
 // @ts-ignore
-import {ZkWasmUtil} from "zkwasm-service-helper";
+import {ZkWasmUtil} from "zkWasm-service-helper";
 import {
     logLoadingAnimation
 } from "../common/log_utils.js";
