@@ -1,7 +1,7 @@
 import { fromHexString } from "./utils.js";
 import { Event } from "./event.js";
 
-import RLP from "./rlp.js";
+import { RLP } from '@ethereumjs/rlp'
 
 export class TxReceipt {
   constructor(status, gasUsed, logsBloom, events) {
