@@ -9,7 +9,7 @@ import {
   parseArgs
 } from "../common/utils.js";
 import Web3EthContract from "web3-eth-contract";
-import { contract_abi } from "../common/constants.js";
+import { verifier_abi } from "../common/constants.js";
 
 /**
  * Verify zk proof onchain.
@@ -73,7 +73,7 @@ export async function verify(
   if (targetNetwork.value === 11155111) {
     Web3EthContract.setProvider("https://rpc2.sepolia.org");
   }
-  let contract = new Web3EthContract(contract_abi.abi, deployedContractAddress);
+  let contract = new Web3EthContract(verifier_abi.abi, deployedContractAddress);
 
   const result = await contract.methods
     .verify(proof, instances, aux, [arg])

@@ -20,7 +20,7 @@ export const networks = [
   }
 ]
 
-export const contract_abi = {
+export const verifier_abi = {
   "contractName": "AggregatorVerifier",
   "abi": [
       {
