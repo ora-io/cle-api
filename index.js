@@ -7,7 +7,7 @@ export { setup } from "./api/setup.js";
 export { compile, compileInner } from "./api/compile.js";
 export { deploy } from "./api/deploy.js";
 export { publish } from "./api/publish.js";
-export { deposit } from "./api/deposit.js";
+export { deposit } from "./api/deposit_bounty.js";
 export { verify } from "./api/verify.js";
 export { getRawReceipts, getBlockByNumber } from "./common/ethers_helper.js";
 export  * as Error from "./common/error.js"

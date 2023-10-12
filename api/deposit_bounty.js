@@ -1,4 +1,4 @@
-import { providers, Contract, Wallet } from "ethers";
+import { providers, Contract, Wallet, ethers } from "ethers";
 import {
   graph_abi
 } from "../common/constants.js";
@@ -29,7 +29,7 @@ export async function deposit(
 
   const tx = await graphContract
     .deposit(
-      ethers.parseEther(depositAmount), { value: ethers.parseEther(depositAmount) }
+      ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) }
     )
     .catch((err) => {
       throw err;
