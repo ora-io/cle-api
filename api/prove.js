@@ -15,7 +15,7 @@ import {
  * @param {string} zkwasmProverUrl - the url of the zkwasm prover
  * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
  * @param {boolean} enableLog - enable logging or not
- * @returns {object} - proof details in json
+ * @returns {object} - proof task details in json
  */
 export async function prove(
   wasmUnit8Array,
@@ -26,10 +26,6 @@ export async function prove(
   enableLog = true
 ) {
   let result = {
-    instances: null,
-    batch_instances: null,
-    proof: null,
-    aux: null,
     md5: null,
     taskId: null,
   };
@@ -61,6 +57,7 @@ export async function prove(
     //   console.log(`[+] IMAGE MD5: ${response.data.result.md5}`, "\n");
 
     const taskId = response.data.result.id;
+    result["taskId"] = taskId;
 
     if (enableLog) {
       console.log(`[+] PROVE TASK STARTED. TASK ID: ${taskId}`, "\n");
@@ -84,6 +81,16 @@ export async function waitProve(
   taskId,
   enableLog = true
 ) {
+
+  let result = {
+    instances: null,
+    batch_instances: null,
+    proof: null,
+    aux: null,
+    md5: null,
+    taskId: null,
+  };
+
   let loading;
 
   if (enableLog) {
