@@ -5,9 +5,9 @@ import {
 import {zkwasm_imagedetails} from "../requests/zkwasm_imagedetails.js";
 import {
   getTargetNetwork,
-  bytesToBN,
   parseArgs
 } from "../common/utils.js";
+import { ZkWasmUtil } from "zkWasm-service-helper";
 import Web3EthContract from "web3-eth-contract";
 import { verifier_abi } from "../common/constants.js";
 
@@ -61,9 +61,9 @@ export async function verify(
   const deployedContractAddress = deployedContractInfo.address;
 
   // Inputs for verification
-  const instances = bytesToBN(taskDetails.batch_instances);
-  const proof = bytesToBN(taskDetails.proof);
-  const aux = bytesToBN(taskDetails.aux);
+  const instances = ZkWasmUtil.bytesToBN(taskDetails.batch_instances);
+  const proof = ZkWasmUtil.bytesToBN(taskDetails.proof);
+  const aux = ZkWasmUtil.bytesToBN(taskDetails.aux);
   let arg = parseArgs(taskDetails.public_inputs).map((x) => x.toString(10));
   if (arg.length === 0) arg = [0];
 
@@ -80,11 +80,6 @@ export async function verify(
     .call()
     .catch((err) => {
       throw err;
-      // if (enableLog === true) {
-      //   console.log(`[-] VERIFICATION FAILED.`, "\n");
-      //   console.log(`[*] ${err}`, "\n");
-      // }
-      // verificationResult = false;
     });
 
   if (verificationResult !== false) {
