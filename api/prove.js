@@ -144,4 +144,6 @@ export async function waitProve(
       console.log("[-] PROVE OR DRYRUN FAILED.", "\n");
     }
   }
+
+  return result;
 }

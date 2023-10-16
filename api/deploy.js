@@ -42,6 +42,7 @@ export async function deploy(wasmUnit8Array, chainid, zkwasmProviderUrl, userPri
 export async function waitDeploy(
   zkwasmProviderUrl,
   taskId,
+  md5,
   chainid,
   enableLog = true
 ) {

@@ -103,7 +103,7 @@ export async function setup(
     });
 }
 
-export async function waitSetup(ZkwasmProviderUrl, taskId) {
+export async function waitSetup(ZkwasmProviderUrl, taskId, enableLog) {
   let loading;
 
   let result = { taskId: null, success: null };
