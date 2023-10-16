@@ -16,3 +16,4 @@ export { TaskDispatch } from './api/task_dispatcher.js';
 export { zkwasm_setup } from './requests/zkwasm_setup.js';
 export { zkwasm_prove } from './requests/zkwasm_prove.js';
 export { zkwasm_deploy } from './requests/zkwasm_deploy.js';
+export { zkwasm_imagedetails } from './requests/zkwasm_imagedetails.js';
