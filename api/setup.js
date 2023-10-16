@@ -107,6 +107,8 @@ export async function waitSetup(ZkwasmProviderUrl, taskId, enableLog) {
   let loading;
 
   let result = { taskId: null, success: null };
+  let taskDetails;
+  let setupStatus;
 
   if (enableLog) {
     console.log(
