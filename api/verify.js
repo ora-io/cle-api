@@ -5,11 +5,11 @@ import {
 import {zkwasm_imagedetails} from "../requests/zkwasm_imagedetails.js";
 import {
   getTargetNetwork,
-  bytesToBN,
   parseArgs
 } from "../common/utils.js";
+import { ZkWasmUtil } from "zkWasm-service-helper";
 import Web3EthContract from "web3-eth-contract";
-import { contract_abi } from "../common/constants.js";
+import { verifier_abi } from "../common/constants.js";
 
 /**
  * Verify zk proof onchain.
@@ -61,9 +61,9 @@ export async function verify(
   const deployedContractAddress = deployedContractInfo.address;
 
   // Inputs for verification
-  const instances = bytesToBN(taskDetails.batch_instances);
-  const proof = bytesToBN(taskDetails.proof);
-  const aux = bytesToBN(taskDetails.aux);
+  const instances = ZkWasmUtil.bytesToBN(taskDetails.batch_instances);
+  const proof = ZkWasmUtil.bytesToBN(taskDetails.proof);
+  const aux = ZkWasmUtil.bytesToBN(taskDetails.aux);
   let arg = parseArgs(taskDetails.public_inputs).map((x) => x.toString(10));
   if (arg.length === 0) arg = [0];
 
@@ -73,18 +73,13 @@ export async function verify(
   if (targetNetwork.value === 11155111) {
     Web3EthContract.setProvider("https://rpc2.sepolia.org");
   }
-  let contract = new Web3EthContract(contract_abi.abi, deployedContractAddress);
+  let contract = new Web3EthContract(verifier_abi.abi, deployedContractAddress);
 
   const result = await contract.methods
     .verify(proof, instances, aux, [arg])
     .call()
     .catch((err) => {
       throw err;
-      // if (enableLog === true) {
-      //   console.log(`[-] VERIFICATION FAILED.`, "\n");
-      //   console.log(`[*] ${err}`, "\n");
-      // }
-      // verificationResult = false;
     });
 
   if (verificationResult !== false) {

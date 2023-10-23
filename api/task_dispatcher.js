@@ -6,7 +6,7 @@ const ABI = [
     'function prove(string memory imageId, string memory privateInput, string memory publicInput) payable',
     'function deploy(string memory imageId, uint256 chainid) payable'
   ];
-export class taskDispatch {
+export class TaskDispatch {
     constructor(queryAPI, contractAddress, feeInWei, provider, signer){
         this.queryAPI = queryAPI;
         this.feeInWei = feeInWei;

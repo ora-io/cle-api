@@ -42,19 +42,6 @@ export function concatHexStrings(hexStrings) {
   return "0x" + result;
 }
 
-// https://github.com/zkcrossteam/g1024/blob/916c489fefa65ce8d4ee1a387f2bd4a3dcca8337/src/utils/proof.ts#L7
-export function bytesToBN(data) {
-  let chunksize = 64;
-  let bns = [];
-  for (let i = 0; i < data.length; i += 32) {
-    const chunk = data.slice(i, i + 32);
-    let a = new BN(chunk, "le");
-    bns.push(a);
-    // do whatever
-  }
-  return bns;
-}
-
 function hexToBNs(hexString){
     let bytes = new Array(Math.ceil(hexString.length/16));
     for (var i = 0; i < hexString.length; i += 16) {

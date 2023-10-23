@@ -1,5 +1,5 @@
 import { zkwasm_deploy, get_deployed } from "../requests/zkwasm_deploy.js";
-import { ZkWasmUtil } from "zkwasm-service-helper";
+import { ZkWasmUtil } from "zkWasm-service-helper";
 import { logLoadingAnimation } from "../common/log_utils.js";
 import { waitTaskStatus } from "../requests/zkwasm_taskdetails.js";
 
@@ -22,19 +22,35 @@ export async function deploy(wasmUnit8Array, chainid, zkwasmProviderUrl, userPri
     userPrivateKey,
     md5,
     zkwasmProviderUrl
-    // "63715F93C83BD315345DFDE9A6E0F814"
   );
 
-if (isDeploySuccess) {
-  const taskId = response.data.result.id;
+  if (isDeploySuccess) {
+    const taskId = response.data.result.id;
 
+    if (enableLog === true) {
+      console.log(`[+] DEPLOY TASK STARTED. TASK ID: ${taskId}`, "\n");
+    }
+  } else {
+    if (enableLog === true) {
+      console.log(`[-] DEPLOY CANNOT BE STARTED.`, "\n");
+      console.log(`[-] Error: ${errorMessage}.\n`);
+    }
+    return "";
+  }
+}
+
+export async function waitDeploy(
+  zkwasmProviderUrl,
+  taskId,
+  md5,
+  chainid,
+  enableLog = true
+) {
   let loading;
   if (enableLog === true) {
-    console.log(`[+] DEPLOY TASK STARTED. TASK ID: ${taskId}`, "\n");
-    console.log("[*] Please wait for deployment... (estimated: 30 sec)", "\n");
+    console.log("[*] Please wait for deployment...", "\n");
     loading = logLoadingAnimation();
   }
-
 
   let taskDetails;
   try {
@@ -62,10 +78,7 @@ if (isDeploySuccess) {
     ).address;
 
     if (enableLog === true) {
-      console.log(
-        `[+] CONTRACT ADDRESS: ${verificationContractAddress}`,
-        "\n"
-      );
+      console.log(`[+] CONTRACT ADDRESS: ${verificationContractAddress}`, "\n");
     }
 
     return verificationContractAddress;
@@ -78,11 +91,4 @@ if (isDeploySuccess) {
 
     return "";
   }
-} else {
-  if (enableLog === true) {
-    console.log(`[-] DEPLOY CANNOT BE STARTED.`, "\n");
-    console.log(`[-] Error: ${errorMessage}.\n`);
-  }
-  return "";
-}
 }

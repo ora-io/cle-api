@@ -11,7 +11,7 @@ const wasmStartName = "__as_start"
 
 export function compileInner(){
     const commands = [
-      `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}  --memoryBase 70000`, 
+      `npx asc node_modules/@hyperoracle/zkgraph-lib/common/inner.ts -o ${innerPrePrePath} --runtime stub --use abort=node_modules/@hyperoracle/zkgraph-lib/common/type/abort --disable bulk-memory --disable mutable-globals --exportRuntime --exportStart ${wasmStartName}  --memoryBase 70000`,
     ];
 
     const combinedCommand = commands.join(" && ");
@@ -58,7 +58,7 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
   // Remote Compile
   else {
     // Load config
-    const [source_address, source_esigs] = loadZKGraphSources(yamlPath);
+    const [source_address, source_esigs] = loadZKGraphSources(readFileSync(yamlPath));
     if (enableLog === true) {
       console.log("[*] Source contract address:", source_address);
       console.log("[*] Source events signatures:", source_esigs, "\n");
