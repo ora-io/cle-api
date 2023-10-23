@@ -57,10 +57,21 @@ async function getRawLogsFromTxsReceipt(ethersProvider, blockNumber, ignoreFaile
     return rawReceipt
 }
 
-async function getRawReceiptsWithoutDebugRPC(ethersProvider, blockNumber, ignoreFailedTx=false){
+async function getRawReceiptsWithoutDebugRPC(ethersProvider, blockid, ignoreFailedTx=false){
 
-    blockNumber = "0x" + blockNumber.toString(16);
+    // Parse block id
+    // if (typeof blockid === "string"){
+    //     blockid = blockid.length == 66 ? blockid : parseInt(blockid)
+    // }
+    // if (typeof blockid === "string" && blockid.length >= 64){
+    //     throw Error("[-] please provide a valid block number.")
+    // }
 
+    if (Number.isFinite(blockid)) {
+        blockid = ethers.utils.hexValue(blockid)
+        // blockid = "0x" + blockid.toString(16);
+      }
+      
     let isErigon = true;
     try {
         await ethersProvider.send("eth_protocolVersion", []);
@@ -69,21 +80,22 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider, blockNumber, ignore
     }
 
     if (isErigon) {
-        return await getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx);
+        return await getRawLogsFromBlockReceipts(ethersProvider, blockid, ignoreFailedTx);
     } else {
         console.warn("The RPC does not support erigon rpc, fetching data may be slow");
-        return await getRawLogsFromTxsReceipt(ethersProvider, blockNumber, ignoreFailedTx);
+        return await getRawLogsFromTxsReceipt(ethersProvider, blockid, ignoreFailedTx);
     }
 }
 
 async function getRawReceiptsWithDebugRPC(ethersProvider, blockid) {
     // Parse block id
-    if (typeof blockid === "string"){
-        blockid = blockid.length >= 64 ? blockid : parseInt(blockid)
-    }
+    // if (typeof blockid === "string"){
+    //     blockid = blockid.length >= 64 ? blockid : parseInt(blockid)
+    // }
 
   if (Number.isFinite(blockid)) {
-    blockid = "0x" + blockid.toString(16);
+    blockid = ethers.utils.hexValue(blockid)
+    // blockid = "0x" + blockid.toString(16);
   }
 
   return ethersProvider.send("debug_getRawReceipts", [blockid]);
@@ -93,16 +105,9 @@ export async function getRawReceipts(ethersProvider, blockid, useDebugRPC=false)
     if (useDebugRPC){
         return await getRawReceiptsWithDebugRPC(ethersProvider, blockid)
     } else {
-
-        // Parse block id
-        if (typeof blockid === "string" && blockid.length >= 64){
-            throw Error("[-] please provide a valid block number.")
-        }
-        let blockNumber = blockid;
-        return await getRawReceiptsWithoutDebugRPC(ethersProvider, blockNumber, false)
+        return await getRawReceiptsWithoutDebugRPC(ethersProvider, blockid, false)
     }
 }
-
 
 export async function getBlockByNumber(ethersProvider, blockNumber) {
   const fullBlock = await ethersProvider.send("eth_getBlockByNumber", [
@@ -110,6 +115,14 @@ export async function getBlockByNumber(ethersProvider, blockNumber) {
     false,
   ]);
   return fullBlock;
+}
+
+export async function getBlockByHash(ethersProvider, blockHash) {
+    const fullBlock = await ethersProvider.send("eth_getBlockByHash", [
+      blockHash,
+      false,
+    ]);
+    return fullBlock;
 }
 
 export async function getBalance(privateKey, networkName) {

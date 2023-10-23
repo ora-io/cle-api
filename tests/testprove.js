@@ -15,14 +15,6 @@ let zkgstatefortest = {
 
 }
 
-// let [pri, pub] = await zkgapi.proveInputGen(
-//     "tests/testsrc/zkgraph.yaml",
-//     rpcUrl,
-//     17633573,
-//     'b4fc6d0168e52d35cacd2c6185b44281ec28c9dc',
-//     isLocal,
-//     enableLog)
-
 // Get rawReceiptList, blockNumber, blockHash, receiptsRoot first to test proveInputGenOnRawReceipts
 import { config } from "./config.js";
 let rpcUrl = config.JsonRpcProviderUrl.sepolia;
@@ -32,24 +24,41 @@ import { getBlockByNumber } from "../common/ethers_helper.js";
 
 const provider = new providers.JsonRpcProvider(rpcUrl);
 let rawReceiptList = await zkgapi.getRawReceipts(provider, blocknumfortest.sepolia);
+
 // Get block
-const simpleblock = await provider.getBlock(blocknumfortest.sepolia).catch(() => {
-    console.err("[-] ERROR: Failed to getBlock()", "\n");
-    process.exit(1);
-  });
-  const block = await getBlockByNumber(provider, simpleblock.number).catch(
-    () => {
-      console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
-      process.exit(1);
-    },
-  );
+let block;
+let blockid = blocknumfortest.sepolia
+if (typeof blockid === "string" && blockid.length == 66 && blockid.charAt(0) == '0' && blockid.charAt(1) == 'x'){
+    block = await getBlockByHash(provider, blockid).catch((error) => {
+        console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
+        process.exit(1);
+        },
+    );
+} else {
+    block = await getBlockByNumber(provider, blockid).catch((error) => {
+        console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
+        process.exit(1);
+        },
+    );
+}
+
 const blockNumber = parseInt(block.number);
 const blockHash = block.hash;
 const receiptsRoot = block.receiptsRoot;
-// console.log(blockHash)
-// console.log(receiptsRoot)
 
 const yamlContent =fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
+
+
+// Test proveInputGen
+// let [pri1, pub1] = await zkgapi.proveInputGen(
+//     yamlContent,
+//     rpcUrl,
+//     blocknumfortest.sepolia,
+//     zkgstatefortest.sepolia,
+//     isLocal,
+//     enableLog)
+
+// Test proveInputGenOnRawReceipts
 let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
     yamlContent,
     rawReceiptList,
