@@ -3,7 +3,7 @@ import {
     formatIntInput,
     formatHexStringInput,
   } from "../common/api_helper.js";
-  import { getBlockByNumber, getRawReceipts } from "../common/ethers_helper.js";
+  import { getBlockByNumber, getBlockByHash, getRawReceipts } from "../common/ethers_helper.js";
   import { filterEvents } from "../common/api_helper.js";
   import {
     toHexString,
@@ -25,6 +25,28 @@ import { providers } from "ethers";
 export async function proveInputGen(yamlContent, rpcUrl, blockid, expectedStateStr, isLocal=false, enableLog=true) {
     const provider = new providers.JsonRpcProvider(rpcUrl);
 
+    // Get block
+    let block;
+    if (typeof blockid === "string" && blockid.length == 66 && blockid.charAt(0) == '0' && blockid.charAt(1) == 'x'){
+        block = await getBlockByHash(provider, blockid).catch((error) => {
+            throw error;
+            // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
+            // process.exit(1);
+            },
+        );
+    } else {
+        block = await getBlockByNumber(provider, blockid).catch((error) => {
+            throw error;
+            // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
+            // process.exit(1);
+            },
+        );
+    }
+
+    const blockNumber = parseInt(block.number);
+    const blockHash = block.hash;
+    const receiptsRoot = block.receiptsRoot;
+
     // Fetch raw receipts
     const rawreceiptList = await getRawReceipts(provider, blockid).catch((error) => {
       throw error;
@@ -33,22 +55,6 @@ export async function proveInputGen(yamlContent, rpcUrl, blockid, expectedStateS
     if (enableLog){
         console.log("[*] Run zkgraph on block:", blockid, '\n');
     }
-
-    // Get block
-    const simpleblock = await provider.getBlock(blockid).catch((error) => {
-        throw error;
-        // console.err("[-] ERROR: Failed to getBlock()", "\n");
-        // process.exit(1);
-      });
-      const block = await getBlockByNumber(provider, simpleblock.number).catch((error) => {
-        throw error;
-        // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
-        // process.exit(1);
-        },
-      );
-    const blockNumber = parseInt(block.number);
-    const blockHash = block.hash;
-    const receiptsRoot = block.receiptsRoot;
 
     return await proveInputGenOnRawReceipts(yamlContent, rawreceiptList, blockNumber, blockHash, receiptsRoot, expectedStateStr, isLocal, enableLog)
 }

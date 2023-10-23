@@ -15,14 +15,6 @@ let zkgstatefortest = {
 
 }
 
-// let [pri, pub] = await zkgapi.proveInputGen(
-//     "tests/testsrc/zkgraph.yaml",
-//     rpcUrl,
-//     17633573,
-//     'b4fc6d0168e52d35cacd2c6185b44281ec28c9dc',
-//     isLocal,
-//     enableLog)
-
 // Get rawReceiptList, blockNumber, blockHash, receiptsRoot first to test proveInputGenOnRawReceipts
 import { config } from "./config.js";
 let rpcUrl = config.JsonRpcProviderUrl.sepolia;
@@ -50,6 +42,18 @@ const receiptsRoot = block.receiptsRoot;
 // console.log(receiptsRoot)
 
 const yamlContent =fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
+
+
+// Test proveInputGen
+let [pri1, pub1] = await zkgapi.proveInputGen(
+    yamlContent,
+    rpcUrl,
+    blocknumfortest.sepolia,
+    zkgstatefortest.sepolia,
+    isLocal,
+    enableLog)
+
+// Test proveInputGenOnRawReceipts
 let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
     yamlContent,
     rawReceiptList,
