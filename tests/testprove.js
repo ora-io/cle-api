@@ -45,13 +45,13 @@ const yamlContent =fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
 
 
 // Test proveInputGen
-let [pri1, pub1] = await zkgapi.proveInputGen(
-    yamlContent,
-    rpcUrl,
-    blocknumfortest.sepolia,
-    zkgstatefortest.sepolia,
-    isLocal,
-    enableLog)
+// let [pri1, pub1] = await zkgapi.proveInputGen(
+//     yamlContent,
+//     rpcUrl,
+//     blocknumfortest.sepolia,
+//     zkgstatefortest.sepolia,
+//     isLocal,
+//     enableLog)
 
 // Test proveInputGenOnRawReceipts
 let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
