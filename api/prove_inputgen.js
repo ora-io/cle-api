@@ -9,7 +9,7 @@ import {
     toHexString,
     trimPrefix,
   } from "../common/utils.js";
-  import { loadZKGraphSources } from "../common/config_utils.js";
+  import { loadZKGraphEventSources } from "../common/config_utils.js";
 import { providers } from "ethers";
 
 /**
@@ -63,7 +63,7 @@ export async function proveInputGenOnRawReceipts(yamlContent, rawreceiptList, bl
 
     expectedStateStr = trimPrefix(expectedStateStr, "0x");
 
-    const [sourceAddressList, sourceEsigsList] = loadZKGraphSources(yamlContent);
+    const [sourceAddressList, sourceEsigsList] = loadZKGraphEventSources(yamlContent);
     const [rawReceipts, matchedEventOffsets] = await filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog).catch((error) => {
       throw error;
     });

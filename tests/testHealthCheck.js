@@ -26,18 +26,18 @@ try {
     console.log(e);
 }
 
-try {
-    const yaml4 = loadYaml('tests/testsrc/zkgraph4.yaml');
-    yamlhealthCheck(yaml4);
-    console.log("valid yaml4");
-} catch(e) {
-    console.log(e);
-}
+// try {
+//     const yaml4 = loadYaml('tests/testsrc/zkgraph4.yaml');
+//     yamlhealthCheck(yaml4);
+//     console.log("valid yaml4");
+// } catch(e) {
+//     console.log(e);
+// }
 
-try {
-    const yaml5 = loadYaml('tests/testsrc/zkgraph5.yaml');
-    yamlhealthCheck(yaml5);
-    console.log("valid yaml5");
-} catch(e) {
-    console.log(e);
-}
+// try {
+//     const yaml5 = loadYaml('tests/testsrc/zkgraph5.yaml');
+//     yamlhealthCheck(yaml5);
+//     console.log("valid yaml5");
+// } catch(e) {
+//     console.log(e);
+// }

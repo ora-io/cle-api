@@ -5,7 +5,7 @@ import {
 import { instantiateWasm } from "../common/bundle.js";
 import { providers } from "ethers";
 import { getRawReceipts } from "../common/ethers_helper.js";
-import { loadZKGraphSources } from "../common/config_utils.js";
+import { loadZKGraphEventSources } from "../common/config_utils.js";
 
 /**
  * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
@@ -44,7 +44,7 @@ export async function execute(wasmUnit8Array, yamlContent, rpcUrl, blockid, isLo
  */
 export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
 
-    const [sourceAddressList, sourceEsigsList] = loadZKGraphSources(yamlContent);
+    const [sourceAddressList, sourceEsigsList] = loadZKGraphEventSources(yamlContent);
     // Fetch receipts and filter
     const [rawReceipts, matchedEventOffsets] = await filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog).catch((error) => {
       throw error;

@@ -8,7 +8,7 @@ let basePath = import.meta.url + '/../../'
 import { providers } from "ethers";
 import { config } from "./config.js";
 
-let rpcUrl = config.JsonRpcProviderUrl.sepolia;
+let rpcUrl = config.provider.sepolia;
 let blocknumfortest = {
     'sepolia': 2279547,
     'mainnet': 17633573
