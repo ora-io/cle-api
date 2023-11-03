@@ -14,6 +14,7 @@ import { toHexString, trimPrefix } from "../common/utils.js";
 import {
   loadZKGraphEventSources,
   loadZKGraphStorageSources,
+  loadZKGraphType,
 } from "../common/config_utils.js";
 import { Input } from "../common/input.js";
 import { ethers, providers } from "ethers";
@@ -63,27 +64,28 @@ export async function proveInputGen(
   const blockHash = block.hash;
   const receiptsRoot = block.receiptsRoot;
 
-  // Fetch raw receipts
-  const rawreceiptList = await getRawReceipts(provider, blockid).catch(
-    (error) => {
-      throw error;
-    }
-  );
+  let graphType = loadZKGraphType(yamlContent);
+  if (graphType === "event") {
+    // Fetch raw receipts
+    const rawreceiptList = await getRawReceipts(provider, blockid).catch(
+      (error) => {
+        throw error;
+      }
+    );
 
-  if (enableLog) {
-    console.log("[*] Run zkgraph on block:", blockid, "\n");
+    return await proveInputGenOnRawReceipts(
+      yamlContent,
+      rawreceiptList,
+      blockNumber,
+      blockHash,
+      receiptsRoot,
+      expectedStateStr,
+      isLocal,
+      enableLog
+    );
   }
 
-  return await proveInputGenOnRawReceipts(
-    yamlContent,
-    rawreceiptList,
-    blockNumber,
-    blockHash,
-    receiptsRoot,
-    expectedStateStr,
-    isLocal,
-    enableLog
-  );
+  return proveInputGenOnStorages(provider, yamlContent, blockNumber, blockHash, expectedStateStr);
 }
 
 export async function proveInputGenOnRawReceipts(
@@ -174,6 +176,11 @@ export async function proveInputGenOnStorages(
       sourceSlotsList[i],
       ethers.utils.hexValue(blockNumber)
     );
+
+    // for test
+    if (i === 0) {
+      expectedStateStr = ethproof.storageProof[0].value;
+    }
 
     // TODO this is still fake
     input.addVarLenHexString("0xaaaaaa", false); // account rlp
