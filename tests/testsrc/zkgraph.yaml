@@ -6,8 +6,8 @@ repository: https://github.com/hyperoracle/zkgraph
 dataSources:
   - kind: ethereum
     network: sepolia
-    block:
-      - offset: [0]
+    # block:
+    #   - offset: [0]
     event:
       - address: "0xa60ecf32309539dd84f27a9563754dca818b815e"
         events:
@@ -26,4 +26,4 @@ mapping:
 dataDestinations:
   - kind: ethereum
     network: sepolia
-    address: Your_Destination_Contract_Address_Here
+    address: "0x1B17C66e37CB33202Fd1C058fa1B97e36b7e517D"

@@ -6,8 +6,8 @@ repository: https://github.com/hyperoracle/zkgraph
 dataSources:
   - kind: ethereum
     network: sepolia
-    block:
-      - offset: [0]
+    # block:
+    #   - offset: [0]
     storage:
       - address: "0xa60ecf32309539dd84f27a9563754dca818b815e"
         slots:
