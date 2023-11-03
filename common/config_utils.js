@@ -51,8 +51,8 @@ export function yamlhealthCheck(config) {
   const sourceNetworks = [];
 
   config.dataSources.forEach(dataSource => {
-    // every object in datasources MUST have network, block
-    if (!dataSource.kind || !dataSource.network || !dataSource.block) {
+    // every object in datasources MUST have network
+    if (!dataSource.kind || !dataSource.network) {
       throw new Error("dataSource object is missing required fields");
     }
 
@@ -127,6 +127,29 @@ export function loadZKGraphEventSources(yamlContent) {
   const sourceEsigsList=[];
   config.dataSources[0].event.map((event) => {let [sa, se] = loadFromEventSource(event); sourceAddressList.push(sa); sourceEsigsList.push(se)})
   return [sourceAddressList, sourceEsigsList];
+}
+
+export function loadZKGraphStorageSources(yamlContent) {
+  const config = loadYamlContent(yamlContent);
+  // yamlhealthCheck(config);
+
+  if (!config.dataSources[0].storage) {
+    throw new Error("not storage zkgraph");
+  }
+
+  let loadFromStorageSource = (storage) => {
+    const source_address = storage.address;
+      const source_slots = storage.slots.map((sl) => {
+        return ethers.utils.hexZeroPad(sl, 32);;
+      });
+
+      return [source_address, source_slots];
+  }
+
+  const sourceAddressList=[];
+  const sourceSlotsList=[];
+  config.dataSources[0].storage.map((storage) => {let [sa, sl] = loadFromStorageSource(storage); sourceAddressList.push(sa); sourceSlotsList.push(sl)})
+  return [sourceAddressList, sourceSlotsList];
 }
 
 export function loadZKGraphName(fname) {

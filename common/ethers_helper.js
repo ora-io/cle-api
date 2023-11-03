@@ -132,3 +132,7 @@ export async function getBalance(privateKey, networkName) {
   const balance = formatEther(await provider.getBalance(wallet.address));
   return balance;
 }
+
+export async function getProof(ethersProvider, address, keys, blockid) {
+    return await ethersProvider.send("eth_getProof", [address, keys, blockid]);
+}

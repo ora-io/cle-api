@@ -1,5 +1,5 @@
 export { execute, executeOnRawReceipts } from "./api/exec.js";
-export { proveInputGen, proveInputGenOnRawReceipts } from "./api/prove_inputgen.js";
+export { proveInputGen, proveInputGenOnRawReceipts, proveInputGenOnStorages } from "./api/prove_inputgen.js";
 export { proveMock } from "./api/prove_mock.js";
 export { prove, waitProve } from "./api/prove.js";
 export { upload } from "./api/upload.js";
