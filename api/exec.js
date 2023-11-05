@@ -52,14 +52,16 @@ export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawrecei
 
     let asmain_exported;
     if (isLocal) {
-      const { asmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+      const { asmain, local_run } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
       });
+      local_run()
       asmain_exported = asmain;
     } else {
-      const { asmain, __as_start } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+      const { asmain, __as_start, full_run } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
       });
+      full_run()
       asmain_exported = asmain;
       __as_start();
     }

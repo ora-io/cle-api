@@ -1,6 +1,6 @@
 {
   "name": "@hyperoracle/zkgraph-api",
-  "version": "0.1.9",
+  "version": "0.1.9-alpha",
   "description": "API for interacting with Hyper Oracle zkGraphs",
   "exports": {
     ".": {
