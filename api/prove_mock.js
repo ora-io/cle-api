@@ -18,11 +18,12 @@ export async function proveMock(wasmUnit8Array, privateInputStr, publicInputStr)
     mock.set_public_input(publicInputStr);
     setupZKWasmMock(mock);
 
-    const { zkmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+    const { zkmain, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
     });
 
     try {
+        runRegisterHandle()
         zkmain();
     } catch (e){
         if (e instanceof ZKGraphRequireFailed){
