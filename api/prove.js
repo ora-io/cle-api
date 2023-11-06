@@ -1,7 +1,7 @@
 import { toHexStringBytes32Reverse } from "../common/utils.js";
 import { logLoadingAnimation } from "../common/log_utils.js";
 import { zkwasm_prove } from "../requests/zkwasm_prove.js";
-import { ZkWasmUtil } from "zkWasm-service-helper";
+import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import {
   waitTaskStatus,
   taskPrettyPrint,

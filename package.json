@@ -41,7 +41,7 @@
     "bn.js": "^5.2.1",
     "ethers": "^5.7.2",
     "js-yaml": "^4.1.0",
-    "zkWasm-service-helper": "github:DelphinusLab/zkWasm-service-helper",
+    "@hyperoracle/zkwasm-service-helper": "1.0.0",
     "web3-eth-contract": "^1.8.2",
     "semver": "^7.5.4"
   },
