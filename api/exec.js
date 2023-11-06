@@ -55,15 +55,15 @@ export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawrecei
       const { asmain, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
       });
-      runRegisterHandle()
       asmain_exported = asmain;
+      runRegisterHandle()
     } else {
       const { asmain, __as_start, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
       });
-      runRegisterHandle()
       asmain_exported = asmain;
       __as_start();
+      runRegisterHandle()
     }
 
     // Execute zkgraph that would call mapping.ts
