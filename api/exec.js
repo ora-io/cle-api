@@ -52,16 +52,18 @@ export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawrecei
 
     let asmain_exported;
     if (isLocal) {
-      const { asmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+      const { asmain, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
       });
       asmain_exported = asmain;
+      runRegisterHandle()
     } else {
-      const { asmain, __as_start } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+      const { asmain, __as_start, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
         throw error
       });
       asmain_exported = asmain;
       __as_start();
+      runRegisterHandle()
     }
 
     // Execute zkgraph that would call mapping.ts

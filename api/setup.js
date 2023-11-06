@@ -1,5 +1,5 @@
 // @ts-ignore
-import { ZkWasmUtil } from "zkWasm-service-helper";
+import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import { logLoadingAnimation } from "../common/log_utils.js";
 import { zkwasm_setup } from "../requests/zkwasm_setup.js";
 import {

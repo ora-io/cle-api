@@ -7,7 +7,7 @@ import {
   getTargetNetwork,
   parseArgs
 } from "../common/utils.js";
-import { ZkWasmUtil } from "zkWasm-service-helper";
+import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import Web3EthContract from "web3-eth-contract";
 import { verifier_abi } from "../common/constants.js";
 
