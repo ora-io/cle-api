@@ -2,7 +2,7 @@ import FormData from "form-data";
 import axios from "axios";
 import url from "./url.js";
 import { Wallet } from "ethers";
-import { ZkWasmUtil } from "zkWasm-service-helper";
+import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
 import { ImageAlreadyExists, PaymentError } from "../common/error.js";

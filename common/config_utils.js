@@ -157,6 +157,14 @@ export function loadZKGraphName(fname) {
   return config.name;
 }
 
+export function loadZKGraphType(fileContent) {
+  const config = loadYamlContent(fileContent);
+  if (config.dataSources[0].event) {
+    return "event";
+  };
+
+  return "storage";
+}
 
 export function loadZKGraphDestinations(fileContent) {
   const config = loadYamlContent(fileContent);
