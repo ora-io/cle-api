@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 import { createReadStream, readFileSync, writeFileSync } from "fs";
-import { loadZKGraphSources } from "../common/config_utils.js";
+import { loadZKGraphEventSources } from "../common/config_utils.js";
 import { concatHexStrings, fromHexString } from "../common/utils.js";
 import axios from "axios";
 import FormData from "form-data";
@@ -58,7 +58,7 @@ export async function compile(wasmPath, watPath, mappingPath, yamlPath, compiler
   // Remote Compile
   else {
     // Load config
-    const [source_address, source_esigs] = loadZKGraphSources(readFileSync(yamlPath));
+    const [source_address, source_esigs] = loadZKGraphEventSources(readFileSync(yamlPath));
     if (enableLog === true) {
       console.log("[*] Source contract address:", source_address);
       console.log("[*] Source events signatures:", source_esigs, "\n");

@@ -24,17 +24,26 @@ export function loadYamlContent(fileContent) {
 }
 
 export function yamlhealthCheck(config) {
-  // 1. specVersion check
+  // specVersion check
 
   if (!config.specVersion || typeof config.specVersion !== 'string' || config.specVersion.trim() === '') {
     throw new Error("specVersion is missing or empty");
   }
 
-  if (semver.gt(config.specVersion, '0.0.1')) {
-    throw new Error("Invalid specVersion, it should be <= 0.0.1");
+  if (semver.gt(config.specVersion, '0.0.2')) {
+    throw new Error("Invalid specVersion, it should be <= 0.0.2");
   }
 
-  // 3. datasources can have multiple objects, but should not be empty
+  // apiVersion → zkgraph-lib version check
+  if (!config.apiVersion || typeof config.apiVersion !== 'string' || config.apiVersion.trim() === '') {
+    throw new Error("apiVersion is missing or empty");
+  }
+
+  if (semver.gt(config.apiVersion, '0.0.2')) {
+    throw new Error("Invalid apiVersion, it should be <= 0.0.2");
+  }
+
+  // datasources can have multiple objects, but should not be empty
   if (!config.dataSources || config.dataSources.length === 0) {
     throw new Error("dataSources should not be empty");
   }
@@ -42,64 +51,39 @@ export function yamlhealthCheck(config) {
   const sourceNetworks = [];
 
   config.dataSources.forEach(dataSource => {
-    // 4. every object in datasources MUST have network, source, mapping
-    if (!dataSource.network || !dataSource.source || !dataSource.mapping) {
+    // every object in datasources MUST have network
+    if (!dataSource.kind || !dataSource.network) {
       throw new Error("dataSource object is missing required fields");
     }
 
     sourceNetworks.push(dataSource.network);
 
-    // 5. all fields must be not empty
-    if (!dataSource.kind || !dataSource.source.address || !dataSource.mapping.kind ||
-        !dataSource.mapping.apiVersion || !dataSource.mapping.language || !dataSource.mapping.file) {
-      throw new Error("Some required fields are empty in dataSource");
+    const eventCount = dataSource.event ? 1 : 0;
+    const storageCount = dataSource.storage ? 1 : 0;
+
+    if (eventCount + storageCount !== 1) {
+      throw new Error("must have one and only one 'event' or 'storage' field");
     }
-
-    // 2. apiVersion → zkgraph-lib version check
-    if (!dataSource.mapping.apiVersion || typeof dataSource.mapping.apiVersion !== 'string' || dataSource.mapping.apiVersion.trim() === '') {
-      throw new Error("apiVersion is missing or empty in one of the dataSources");
-    }
-
-    if (semver.gt(dataSource.mapping.apiVersion, '0.0.1')) {
-      throw new Error("Invalid apiVersion, it should be <= 0.0.1");
-    }
-
-    // 7. source must contain address
-    if (!dataSource.source.address) {
-      throw new Error("Address field is missing in dataSource source");
-    }
-
-    // 8. eventHandlers can have multiple event objects, but should not be empty
-    if (!dataSource.mapping.eventHandlers || dataSource.mapping.eventHandlers.length === 0) {
-      throw new Error("eventHandlers should not be empty");
-    }
-
-    dataSource.mapping.eventHandlers.forEach(eventHandler => {
-      // 9. each event object must have event field and handler field
-      if (!eventHandler.event || !eventHandler.handler) {
-        throw new Error("eventHandler object is missing required fields");
-      }
-
-      // 10. handler doesn't need to be checked, not empty is enough
-      if (!eventHandler.handler) {
-        throw new Error("Handler field in eventHandler is empty");
-      }
-    });
   });
 
-  // 6. every network field must be the same
+  // every network field must be the same
   if (new Set(sourceNetworks).size !== 1) {
     throw new Error("All dataSource networks must be the same");
   }
 
-  // 11. data destination must have network and destination
+  // all mapping fields must be not empty
+  if (!config.mapping.language || !config.mapping.file || !config.mapping.handler) {
+    throw new Error("Some required fields are empty in mapping");
+  }
+
+  // data destination must have network and destination
   if (config.dataDestinations) {
-    if (!config.dataDestinations[0].network || !config.dataDestinations[0].destination) {
+    if (!config.dataDestinations[0].network || !config.dataDestinations[0].address) {
       throw new Error("dataDestinations object is missing required fields");
     }
 
-    // 13. address must be the ethereum address and not address zero
-    if (!isEthereumAddress(config.dataDestinations[0].destination.address)) {
+    // address must be the ethereum address and not address zero
+    if (!isEthereumAddress(config.dataDestinations[0].address)) {
       throw new Error("Invalid Ethereum address in dataDestinations");
     }
   }
@@ -121,25 +105,51 @@ export function isEthereumAddress(address) {
 }
 
 
-export function loadZKGraphSources(yamlContent) {
+export function loadZKGraphEventSources(yamlContent) {
   const config = loadYamlContent(yamlContent);
   yamlhealthCheck(config);
 
-  let loadFromDataSource = (dataSource) => {
-    const source_address = dataSource.source.address;
-    const edefs = dataSource.mapping.eventHandlers.map(
-        (eh) => eh.event,
-      );
-      const source_esigs = edefs.map((ed) =>
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed)),
-      );
+  if (!config.dataSources[0].event) {
+    throw new Error("not event zkgraph");
+  }
+
+  let loadFromEventSource = (event) => {
+    const source_address = event.address;
+      const source_esigs = event.events.map((ed) => {
+        const eventHash = ed.startsWith("0x") ? ed : ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed));
+        return eventHash;
+      });
+
       return [source_address, source_esigs];
   }
 
   const sourceAddressList=[];
   const sourceEsigsList=[];
-  config.dataSources.map((ds) => {let [sa, se] = loadFromDataSource(ds); sourceAddressList.push(sa); sourceEsigsList.push(se)})
+  config.dataSources[0].event.map((event) => {let [sa, se] = loadFromEventSource(event); sourceAddressList.push(sa); sourceEsigsList.push(se)})
   return [sourceAddressList, sourceEsigsList];
+}
+
+export function loadZKGraphStorageSources(yamlContent) {
+  const config = loadYamlContent(yamlContent);
+  // yamlhealthCheck(config);
+
+  if (!config.dataSources[0].storage) {
+    throw new Error("not storage zkgraph");
+  }
+
+  let loadFromStorageSource = (storage) => {
+    const source_address = storage.address;
+      const source_slots = storage.slots.map((sl) => {
+        return ethers.utils.hexZeroPad(sl, 32);;
+      });
+
+      return [source_address, source_slots];
+  }
+
+  const sourceAddressList=[];
+  const sourceSlotsList=[];
+  config.dataSources[0].storage.map((storage) => {let [sa, sl] = loadFromStorageSource(storage); sourceAddressList.push(sa); sourceSlotsList.push(sl)})
+  return [sourceAddressList, sourceSlotsList];
 }
 
 export function loadZKGraphName(fname) {
@@ -147,6 +157,14 @@ export function loadZKGraphName(fname) {
   return config.name;
 }
 
+export function loadZKGraphType(fileContent) {
+  const config = loadYamlContent(fileContent);
+  if (config.dataSources[0].event) {
+    return "event";
+  };
+
+  return "storage";
+}
 
 export function loadZKGraphDestinations(fileContent) {
   const config = loadYamlContent(fileContent);

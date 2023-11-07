@@ -3,7 +3,7 @@ import fs from "fs";
 // import * as zkgapi from "@hyperoracle/zkgraph-api"
 import * as zkgapi from "../index.js"
 
-let isLocal = true
+let isLocal = false
 let enableLog = true
 let blocknumfortest = {
     'sepolia': 2279547,
@@ -17,54 +17,14 @@ let zkgstatefortest = {
 
 // Get rawReceiptList, blockNumber, blockHash, receiptsRoot first to test proveInputGenOnRawReceipts
 import { config } from "./config.js";
-let rpcUrl = config.JsonRpcProviderUrl.sepolia;
-
-import { providers } from "ethers";
-import { getBlockByNumber } from "../common/ethers_helper.js";
-
-const provider = new providers.JsonRpcProvider(rpcUrl);
-let rawReceiptList = await zkgapi.getRawReceipts(provider, blocknumfortest.sepolia);
-
-// Get block
-let block;
-let blockid = blocknumfortest.sepolia
-if (typeof blockid === "string" && blockid.length == 66 && blockid.charAt(0) == '0' && blockid.charAt(1) == 'x'){
-    block = await getBlockByHash(provider, blockid).catch((error) => {
-        console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
-        process.exit(1);
-        },
-    );
-} else {
-    block = await getBlockByNumber(provider, blockid).catch((error) => {
-        console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
-        process.exit(1);
-        },
-    );
-}
-
-const blockNumber = parseInt(block.number);
-const blockHash = block.hash;
-const receiptsRoot = block.receiptsRoot;
-
+let rpcUrl = config.provider.sepolia;
 const yamlContent =fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
 
-
 // Test proveInputGen
-// let [pri1, pub1] = await zkgapi.proveInputGen(
-//     yamlContent,
-//     rpcUrl,
-//     blocknumfortest.sepolia,
-//     zkgstatefortest.sepolia,
-//     isLocal,
-//     enableLog)
-
-// Test proveInputGenOnRawReceipts
-let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
+let [pri, pub] = await zkgapi.proveInputGen(
     yamlContent,
-    rawReceiptList,
-    blockNumber,
-    blockHash,
-    receiptsRoot,
+    rpcUrl,
+    blocknumfortest.sepolia,
     zkgstatefortest.sepolia,
     isLocal,
     enableLog)
@@ -72,7 +32,7 @@ let [pri, pub] = await zkgapi.proveInputGenOnRawReceipts(
 // console.log(pri)
 // console.log(pub)
 
-const wasm = fs.readFileSync("tests/build/zkgraph_local.wasm");
+const wasm = fs.readFileSync("tests/build/zkgraph_full.wasm");
 const wasmUnit8Array = new Uint8Array(wasm);
 let mock_succ = await zkgapi.proveMock(
         wasmUnit8Array,
