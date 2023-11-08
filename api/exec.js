@@ -6,8 +6,14 @@ import { proveInputGen } from "./prove_inputgen.js";
 import { ZKWASMMock } from "../common/zkwasm_mock.js";
 import { instantiateWasm, setupZKWasmMock } from "../common/bundle.js";
 import { providers } from "ethers";
-import { getRawReceipts } from "../common/ethers_helper.js";
+import { getBlock, getRawReceipts } from "../common/ethers_helper.js";
 import { loadZKGraphEventSources, loadZKGraphType } from "../common/config_utils.js";
+import { ZkGraphYaml } from "../type/zkgyaml.js";
+import { execInputGen, execInputGenOnBlockPrepMap } from "./exec_inputgen.js";
+import { fillExecInput } from "../inputgen/fill_input.js";
+import { Input } from "../common/input.js";
+import { prepareOneBlockByYaml } from "../inputgen/prepare_blocks.js";
+import { BlockPrep } from "../type/blockprep.js";
 
 /**
  * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
@@ -21,29 +27,71 @@ import { loadZKGraphEventSources, loadZKGraphType } from "../common/config_utils
  */
 export async function execute(wasmUnit8Array, yamlContent, rpcUrl, blockid, isLocal=false, enableLog=true) {
 
-    const provider = new providers.JsonRpcProvider(rpcUrl);
-
     if (enableLog){
         console.log(`[*] Run zkgraph on block ${blockid}\n`);
     }
+    const provider = new providers.JsonRpcProvider(rpcUrl);
+    let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
 
-    let graphType = loadZKGraphType(yamlContent);
-    if (graphType === "event") {
-      // Fetch raw receipts
-      const rawreceiptList = await getRawReceipts(provider, blockid).catch((error) => {
-        throw error;
-      })
-      return await executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal, enableLog)
-    }
+    // let [privateInputStr, publicInputStr] = await execInputGen(provider, zkgyaml, blockid, isLocal, enableLog)
 
+    // Get block
+    // TODO: optimize: no need to getblock if blockid is block num
+    let rawblock = await getBlock(provider, blockid);
+
+    const blockNumber = parseInt(rawblock.number);
+    const blockHash = rawblock.hash;
+
+    // TODO: multi blocks
+    let blockPrep = await prepareOneBlockByYaml(provider, blockNumber, zkgyaml);
+
+    let blockPrepMap = new Map();
+    blockPrepMap.set(blockNumber, blockPrep)
+
+    let blocknumOrder = [blockNumber]
+
+    // console.log(privateInputStr)
+    // console.log(publicInputStr)
+    return await executeOnBlockPrepMap(wasmUnit8Array, yamlContent, blockPrepMap, blocknumOrder, isLocal, enableLog)
+}
+
+export async function executeOnBlockPrepMap(wasmUnit8Array, yamlContent, blockPrepMap, blocknumOrder, isLocal=false, enableLog=true) {
+  let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
+
+  // let [privateInputStr, publicInputStr] = execInputGenOnBlockPrepMap(zkgyaml, blockPrepMap, blocknumOrder)
+
+  let input = new Input();
   
-    let [privateInputStr, publicInputStr] = await proveInputGen(yamlContent, rpcUrl, blockid, "0x0", isLocal, enableLog);
-    console.log(privateInputStr)
-    console.log(publicInputStr)
-    return await executeOnStorages(wasmUnit8Array, privateInputStr, publicInputStr)
+  input = fillExecInput(input, zkgyaml, blockPrepMap, blocknumOrder)
+
+  let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
+
+  return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)
+}
+
+export async function executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr) {
+  const mock = new ZKWASMMock();
+  mock.set_private_input(privateInputStr);
+  mock.set_public_input(publicInputStr);
+  setupZKWasmMock(mock);
+
+  const { asmain, __as_start } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+      throw error
+  });
+
+  let stateU8a;
+  try {
+      __as_start();
+      stateU8a = asmain();
+  } catch (e){
+      throw e
+  }
+  return stateU8a;
 }
 
 /**
+ * // TODO: compitable purpose
+ * // Deprecated since yaml specVersion: v0.0.2
  * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
  * @param {string} wasmUnit8Array
  * @param {string} yamlContent
@@ -54,54 +102,38 @@ export async function execute(wasmUnit8Array, yamlContent, rpcUrl, blockid, isLo
  */
 export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
 
-    const [sourceAddressList, sourceEsigsList] = loadZKGraphEventSources(yamlContent);
-    // Fetch receipts and filter
-    const [rawReceipts, matchedEventOffsets] = await filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog).catch((error) => {
+    const zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
+    const provider = new providers.JsonRpcProvider(rpcUrl);
+
+    const [eventDSAddrList, eventDSEsigsList] = zkgyaml.dataSources[0].event.toArray();
+
+
+    // prepare data
+
+    // filter
+    const [rawReceipts, matchedEventOffsets] = filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog).catch((error) => {
       throw error;
     })
 
-    let asmain_exported;
-    if (isLocal) {
-      const { asmain, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
-        throw error
-      });
-      asmain_exported = asmain;
-      runRegisterHandle()
-    } else {
-      const { asmain, __as_start, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
-        throw error
-      });
-      asmain_exported = asmain;
-      __as_start();
-      runRegisterHandle()
-    }
+    // create blockPrepMap
+    let blockNumber = 0; // to compitable, use fixed block num
 
-    // Execute zkgraph that would call mapping.ts
-    let stateU8a = asmain_exported(rawReceipts, matchedEventOffsets);
+    let blockPrep = new BlockPrep(
+      blockNumber,
+      // header rlp
+      "0x00",
+    )
+    blockPrep.addRLPReceipts(rawreceiptList)
 
-    if (enableLog) {
-        console.log("[+] ZKGRAPH STATE OUTPUT:", toHexString(stateU8a), "\n");
-    }
+    let blockPrepMap = new Map();
+    blockPrepMap.set(blockNumber, blockPrep)
 
-    return stateU8a
-}
+    let blocknumOrder = [blockNumber]
 
-export async function executeOnStorages(wasmUnit8Array, privateInputStr, publicInputStr) {
-  const mock = new ZKWASMMock();
-  mock.set_private_input(privateInputStr);
-  mock.set_public_input(publicInputStr);
-  setupZKWasmMock(mock);
+    // gen inputs
+    let input = new Input();
+    input = fillExecInput(input, zkgyaml, blockPrepMap, blocknumOrder)
+    let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
-  const { asmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
-      throw error
-  });
-
-  let stateU8a;
-  try {
-      stateU8a = asmain();
-  } catch (e){
-      throw e
-  }
-
-  return stateU8a;
+    return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)
 }

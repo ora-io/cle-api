@@ -23,7 +23,6 @@ import { ZkGraphYaml } from "../type/zkgyaml.js";
 import { BlockPrep } from "../type/blockprep.js";
 import { prepareOneBlockByYaml } from "../inputgen/prepare_blocks.js";
 import { fillExecInput } from "../inputgen/fill_input.js";
-import { fillProveInput } from "./prove_inputgen-old.js";
 
 /**
  * Generate the private and public inputs in hex string format
@@ -35,19 +34,16 @@ import { fillProveInput } from "./prove_inputgen-old.js";
  * @param {boolean} enableLog
  * @returns {[string, string]} - private input string, public input string
  */
-export async function proveInputGen(
-  yamlContent,
-  rpcUrl,
+export async function execInputGen(
+  provider,
+  zkgyaml,
   blockid,
-  expectedStateStr,
   isLocal = false,
   enableLog = true
 ) {
 
-  const provider = new providers.JsonRpcProvider(rpcUrl);
-  let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent);
-
   // Get block
+  // TODO: optimize: no need to getblock if blockid is block num
   let block = await getBlock(provider, blockid);
 
   const blockNumber = parseInt(block.number);
@@ -61,19 +57,18 @@ export async function proveInputGen(
 
   let blocknumOrder = [blockNumber]
 
-  return proveInputGenOnBlockPrepMap(zkgyaml, blockPrepMap, blocknumOrder, blockHash, expectedStateStr)
+  // TODO: await? 
+  return execInputGenOnBlockPrepMap(zkgyaml, blockPrepMap, blocknumOrder)
 }
 
-export function proveInputGenOnBlockPrepMap(
+export function execInputGenOnBlockPrepMap(
   zkgyaml,
   blockPrepMap,
   blocknumOrder,
-  blockHash,
-  expectedStateStr
 ) {
   let input = new Input();
   
-  input = fillProveInput(input, zkgyaml, blockPrepMap, blocknumOrder, blockHash, expectedStateStr)
+  input = fillExecInput(input, zkgyaml, blockPrepMap, blocknumOrder)
 
   return [input.getPrivateInputStr(), input.getPublicInputStr()];
 }

@@ -52,7 +52,7 @@ async function instantiate(module, imports = {}) {
   const memory = exports.memory || imports.env.memory;
   const adaptedExports = Object.setPrototypeOf(
     {
-      asmain(rawreceipts, matched_event_offsets) {
+      asmain_local(rawreceipts, matched_event_offsets) {
         // lib/main_local/asmain(~lib/typedarray/Uint8Array, ~lib/typedarray/Uint32Array) => ~lib/typedarray/Uint8Array
         rawreceipts = __retain(
           __lowerTypedArray(Uint8Array, 4, 0, rawreceipts) || __notnull(),
@@ -67,6 +67,15 @@ async function instantiate(module, imports = {}) {
           );
         } finally {
           __release(rawreceipts);
+        }
+      },
+      asmain() {
+        try {
+          return __liftTypedArray(
+            Uint8Array,
+            exports.asmain() >>> 0,
+          );
+        } finally {
         }
       },
     },

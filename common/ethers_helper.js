@@ -125,6 +125,28 @@ export async function getBlockByHash(ethersProvider, blockHash) {
     return fullBlock;
 }
 
+export async function getBlock(ethersProvider, blockid) 
+{
+  if (
+    typeof blockid === "string" &&
+    blockid.length == 66 &&
+    blockid.charAt(0) == "0" &&
+    blockid.charAt(1) == "x"
+  ) {
+    return await getBlockByHash(ethersProvider, blockid).catch((error) => {
+      throw error;
+      // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
+      // process.exit(1);
+    });
+  } else {
+    return await getBlockByNumber(ethersProvider, blockid).catch((error) => {
+      throw error;
+      // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
+      // process.exit(1);
+    });
+  }
+}
+
 export async function getBalance(privateKey, networkName) {
   const wallet = new Wallet(privateKey);
   // Using default provider to avoid errors in user defined provider

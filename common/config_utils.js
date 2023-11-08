@@ -123,10 +123,10 @@ export function loadZKGraphEventSources(yamlContent) {
       return [source_address, source_esigs];
   }
 
-  const sourceAddressList=[];
-  const sourceEsigsList=[];
-  config.dataSources[0].event.map((event) => {let [sa, se] = loadFromEventSource(event); sourceAddressList.push(sa); sourceEsigsList.push(se)})
-  return [sourceAddressList, sourceEsigsList];
+  const eventDSAddrList=[];
+  const eventDSEsigsList=[];
+  config.dataSources[0].event.map((event) => {let [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se)})
+  return [eventDSAddrList, eventDSEsigsList];
 }
 
 export function loadZKGraphStorageSources(yamlContent) {
@@ -146,10 +146,10 @@ export function loadZKGraphStorageSources(yamlContent) {
       return [source_address, source_slots];
   }
 
-  const sourceAddressList=[];
-  const sourceSlotsList=[];
-  config.dataSources[0].storage.map((storage) => {let [sa, sl] = loadFromStorageSource(storage); sourceAddressList.push(sa); sourceSlotsList.push(sl)})
-  return [sourceAddressList, sourceSlotsList];
+  const stateDSAddrList=[];
+  const stateDSSlotsList=[];
+  config.dataSources[0].storage.map((storage) => {let [sa, sl] = loadFromStorageSource(storage); stateDSAddrList.push(sa); stateDSSlotsList.push(sl)})
+  return [stateDSAddrList, stateDSSlotsList];
 }
 
 export function loadZKGraphName(fname) {
