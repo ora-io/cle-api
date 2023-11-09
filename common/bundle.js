@@ -22,7 +22,6 @@ async function instantiate(module, imports = {}) {
       },
       require(x) {
         // sdk/zkwasm/require1(i32) => i64
-        console.log("requiretest:", x)
         ZKWASMMock.require(x);
       },
       wasm_input(x) {
