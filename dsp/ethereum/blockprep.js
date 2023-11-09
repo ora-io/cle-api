@@ -1,3 +1,15 @@
+import { DataPrep } from "../interface";
+
+// includes both exec & prove params
+export class EthereumDataPrep extends DataPrep {
+  constructor(blockPrepMap, blocknumberOrder, latestBlockhash, expectedStateStr) {
+    super();
+    this.blockPrepMap = blockPrepMap;
+    this.blocknumberOrder = blocknumberOrder;
+    this.latestBlockhash = latestBlockhash;
+    this.expectedStateStr = expectedStateStr
+  }
+}
 
 export class SlotPrep {
   constructor(

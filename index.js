@@ -1,5 +1,11 @@
-export { execute, executeOnRawReceipts } from "./api/exec.js";
-export { proveInputGen, proveInputGenOnRawReceipts } from "./api/prove_inputgen.js";
+export { DataSourcePlugin } from "./dsp/interface.js";
+export { ZkGraphYaml } from "./type/zkgyaml.js";
+export { EthereumDataSourcePlugin } from "./dsp/ethereum/index.js";
+
+export { hasDebugOnlyFunc } from "./common/bundle.js";
+
+export { execute } from "./api/exec.js";
+export { proveInputGen, proveInputGenOnDataPrep } from "./api/prove_inputgen.js";
 export { proveMock } from "./api/prove_mock.js";
 export { prove, waitProve } from "./api/prove.js";
 export { upload } from "./api/upload.js";
@@ -18,4 +24,3 @@ export { zkwasm_setup } from './requests/zkwasm_setup.js';
 export { zkwasm_prove } from './requests/zkwasm_prove.js';
 export { zkwasm_deploy } from './requests/zkwasm_deploy.js';
 export { zkwasm_imagedetails } from './requests/zkwasm_imagedetails.js';
-export { ZkGraphYaml } from "./type/zkgyaml.js";

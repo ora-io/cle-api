@@ -1,79 +1,48 @@
-import {
-  formatVarLenInput,
-  formatIntInput,
-  formatHexStringInput,
-} from "../common/api_helper.js";
-import {
-  getBlockByNumber,
-  getBlockByHash,
-  getRawReceipts,
-  getProof,
-  getBlock,
-} from "../common/ethers_helper.js";
-import { filterEvents } from "../common/api_helper.js";
-import { toHexString, trimPrefix } from "../common/utils.js";
-import {
-  loadZKGraphEventSources,
-  loadZKGraphStorageSources,
-  loadZKGraphType,
-} from "../common/config_utils.js";
+
 import { Input } from "../common/input.js";
-import { ethers, providers } from "ethers";
 import { ZkGraphYaml } from "../type/zkgyaml.js";
-import { BlockPrep } from "../type/blockprep.js";
-import { prepareOneBlockByYaml } from "../inputgen/prepare_blocks.js";
-import { fillExecInput } from "../inputgen/fill_input.js";
-import { fillProveInput } from "./prove_inputgen-old.js";
+import { prepareOneBlockByYaml } from "../dsp/ethereum/prepare_blocks.js";
+import { hubGetDSPByYaml } from "../dsp/hub.js";
 
 /**
  * Generate the private and public inputs in hex string format
- * @param {string} yamlContent
- * @param {string} rpcUrl
- * @param {number | string} blockid
- * @param {string} expectedStateStr
- * @param {boolean} isLocal
- * @param {boolean} enableLog
+ * @param {string} yamlContent 
+ * @param {object} proveParams {"xx": xx}
+ * @param {boolean} isLocal 
+ * @param {boolean} enableLog 
  * @returns {[string, string]} - private input string, public input string
  */
 export async function proveInputGen(
   yamlContent,
-  rpcUrl,
-  blockid,
-  expectedStateStr,
+  proveParams,
   isLocal = false,
   enableLog = true
 ) {
-
-  const provider = new providers.JsonRpcProvider(rpcUrl);
+  // TODO: use isLocal?
+  
+  // const provider = new providers.JsonRpcProvider(rpcUrl);
   let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent);
 
-  // Get block
-  let block = await getBlock(provider, blockid);
+  let dsp /**:DataSourcePlugin */ = hubGetDSPByYaml(zkgyaml, {'isLocal': isLocal});
 
-  const blockNumber = parseInt(block.number);
-  const blockHash = block.hash;
+  let prepareParams = await dsp.toPrepareParamsFromProveParams(proveParams)
+  let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgyaml, prepareParams)
 
-  //////// TODO: multi blocks
-  let blockPrep = await prepareOneBlockByYaml(provider, blockNumber, zkgyaml);
-
-  let blockPrepMap = new Map();
-  blockPrepMap.set(blockNumber, blockPrep)
-
-  let blocknumOrder = [blockNumber]
-
-  return proveInputGenOnBlockPrepMap(zkgyaml, blockPrepMap, blocknumOrder, blockHash, expectedStateStr)
+  return proveInputGenOnDataPrep(yamlContent, dataPrep, isLocal)
 }
 
-export function proveInputGenOnBlockPrepMap(
-  zkgyaml,
-  blockPrepMap,
-  blocknumOrder,
-  blockHash,
-  expectedStateStr
+export function proveInputGenOnDataPrep(
+  yamlContent,
+  dataPrep,
+  isLocal = false,
 ) {
+  let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent);
+
   let input = new Input();
   
-  input = fillProveInput(input, zkgyaml, blockPrepMap, blocknumOrder, blockHash, expectedStateStr)
+  let dsp /**:DataSourcePlugin */ = hubGetDSPByYaml(zkgyaml, {'isLocal': isLocal});
+
+  input = dsp.fillProveInput(input, zkgyaml, dataPrep);
 
   return [input.getPrivateInputStr(), input.getPublicInputStr()];
 }

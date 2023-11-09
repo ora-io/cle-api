@@ -4,17 +4,25 @@ import {
   getRawReceipts,
   getProof,
   getBlock,
-} from "../common/ethers_helper.js";
-import { filterEvents } from "../common/api_helper.js";
-import { toHexString, trimPrefix } from "../common/utils.js";
+} from "../../common/ethers_helper.js";
+import { filterEvents } from "../../common/api_helper.js";
+import { toHexString, trimPrefix } from "../../common/utils.js";
 import { ethers, providers } from "ethers";
-import { ZkGraphYaml } from "../type/zkgyaml.js";
-import { BlockPrep } from "../type/blockprep.js";
+import { ZkGraphYaml } from "../../type/zkgyaml.js";
+import { BlockPrep } from "./blockprep.js";
+import { EthereumDataPrep } from "./blockprep.js";
 
 
-export async function prepareBlocksByYaml(provider, blockNumber, zkgyaml) {
+export async function prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgyaml) {
   // TODO: multi blocks
-  return await prepareOneBlockByYaml(provider, blockNumber, zkgyaml)
+  let blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, zkgyaml);
+
+  let blockPrepMap = new Map();
+  blockPrepMap.set(latestBlocknumber, blockPrep)
+
+  let blocknumOrder = [latestBlocknumber]
+
+  return new EthereumDataPrep(blockPrepMap, blocknumOrder, latestBlockhash, expectedStateStr)
 }
 
 export async function prepareOneBlockByYaml(provider, blockNumber, zkgyaml) {
@@ -52,7 +60,6 @@ export async function prepareOneBlock(provider, blockNumber, stateDSAddrList, st
       stateDSSlotsList[i],
       ethers.utils.hexValue(blockNumber)
     );
-    console.log('testxhyu:',ethproof)
     // record
     block.addFromGetProofResult(ethproof, "0xaaaaaa")
   }
