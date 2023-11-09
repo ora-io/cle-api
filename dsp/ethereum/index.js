@@ -43,6 +43,14 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
     }
   }
 
+  static toProveParams(rpcUrl, blockid, expectedStateStr){
+    return {
+      "rpcUrl": rpcUrl,
+      "blockid": blockid,
+      "expectedStateStr": expectedStateStr
+    }
+  }
+
   static async toPrepareParamsFromExecParams(execParams){
     const { rpcUrl, blockid } = execParams
 
@@ -77,14 +85,6 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
       "provider": provider,
       "latestBlocknumber": blockNumber, 
       "latestBlockhash": blockHash,
-      "expectedStateStr": expectedStateStr
-    }
-  }
-
-  static toProveParams(rpcUrl, blockid, expectedStateStr){
-    return {
-      "rpcUrl": rpcUrl,
-      "blockid": blockid,
       "expectedStateStr": expectedStateStr
     }
   }
