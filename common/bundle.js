@@ -6,16 +6,23 @@ export function setupZKWasmMock(mock) {
   zkwasmmock = mock;
 }
 
+export let hasDebugOnlyFunc = false;
+
 async function instantiate(module, imports = {}) {
+
+  hasDebugOnlyFunc = false;
+
   const adaptedImports = {
     env: Object.assign(Object.create(globalThis), imports.env || {}, {
       "console.log"(text) {
         // ~lib/bindings/dom/console.log(~lib/string/String) => void
         text = __liftString(text >>> 0);
         console.log(text);
+        hasDebugOnlyFunc = true;
       },
       require(x) {
         // sdk/zkwasm/require1(i32) => i64
+        console.log("requiretest:", x)
         ZKWASMMock.require(x);
       },
       wasm_input(x) {
