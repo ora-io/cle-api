@@ -26,6 +26,7 @@ let blocknumfortest = {
   mainnet: 17633573,
 };
 let zkgstatefortest = {
+   // update this when update the blocknumfortest
     'sepolia': '0x6370902000000003336530047e5ec3da40c000000000068f1888e6eb7036fffe',
 }
 

@@ -1,11 +1,12 @@
 export { DataSourcePlugin, DataPrep } from "./dsp/interface.js";
 export { dspHub } from "./dsp/hub.js";
 export { ZkGraphYaml } from "./type/zkgyaml.js";
-export { EthereumDataSourcePlugin } from "./dsp/ethereum/index.js";
+// export { EthereumDataSourcePlugin } from "./dsp/ethereum/index.js";
+export * as ETHDSP from "./dsp/ethereum/index.js";
 
 export { hasDebugOnlyFunc } from "./common/bundle.js";
 
-export { execute } from "./api/exec.js";
+export { execute, executeOnDataPrep } from "./api/exec.js";
 export { proveInputGen, proveInputGenOnDataPrep } from "./api/prove_inputgen.js";
 export { proveMock } from "./api/prove_mock.js";
 export { prove, waitProve } from "./api/prove.js";
