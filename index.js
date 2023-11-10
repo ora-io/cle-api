@@ -1,4 +1,5 @@
-export { DataSourcePlugin } from "./dsp/interface.js";
+export { DataSourcePlugin, DataPrep } from "./dsp/interface.js";
+export { dspHub } from "./dsp/hub.js";
 export { ZkGraphYaml } from "./type/zkgyaml.js";
 export { EthereumDataSourcePlugin } from "./dsp/ethereum/index.js";
 
@@ -24,3 +25,4 @@ export { zkwasm_setup } from './requests/zkwasm_setup.js';
 export { zkwasm_prove } from './requests/zkwasm_prove.js';
 export { zkwasm_deploy } from './requests/zkwasm_deploy.js';
 export { zkwasm_imagedetails } from './requests/zkwasm_imagedetails.js';
+export * as utils from './common/utils.js';
