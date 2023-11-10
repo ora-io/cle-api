@@ -1,12 +1,12 @@
-import { DataSourcePlugin } from "../interface";
-import { prepareBlocksByYaml } from "./prepare_blocks";
-import { fillInputBlocks } from "./fill_blocks";
+import { DataSourcePlugin } from "../interface.js";
+import { prepareBlocksByYaml } from "./prepare_blocks.js";
+import { fillInputBlocks } from "./fill_blocks.js";
 
 import { providers } from "ethers";
-import { getBlock } from "../../common/ethers_helper";
-import { trimPrefix } from "../../common/utils";
+import { getBlock } from "../../common/ethers_helper.js";
+import { trimPrefix } from "../../common/utils.js";
 
-export { EthereumDataPrep } from "./blockprep";
+export { EthereumDataPrep } from "./blockprep.js";
 
 export class EthereumDataSourcePlugin extends DataSourcePlugin{
 

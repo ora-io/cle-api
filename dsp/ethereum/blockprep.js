@@ -1,4 +1,4 @@
-import { DataPrep } from "../interface";
+import { DataPrep } from "../interface.js";
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
