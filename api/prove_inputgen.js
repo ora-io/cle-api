@@ -2,7 +2,7 @@
 import { Input } from "../common/input.js";
 import { ZkGraphYaml } from "../type/zkgyaml.js";
 import { prepareOneBlockByYaml } from "../dsp/ethereum/prepare_blocks.js";
-import { hubGetDSPByYaml } from "../dsp/hub.js";
+import { dspHub } from "../dsp/hub.js";
 
 /**
  * Generate the private and public inputs in hex string format
@@ -23,7 +23,7 @@ export async function proveInputGen(
   // const provider = new providers.JsonRpcProvider(rpcUrl);
   let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent);
 
-  let dsp /**:DataSourcePlugin */ = hubGetDSPByYaml(zkgyaml, {'isLocal': isLocal});
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
 
   let prepareParams = await dsp.toPrepareParamsFromProveParams(proveParams)
   let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgyaml, prepareParams)
@@ -40,7 +40,7 @@ export function proveInputGenOnDataPrep(
 
   let input = new Input();
   
-  let dsp /**:DataSourcePlugin */ = hubGetDSPByYaml(zkgyaml, {'isLocal': isLocal});
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
 
   input = dsp.fillProveInput(input, zkgyaml, dataPrep);
 

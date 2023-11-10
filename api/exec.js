@@ -10,7 +10,7 @@ import { ZkGraphYaml } from "../type/zkgyaml.js";
 // import { execInputGen, execInputGenOnBlockPrepMap } from "./exec_inputgen.js";
 import { Input } from "../common/input.js";
 import { BlockPrep } from "../dsp/ethereum/blockprep.js";
-import { DSPHub, hubGetDSPByYaml } from "../dsp/hub.js";
+import { dspHub } from "../dsp/hub.js";
 
 /**
  * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
@@ -30,7 +30,7 @@ export async function execute(wasmUnit8Array, yamlContent, execParams, isLocal=f
     // }
     let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
     
-    let dsp /**:DataSourcePlugin */ = hubGetDSPByYaml(zkgyaml, {'isLocal': isLocal});
+    let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
 
     let prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
     let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgyaml, prepareParams)
@@ -49,7 +49,7 @@ export async function executeOnDataPrep(wasmUnit8Array, yamlContent, dataPrep, i
 
   let input = new Input();
 
-  let dsp /**:DataSourcePlugin */ = hubGetDSPByYaml(zkgyaml, {'isLocal': isLocal});
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
 
   input = dsp.fillExecInput(input, zkgyaml, dataPrep)
   
