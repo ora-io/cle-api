@@ -5,7 +5,7 @@ import * as zkgapi from "../index.js";
 import { config } from "./config.js";
 
 let blocknumfortest = {
-  sepolia: 4666901, // to test event use 2279547, to test storage use latest blocknum
+  sepolia: 4673221, // to test event use 2279547, to test storage use latest blocknum
   mainnet: 17633573,
 };
 
@@ -21,8 +21,7 @@ async function test_exec(options) {
   
   const wasm = fs.readFileSync(wasmPath)
   const wasmUnit8Array = new Uint8Array(wasm)
-  const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-  
+  // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
   let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
   let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
   
@@ -31,8 +30,7 @@ async function test_exec(options) {
     blockId,
   )
   const state = await zkgapi.execute(
-    wasmUnit8Array,
-    yamlContent,
+    {'wasmUnit8Array': wasmUnit8Array, 'zkgraphYaml': yaml},
     execParams,
     local,
     true,
@@ -47,8 +45,7 @@ async function test_exec_with_prepare_data(options) {
   
   const wasm = fs.readFileSync(wasmPath)
   const wasmUnit8Array = new Uint8Array(wasm)
-  const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-  
+  // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
   let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
   let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
   
@@ -64,8 +61,7 @@ async function test_exec_with_prepare_data(options) {
   let dataPrep = await dsp.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
 
   const state = await zkgapi.executeOnDataPrep(
-    wasmUnit8Array,
-    yamlContent,
+    {'wasmUnit8Array': wasmUnit8Array, 'zkgraphYaml': yaml},
     dataPrep,
     local,
     true,
@@ -75,8 +71,6 @@ async function test_exec_with_prepare_data(options) {
 }
 
 let stateu8a = await test_exec(execOptions)
-console.log(`ZKGRAPH STATE OUTPUT: ${zkgapi.utils.toHexString(stateu8a)}\n`)
-
-// can enable this
 // let stateu8a = await test_exec_with_prepare_data(execOptions)
-// console.log(`ZKGRAPH STATE OUTPUT: ${zkgapi.utils.toHexString(stateu8a)}\n`)
+
+console.log(`ZKGRAPH STATE OUTPUT: ${zkgapi.utils.toHexString(stateu8a)}\n`)

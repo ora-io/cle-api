@@ -22,29 +22,29 @@ import { dspHub } from "../dsp/hub.js";
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
-export async function execute(wasmUnit8Array, yamlContent, execParams, isLocal=false, enableLog=true) {
+export async function execute(zkGraphExecutable, execParams, isLocal=false, enableLog=true) {
 
   // TODO: mv this log to cli
     // if (enableLog){
     //     console.log(`[*] Run zkgraph on block ${blockid}\n`);
     // }
-    let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
-    
+    const { zkgraphYaml } = zkGraphExecutable;
+  
     let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
     let prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
     let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
-    return executeOnDataPrep(wasmUnit8Array, yamlContent, dataPrep)
+    return executeOnDataPrep(zkGraphExecutable, dataPrep)
 
     // console.log(privateInputStr)
     // console.log(publicInputStr)
     // return await executeOnBlockPrepMap(wasmUnit8Array, yamlContent, blockPrepMap, blocknumOrder, isLocal, enableLog)
 }
 
-export async function executeOnDataPrep(wasmUnit8Array, yamlContent, dataPrep, isLocal=false, enableLog=true) {
-  let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
-    
+export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=false, enableLog=true) {
+  const { wasmUnit8Array, zkgraphYaml } = zkGraphExecutable;
+  
   let input = new Input();
 
   let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
