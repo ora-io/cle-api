@@ -61,4 +61,3 @@ export const dspHub = new DSPHub();
  * Register DSPs
  */
 dspHub.setDSP('ethereum', {'isLocal': false}, EthereumDataSourcePlugin);
-dspHub.setDSP('ethereum', {'isLocal': true}, ETHLocalDSP);
