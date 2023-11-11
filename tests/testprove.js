@@ -22,7 +22,7 @@ import { config } from "./config.js";
 
 let isLocal = false
 let blocknumfortest = {
-  sepolia: 4666901, // to test event use 2279547, to test storage use latest blocknum
+  sepolia: 4673221, // to test event use 2279547, to test storage use latest blocknum
   mainnet: 17633573,
 };
 let zkgstatefortest = {
@@ -45,8 +45,7 @@ async function test_proveMock(options) {
   
   const wasm = fs.readFileSync(wasmPath)
   const wasmUnit8Array = new Uint8Array(wasm)
-  const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-  
+  // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
   let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
   let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
   
@@ -56,7 +55,7 @@ async function test_proveMock(options) {
     expectedStateStr,
   )
   const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-    yamlContent,
+    {'wasmUnit8Array': null, 'zkgraphYaml': yaml}, // doesn't care about wasmUnit8Array
     proveParams,
     local,
     true,
@@ -70,4 +69,4 @@ async function test_proveMock(options) {
 }
 
 let result = await test_proveMock(proveOptions)
-console.log(`ZKGRAPH PROVE MOCK: ${result ? 'SUCCESS' : 'FAILED. please check your expectState or "require" conditions.'}\n`)
+console.log(`ZKGRAPH PROVE MOCK: ${result ? 'SUCCESS!' : 'FAILED. please check your expectState or "require" conditions.'}\n`)

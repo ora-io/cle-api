@@ -1,7 +1,4 @@
-
 import { Input } from "../common/input.js";
-import { ZkGraphYaml } from "../type/zkgyaml.js";
-import { prepareOneBlockByYaml } from "../dsp/ethereum/prepare_blocks.js";
 import { dspHub } from "../dsp/hub.js";
 
 /**
@@ -13,30 +10,27 @@ import { dspHub } from "../dsp/hub.js";
  * @returns {[string, string]} - private input string, public input string
  */
 export async function proveInputGen(
-  yamlContent,
+  zkGraphExecutable,
   proveParams,
   isLocal = false,
   enableLog = true
 ) {
-  // TODO: use isLocal?
-  
-  // const provider = new providers.JsonRpcProvider(rpcUrl);
-  let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent);
+  const { zkgraphYaml } = zkGraphExecutable;
 
   let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
   let prepareParams = await dsp.toPrepareParamsFromProveParams(proveParams)
   let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
-  return proveInputGenOnDataPrep(yamlContent, dataPrep, isLocal)
+  return proveInputGenOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
 }
 
 export function proveInputGenOnDataPrep(
-  yamlContent,
+  zkGraphExecutable,
   dataPrep,
   isLocal = false,
 ) {
-  let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent);
+  const { zkgraphYaml } = zkGraphExecutable;
 
   let input = new Input();
   
