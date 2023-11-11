@@ -1,25 +1,15 @@
-import { filterEvents } from "../common/api_helper.js";
-import {
-  toHexString
-} from "../common/utils.js";
-import { proveInputGen } from "./prove_inputgen.js";
 import { ZKWASMMock } from "../common/zkwasm_mock.js";
 import { instantiateWasm, setupZKWasmMock } from "../common/bundle.js";
-import { loadZKGraphEventSources, loadZKGraphType } from "../common/config_utils.js";
-import { ZkGraphYaml } from "../type/zkgyaml.js";
-// import { execInputGen, execInputGenOnBlockPrepMap } from "./exec_inputgen.js";
 import { Input } from "../common/input.js";
-import { BlockPrep } from "../dsp/ethereum/blockprep.js";
 import { dspHub } from "../dsp/hub.js";
+import { DataPrep } from "../dsp/interface.js";
 
 /**
- * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
- * @param {string} wasmUnit8Array
- * @param {string} yamlContent
- * @param {string} rpcUrl
- * @param {number | string} blockid
- * @param {boolean} isLocal
- * @param {boolean} enableLog
+ * Execute the given zkGraphExecutable in the context of execParams
+ * @param {object} zkGraphExecutable {'zkgraphYaml': zkgraphYaml}
+ * @param {object} execParams 
+ * @param {boolean} isLocal 
+ * @param {boolean} enableLog 
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
 export async function execute(zkGraphExecutable, execParams, isLocal=false, enableLog=true) {
@@ -36,12 +26,16 @@ export async function execute(zkGraphExecutable, execParams, isLocal=false, enab
     let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
     return executeOnDataPrep(zkGraphExecutable, dataPrep)
-
-    // console.log(privateInputStr)
-    // console.log(publicInputStr)
-    // return await executeOnBlockPrepMap(wasmUnit8Array, yamlContent, blockPrepMap, blocknumOrder, isLocal, enableLog)
 }
 
+/**
+ * 
+ * @param {object} zkGraphExecutable 
+ * @param {DataPrep} dataPrep 
+ * @param {boolean} isLocal 
+ * @param {boolean} enableLog 
+ * @returns 
+ */
 export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=false, enableLog=true) {
   const { wasmUnit8Array, zkgraphYaml } = zkGraphExecutable;
   
@@ -56,7 +50,16 @@ export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=fal
   return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)
 }
 
-export async function executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr) {
+/**
+ * 
+ * @param {object} zkGraphExecutable 
+ * @param {string} privateInputStr 
+ * @param {string} publicInputStr 
+ * @returns 
+ */
+export async function executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr) {
+  const { wasmUnit8Array } = zkGraphExecutable;
+
   const mock = new ZKWASMMock();
   mock.set_private_input(privateInputStr);
   mock.set_public_input(publicInputStr);
@@ -68,7 +71,6 @@ export async function executeOnInputs(wasmUnit8Array, privateInputStr, publicInp
 
   let stateU8a;
   try {
-      // __as_start();
       stateU8a = asmain();
   } catch (e){
       throw e

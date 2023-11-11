@@ -9,7 +9,7 @@ import {
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {string} wasmUnit8Array - the uint8Array format of wasm bin file
+ * @param {object} zkGraphExecutable 
  * @param {string} privateInputStr - the packed private input in hex string
  * @param {string} publicInputStr - the packed public input in hex string
  * @param {string} zkwasmProverUrl - the url of the zkwasm prover
@@ -18,7 +18,7 @@ import {
  * @returns {object} - proof task details in json
  */
 export async function prove(
-  wasmUnit8Array,
+  zkGraphExecutable,
   privateInputStr,
   publicInputStr,
   zkwasmProverUrl,
@@ -29,6 +29,7 @@ export async function prove(
     md5: null,
     taskId: null,
   };
+  const { wasmUnit8Array } = zkGraphExecutable;
 
   // Prove mode
   const privateInputArray = privateInputStr.trim().split(" ");
