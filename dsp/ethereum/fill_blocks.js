@@ -3,7 +3,7 @@ import { toHexString, trimPrefix } from "../../common/utils.js";
 
 export function fillInputBlocks(
   input,
-  zkgyaml,
+  zkgraphYaml,
   blockPrepMap, // Map<blocknum: i32, BlockPrep>
   blocknumOrder, // i32[]
   latestBlockhash
@@ -15,7 +15,7 @@ export function fillInputBlocks(
     if (!blockPrepMap.has(bn)) {
       throw new Error(`Lack blockPrep for block (${bn})`)
     }
-    fillInputOneBlock(input, zkgyaml, blockPrepMap.get(bn))
+    fillInputOneBlock(input, zkgraphYaml, blockPrepMap.get(bn))
   });
 
   // Optional but easy to handle;
@@ -26,7 +26,7 @@ export function fillInputBlocks(
 }
 
 // blockPrep: class BlockPrep, used for prepare data & interface params.
-export function fillInputOneBlock(input, zkgyaml, blockPrep){
+export function fillInputOneBlock(input, zkgraphYaml, blockPrep){
 
   input.addVarLenHexString(
     blockPrep.rlpHeader,
@@ -37,9 +37,9 @@ export function fillInputOneBlock(input, zkgyaml, blockPrep){
    * Fill storage
    * */ 
 
-  if (zkgyaml.dataSources[0].storage) {
+  if (zkgraphYaml.dataSources[0].storage) {
 
-    let [stateDSAddrList, stateDSSlotsList] = zkgyaml.dataSources[0].storage.toArray();
+    let [stateDSAddrList, stateDSSlotsList] = zkgraphYaml.dataSources[0].storage.toArray();
     input.addInt(stateDSAddrList.length, false); // account count
 
     console.log("[*] Defined Data Sources - Storage:");
@@ -90,12 +90,12 @@ export function fillInputOneBlock(input, zkgyaml, blockPrep){
    * Fill RLP(receipt)
    * */ 
 
-  if (zkgyaml.dataSources[0].event) {
+  if (zkgraphYaml.dataSources[0].event) {
 
     // TODO move logs to cli
     let enableLog = true;
     
-    let [eventDSAddrList, eventDSEsigsList] = zkgyaml.dataSources[0].event.toArray()
+    let [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.dataSources[0].event.toArray()
 
     // TODO: move this to cli
     console.log("[*] Defined Data Sources - Event:");

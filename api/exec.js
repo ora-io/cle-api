@@ -28,12 +28,12 @@ export async function execute(wasmUnit8Array, yamlContent, execParams, isLocal=f
     // if (enableLog){
     //     console.log(`[*] Run zkgraph on block ${blockid}\n`);
     // }
-    let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
+    let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
     
-    let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
+    let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
     let prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
-    let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgyaml, prepareParams)
+    let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
     return executeOnDataPrep(wasmUnit8Array, yamlContent, dataPrep)
 
@@ -43,18 +43,14 @@ export async function execute(wasmUnit8Array, yamlContent, execParams, isLocal=f
 }
 
 export async function executeOnDataPrep(wasmUnit8Array, yamlContent, dataPrep, isLocal=false, enableLog=true) {
-  let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
-
-  // let [privateInputStr, publicInputStr] = execInputGenOnBlockPrepMap(zkgyaml, blockPrepMap, blocknumOrder)
-
+  let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
+    
   let input = new Input();
 
-  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
-  input = dsp.fillExecInput(input, zkgyaml, dataPrep)
+  input = dsp.fillExecInput(input, zkgraphYaml, dataPrep)
   
-  // input = fillExecInput(input, zkgyaml, blockPrepMap, blocknumOrder)
-
   let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
   return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)
@@ -93,10 +89,10 @@ export async function executeOnInputs(wasmUnit8Array, privateInputStr, publicInp
 //  */
 // export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
 
-//     const zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent)
+//     const zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
 //     const provider = new providers.JsonRpcProvider(rpcUrl);
 
-//     const [eventDSAddrList, eventDSEsigsList] = zkgyaml.dataSources[0].event.toArray();
+//     const [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.dataSources[0].event.toArray();
 
 
 //     // prepare data
@@ -123,7 +119,7 @@ export async function executeOnInputs(wasmUnit8Array, privateInputStr, publicInp
 
 //     // gen inputs
 //     let input = new Input();
-//     input = fillExecInput(input, zkgyaml, blockPrepMap, blocknumOrder)
+//     input = fillExecInput(input, zkgraphYaml, blockPrepMap, blocknumOrder)
 //     let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
 //     return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)

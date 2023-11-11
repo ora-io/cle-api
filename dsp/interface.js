@@ -6,13 +6,13 @@
 export class DataPrep {}
 
 export class DataSourcePlugin {
-  static async prepareData(zkgyaml, prepareParams){
+  static async prepareData(zkgraphYaml, prepareParams){
     throw new Error("default: prepareData not implemented in DSP.")
   }
-  static fillExecInput(input, zkgyaml, dataPrep){
+  static fillExecInput(input, zkgraphYaml, dataPrep){
     throw new Error("default: fillInput not implemented in DSP.")
   }
-  static fillProveInput(input, zkgyaml, dataPrep){
+  static fillProveInput(input, zkgraphYaml, dataPrep){
     throw new Error("default: fillInput not implemented in DSP.")
   }
   static toPrepareParams() {

@@ -13,9 +13,9 @@ import { BlockPrep } from "./blockprep.js";
 import { EthereumDataPrep } from "./blockprep.js";
 
 
-export async function prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgyaml) {
+export async function prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgraphYaml) {
   // TODO: multi blocks
-  let blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, zkgyaml);
+  let blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, zkgraphYaml);
 
   let blockPrepMap = new Map();
   blockPrepMap.set(latestBlocknumber, blockPrep)
@@ -25,16 +25,16 @@ export async function prepareBlocksByYaml(provider, latestBlocknumber, latestBlo
   return new EthereumDataPrep(blockPrepMap, blocknumOrder, latestBlockhash, expectedStateStr)
 }
 
-export async function prepareOneBlockByYaml(provider, blockNumber, zkgyaml) {
+export async function prepareOneBlockByYaml(provider, blockNumber, zkgraphYaml) {
 
   let stateDSAddrList, stateDSSlotsList;
-  if (zkgyaml.dataSources[0].storage) {
-    [stateDSAddrList, stateDSSlotsList] = zkgyaml.dataSources[0].storage.toArray();
+  if (zkgraphYaml.dataSources[0].storage) {
+    [stateDSAddrList, stateDSSlotsList] = zkgraphYaml.dataSources[0].storage.toArray();
   } else {
     [stateDSAddrList, stateDSSlotsList] = [[], []]
   }
 
-  let needRLPReceiptList = zkgyaml.dataSources[0].event != null;
+  let needRLPReceiptList = zkgraphYaml.dataSources[0].event != null;
 
   return await prepareOneBlock(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList)
 }

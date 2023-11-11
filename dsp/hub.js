@@ -12,8 +12,8 @@ import { EthereumDataSourcePlugin } from "./ethereum/index.js";
 //   DSPHub.set(toHubKey(primaryKey, foreignKeys), dsp);
 // }
 
-// export function hubGetDSPByYaml(zkgyaml, foreignKeys){
-//   const primaryKey = zkgyaml.dataSources[0].primaryKey;
+// export function hubGetDSPByYaml(zkgraphYaml, foreignKeys){
+//   const primaryKey = zkgraphYaml.dataSources[0].primaryKey;
 //   return DSPHub.get(toHubKey(primaryKey, foreignKeys));
 // }
 
@@ -46,8 +46,8 @@ export class DSPHub{
     return this.hub.get(key);
   }
 
-  getDSPByYaml(zkgyaml, foreignKeys){
-    const primaryKey = zkgyaml.dataSources[0].kind;
+  getDSPByYaml(zkgraphYaml, foreignKeys){
+    const primaryKey = zkgraphYaml.dataSources[0].kind;
     return this.getDSP(primaryKey, foreignKeys);
   }
 }
@@ -61,3 +61,4 @@ export const dspHub = new DSPHub();
  * Register DSPs
  */
 dspHub.setDSP('ethereum', {'isLocal': false}, EthereumDataSourcePlugin);
+dspHub.setDSP('ethereum', {'isLocal': true}, ETHLocalDSP);

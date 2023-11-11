@@ -21,12 +21,12 @@ export async function proveInputGen(
   // TODO: use isLocal?
   
   // const provider = new providers.JsonRpcProvider(rpcUrl);
-  let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent);
+  let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent);
 
-  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
   let prepareParams = await dsp.toPrepareParamsFromProveParams(proveParams)
-  let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgyaml, prepareParams)
+  let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
   return proveInputGenOnDataPrep(yamlContent, dataPrep, isLocal)
 }
@@ -36,13 +36,13 @@ export function proveInputGenOnDataPrep(
   dataPrep,
   isLocal = false,
 ) {
-  let zkgyaml = ZkGraphYaml.fromYamlContent(yamlContent);
+  let zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent);
 
   let input = new Input();
   
-  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgyaml, {'isLocal': isLocal});
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
-  input = dsp.fillProveInput(input, zkgyaml, dataPrep);
+  input = dsp.fillProveInput(input, zkgraphYaml, dataPrep);
 
   return [input.getPrivateInputStr(), input.getPublicInputStr()];
 }

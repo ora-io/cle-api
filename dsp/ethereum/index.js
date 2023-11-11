@@ -10,17 +10,17 @@ export { EthereumDataPrep } from "./blockprep.js";
 
 export class EthereumDataSourcePlugin extends DataSourcePlugin{
 
-  static async prepareData(zkgyaml, prepareParams){
+  static async prepareData(zkgraphYaml, prepareParams){
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
-    return await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgyaml)
+    return await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgraphYaml)
   }
 
-  static fillExecInput(input, zkgyaml, dataPrep){
-    return fillInputBlocks(input, zkgyaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+  static fillExecInput(input, zkgraphYaml, dataPrep){
+    return fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
 
-  static fillProveInput(input, zkgyaml, dataPrep){
-    this.fillExecInput(input, zkgyaml, dataPrep);
+  static fillProveInput(input, zkgraphYaml, dataPrep){
+    this.fillExecInput(input, zkgraphYaml, dataPrep);
     // add expected State Str
     let expectedStateStr = trimPrefix(dataPrep.expectedStateStr, "0x");
     input.addVarLenHexString(expectedStateStr, true);
