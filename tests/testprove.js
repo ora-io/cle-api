@@ -22,7 +22,7 @@ import { config } from "./config.js";
 
 let isLocal = false
 let blocknumfortest = {
-  sepolia: 4673221, // to test event use 2279547, to test storage use latest blocknum
+  sepolia: 4676631, // to test event use 2279547, to test storage use latest blocknum
   mainnet: 17633573,
 };
 let zkgstatefortest = {
@@ -62,7 +62,7 @@ async function test_proveMock(options) {
   )
 
   return await zkgapi.proveMock(
-    wasmUint8Array,
+    {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': null},
     privateInputStr,
     publicInputStr
   )
