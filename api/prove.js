@@ -29,14 +29,14 @@ export async function prove(
     md5: null,
     taskId: null,
   };
-  const { wasmUnit8Array } = zkGraphExecutable;
+  const { wasmUint8Array } = zkGraphExecutable;
 
   // Prove mode
   const privateInputArray = privateInputStr.trim().split(" ");
   const publicInputArray = publicInputStr.trim().split(" ");
 
   // Message and form data
-  const md5 = ZkWasmUtil.convertToMd5(wasmUnit8Array).toUpperCase();
+  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase();
 
   result["md5"] = md5;
 

@@ -20,7 +20,7 @@ async function test_exec(options) {
   const { yamlPath, jsonRpcProviderUrl, wasmPath, blockId, local } = options
   
   const wasm = fs.readFileSync(wasmPath)
-  const wasmUnit8Array = new Uint8Array(wasm)
+  const wasmUint8Array = new Uint8Array(wasm)
   // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
   let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
   let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
@@ -30,7 +30,7 @@ async function test_exec(options) {
     blockId,
   )
   const state = await zkgapi.execute(
-    {'wasmUnit8Array': wasmUnit8Array, 'zkgraphYaml': yaml},
+    {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': yaml},
     execParams,
     local,
     true,
@@ -44,7 +44,7 @@ async function test_exec_with_prepare_data(options) {
   const { yamlPath, jsonRpcProviderUrl, wasmPath, blockId, local } = options
   
   const wasm = fs.readFileSync(wasmPath)
-  const wasmUnit8Array = new Uint8Array(wasm)
+  const wasmUint8Array = new Uint8Array(wasm)
   // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
   let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
   let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
@@ -61,7 +61,7 @@ async function test_exec_with_prepare_data(options) {
   let dataPrep = await dsp.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
 
   const state = await zkgapi.executeOnDataPrep(
-    {'wasmUnit8Array': wasmUnit8Array, 'zkgraphYaml': yaml},
+    {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': yaml},
     dataPrep,
     local,
     true,

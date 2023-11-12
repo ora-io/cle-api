@@ -13,7 +13,7 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
 /**
  * Set up zkwasm image with given wasm file.
  * @param {string} wasmName
- * @param {string} wasmUnit8Array
+ * @param {string} wasmUint8Array
  * @param {number} circuitSize
  * @param {string} userPrivateKey
  * @param {string} ZkwasmProviderUrl
@@ -23,7 +23,7 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
  */
 export async function setup(
   wasmName,
-  wasmUnit8Array,
+  wasmUint8Array,
   circuitSize,
   userPrivateKey,
   ZkwasmProviderUrl,
@@ -46,8 +46,8 @@ export async function setup(
     }
   }
 
-  const md5 = ZkWasmUtil.convertToMd5(wasmUnit8Array).toUpperCase();
-  const image = createFileFromUint8Array(wasmUnit8Array, wasmName);
+  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase();
+  const image = createFileFromUint8Array(wasmUint8Array, wasmName);
   const description_url_encoded = "";
   const avator_url = "";
   const circuit_size = cirSz;

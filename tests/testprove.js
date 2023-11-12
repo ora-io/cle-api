@@ -1,9 +1,9 @@
 
 // const wasm = fs.readFileSync("tests/build/zkgraph_local.wasm");
-// const wasmUnit8Array = new Uint8Array(wasm);
+// const wasmUint8Array = new Uint8Array(wasm);
 
 // let [err, result] = await zkgapi.prove(
-//     wasmUnit8Array,
+//     wasmUint8Array,
 //     pri,
 //     pub,
 //     "https://zkwasm-explorer.delphinuslab.com:8090",
@@ -44,7 +44,7 @@ async function test_proveMock(options) {
   const { yamlPath, jsonRpcProviderUrl, wasmPath, blockId, local, expectedStateStr } = options
   
   const wasm = fs.readFileSync(wasmPath)
-  const wasmUnit8Array = new Uint8Array(wasm)
+  const wasmUint8Array = new Uint8Array(wasm)
   // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
   let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
   let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
@@ -55,14 +55,14 @@ async function test_proveMock(options) {
     expectedStateStr,
   )
   const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-    {'wasmUnit8Array': null, 'zkgraphYaml': yaml}, // doesn't care about wasmUnit8Array
+    {'wasmUint8Array': null, 'zkgraphYaml': yaml}, // doesn't care about wasmUint8Array
     proveParams,
     local,
     true,
   )
 
   return await zkgapi.proveMock(
-    wasmUnit8Array,
+    wasmUint8Array,
     privateInputStr,
     publicInputStr
   )

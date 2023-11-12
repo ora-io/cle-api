@@ -10,14 +10,14 @@ import { ZKGraphRequireFailed } from "../common/error.js";
  * @returns {boolean} - the mock testing result
  */
 export async function proveMock(zkGraphExecutable, privateInputStr, publicInputStr) {
-  const { wasmUnit8Array } = zkGraphExecutable;
+  const { wasmUint8Array } = zkGraphExecutable;
 
   const mock = new ZKWASMMock();
   mock.set_private_input(privateInputStr);
   mock.set_public_input(publicInputStr);
   setupZKWasmMock(mock);
 
-  const { zkmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+  const { zkmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
       throw error
   });
 

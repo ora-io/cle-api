@@ -37,7 +37,7 @@ export async function execute(zkGraphExecutable, execParams, isLocal=false, enab
  * @returns 
  */
 export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=false, enableLog=true) {
-  const { wasmUnit8Array, zkgraphYaml } = zkGraphExecutable;
+  const { wasmUint8Array, zkgraphYaml } = zkGraphExecutable;
   
   let input = new Input();
 
@@ -47,7 +47,7 @@ export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=fal
   
   let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
-  return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)
+  return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)
 }
 
 /**
@@ -58,14 +58,14 @@ export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=fal
  * @returns 
  */
 export async function executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr) {
-  const { wasmUnit8Array } = zkGraphExecutable;
+  const { wasmUint8Array } = zkGraphExecutable;
 
   const mock = new ZKWASMMock();
   mock.set_private_input(privateInputStr);
   mock.set_public_input(publicInputStr);
   setupZKWasmMock(mock);
 
-  const { asmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
       throw error
   });
 
@@ -81,15 +81,15 @@ export async function executeOnInputs(zkGraphExecutable, privateInputStr, public
 // /**
 //  * // TODO: compitable purpose
 //  * // Deprecated since yaml specVersion: v0.0.2
-//  * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
-//  * @param {string} wasmUnit8Array
+//  * Execute the given zkgraph {$wasmUint8Array, $yamlContent} in the context of $blockid
+//  * @param {string} wasmUint8Array
 //  * @param {string} yamlContent
 //  * @param {Array<string>} rawreceiptList
 //  * @param {boolean} isLocal
 //  * @param {boolean} enableLog
 //  * @returns {Uint8Array} - execution result (aka. zkgraph state)
 //  */
-// export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
+// export async function executeOnRawReceipts(wasmUint8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
 
 //     const zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
 //     const provider = new providers.JsonRpcProvider(rpcUrl);
@@ -124,5 +124,5 @@ export async function executeOnInputs(zkGraphExecutable, privateInputStr, public
 //     input = fillExecInput(input, zkgraphYaml, blockPrepMap, blocknumOrder)
 //     let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
-//     return await executeOnInputs(wasmUnit8Array, privateInputStr, publicInputStr)
+//     return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)
 // }
