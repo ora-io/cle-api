@@ -12,7 +12,7 @@ export { proveMock } from "./api/prove_mock.js";
 export { prove, waitProve } from "./api/prove.js";
 export { upload } from "./api/upload.js";
 export { setup, waitSetup } from "./api/setup.js";
-export { compile, compileInner } from "./api/compile.js";
+// export { compile, compileInner } from "./api/compile.js";
 export { deploy, waitDeploy } from "./api/deploy.js";
 export { publish } from "./api/publish.js";
 export { deposit } from "./api/deposit_bounty.js";
