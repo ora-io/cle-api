@@ -37,7 +37,7 @@ export async function execute(zkGraphExecutable, execParams, isLocal=false, enab
  * @returns 
  */
 export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=false, enableLog=true) {
-  const { wasmUint8Array, zkgraphYaml } = zkGraphExecutable;
+  const { zkgraphYaml } = zkGraphExecutable;
   
   let input = new Input();
 
@@ -47,7 +47,7 @@ export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=fal
   
   let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
-  return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)
+  return await executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr)
 }
 
 /**
