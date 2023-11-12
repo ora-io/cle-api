@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import axios from "axios";
 
 const ABI = [
-    'function setup(string memory wasmName, uint256 circuitSize) payable',
+    'function setup(string memory imageId, uint256 circuitSize) payable',
     'function prove(string memory imageId, string memory privateInput, string memory publicInput) payable',
     'function deploy(string memory imageId, uint256 chainid) payable'
   ];
@@ -23,12 +23,12 @@ export class TaskDispatch {
 
     /**
      * Setup wasm iamge.
-     * @param {string} wasmName
+     * @param {string} imageId
      * @param {number} circuitSize
      * @returns {Promise<ethers.ContractTransaction>}
      */
-    async setup(wasmName, circuitSize) {
-        const tx = await this.dispatcherContract.setup(wasmName, circuitSize, {
+    async setup(imageId, circuitSize) {
+        const tx = await this.dispatcherContract.setup(imageId, circuitSize, {
             value: this.feeInWei,
         });
         return tx;
