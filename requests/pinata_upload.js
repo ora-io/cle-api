@@ -3,26 +3,32 @@ import fs from "fs";
 import FormData from "form-data";
 import axios from "axios";
 import { handleAxiosError } from "./error_handle.js";
-import { computeAddress } from "ethers/lib/utils.js";
 
 export async function pinata_upload(
-  user_privatekey,
+  userAddress,
   wasmPath,
   mappingPath,
   yamlPath,
-  zkGraphName,
+  // zkGraphName,
   pinataEndpoint,
   pinataJWT,
 ) {
   let isUploadSuccess = true;
 
-  const userAddress = computeAddress(user_privatekey).toLowerCase();
-
-  const directoryName = `${zkGraphName} - ${userAddress}`;
-
+  // TODO: upload src/ rather than mapping only
   const mappingFile = fs.createReadStream(mappingPath);
   const wasmFile = fs.createReadStream(wasmPath);
   const yamlFile = fs.createReadStream(yamlPath);
+
+  const wasmU8A = new Uint8Array(fs.readFileSync(wasmPath));
+  const yamlU8A = new Uint8Array(fs.readFileSync(yamlPath));
+
+  var mergedArray = new Uint8Array(wasmU8A.length + yamlU8A.length);
+  mergedArray.set(wasmU8A);
+  mergedArray.set(yamlU8A, wasmU8A.length);
+  const md5_merged = ZkWasmUtil.convertToMd5(mergedArray).toUpperCase();
+
+  const directoryName = `${userAddress} - ${md5_merged}`;
 
   const formData = new FormData();
   formData.append("file", mappingFile, {
