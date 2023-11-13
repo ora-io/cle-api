@@ -5,9 +5,9 @@ export async function zkwasm_imagedetails(zkwasmProverUrl, md5) {
   let requestConfig = {
     method: "get",
     maxBodyLength: Infinity,
-    url: url.searchImageURL(zkwasmProverUrl, md5).url,
+    url: url.searchImageURL(zkwasmProverUrl, md5.toUpperCase()).url,
     headers: {
-      ...url.searchImageURL(zkwasmProverUrl, md5).contentType,
+      ...url.searchImageURL(zkwasmProverUrl, md5.toUpperCase()).contentType,
     },
   };
 

@@ -1,7 +1,7 @@
 // @ts-ignore
 import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import { logLoadingAnimation } from "../common/log_utils.js";
-import { zkwasm_setup } from "../requests/zkwasm_setup.js";
+import { zkwasm_setup } from "../requests/zkwasm_setup-old.js";
 import {
   waitTaskStatus,
   taskPrettyPrint,
@@ -23,13 +23,14 @@ import { zkwasm_imagetask } from "../requests/zkwasm_imagetask.js";
  */
 export async function setup(
   wasmName,
-  wasmUint8Array,
+  zkGraphExecutable,
   circuitSize,
   userPrivateKey,
   ZkwasmProviderUrl,
   isLocal = false,
   enableLog = true
 ) {
+  const { wasmUint8Array } = zkGraphExecutable;
   let cirSz;
   if (circuitSize >= 18 && circuitSize <= 30) {
     cirSz = circuitSize;
@@ -46,7 +47,7 @@ export async function setup(
     }
   }
 
-  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase();
+  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase();
   const image = createFileFromUint8Array(wasmUint8Array, wasmName);
   const description_url_encoded = "";
   const avator_url = "";
@@ -71,6 +72,7 @@ export async function setup(
     circuit_size
   )
     .then(async (response) => {
+      // console.log(response.data)
       taskId = response.data.result.id;
 
       if (enableLog) {

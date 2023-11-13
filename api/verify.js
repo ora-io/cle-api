@@ -1,4 +1,3 @@
-import { loadZKGraphNetworks } from "../common/config_utils.js";
 import {
   waitTaskStatus,
 } from "../requests/zkwasm_taskdetails.js";
@@ -20,14 +19,16 @@ import { verifier_abi } from "../common/constants.js";
  * @returns {boolean} - true if verification success, false otherwise.
  */
 export async function verify(
-  yamlContent,
+  zkGraphExecutable,
   proveTaskId,
   ZkwasmProviderUrl,
   enableLog = true
 ) {
+  const { zkgraphYaml } = zkGraphExecutable;
+
   let verificationResult;
 
-  const networkName = loadZKGraphNetworks(yamlContent);
+  const networkName = zkgraphYaml.dataDestinations[0].network;
   const targetNetwork = getTargetNetwork(networkName);
 
   // Check task status of prove.

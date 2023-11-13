@@ -68,5 +68,16 @@ async function test_proveMock(options) {
   )
 }
 
+// let [err, result] = await zkgapi.prove(
+//     wasmUint8Array,
+//     pri,
+//     pub,
+//     "https://zkwasm-explorer.delphinuslab.com:8090",
+//     config.UserPrivateKey,
+//     !enableLog)
+
+// console.log('error:', err)
+// console.log('result:', result)
+
 let result = await test_proveMock(proveOptions)
 console.log(`ZKGRAPH PROVE MOCK: ${result ? 'SUCCESS!' : 'FAILED. please check your expectState or "require" conditions.'}\n`)

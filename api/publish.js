@@ -4,7 +4,6 @@ import {
   abiFactory,
   AddressZero,
 } from "../common/constants.js";
-import {loadZKGraphDestinations} from "../common/config_utils.js";
 import {logLoadingAnimation} from "../common/log_utils.js";
 
 /**
@@ -19,7 +18,7 @@ import {logLoadingAnimation} from "../common/log_utils.js";
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function publish(
-  yamlContent,
+  zkGraphExecutable,
   rpcUrl,
   deployedContractAddress,
   ipfsHash,
@@ -27,8 +26,10 @@ export async function publish(
   userPrivateKey,
   enableLog = true,
 ) {
-  const networkName = loadZKGraphDestinations(yamlContent)[0].network;
-  const destinationContractAddress = loadZKGraphDestinations(yamlContent)[0].destination.address;
+  const { zkgraphYaml } = zkGraphExecutable;
+
+  const networkName = zkgraphYaml.dataDestinations[0].network;
+  const destinationContractAddress = zkgraphYaml.dataDestinations[0].address;
 
   const provider = new providers.JsonRpcProvider(rpcUrl);
 
