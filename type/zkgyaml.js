@@ -1,6 +1,16 @@
 import yaml from "js-yaml";
 import fs from "fs";
 import { ethers } from "ethers";
+import semver from "semver";
+
+function isEthereumAddress(address) {
+  try {
+    const parsedAddress = ethers.utils.getAddress(address);
+    return parsedAddress !== '0x0000000000000000000000000000000000000000';
+  } catch (error) {
+    return false;
+  }
+}
 
 class DataSource {
   constructor(kind) {
@@ -159,7 +169,7 @@ export class ZkGraphYaml {
     const dataSources = [];
     yaml.dataSources.forEach(ds => dataSources.push(EthereumDataSource.from_v_0_0_2(ds)));
     const dataDestinations = [];
-    yaml.dataDestinations.forEach(dd => dataSources.push(EthereumDataDestination.from_v_0_0_2(dd)));
+    yaml.dataDestinations.forEach(dd => dataDestinations.push(EthereumDataDestination.from_v_0_0_2(dd)));
 
     return new ZkGraphYaml(
       yaml.specVersion,
@@ -224,5 +234,77 @@ export class ZkGraphYaml {
     }
 
     throw new Error("Unsupported specVersion: ", this.specVersion)
+  }
+
+  yamlhealthCheck() {
+    // specVersion check
+
+    if (!this.specVersion || typeof this.specVersion !== 'string' || this.specVersion.trim() === '') {
+      throw new Error("specVersion is missing or empty");
+    }
+
+    if (semver.gt(this.specVersion, '0.0.2')) {
+      throw new Error("Invalid specVersion, it should be <= 0.0.2");
+    }
+
+    // apiVersion → zkgraph-lib version check
+    if (!this.apiVersion || typeof this.apiVersion !== 'string' || this.apiVersion.trim() === '') {
+      throw new Error("apiVersion is missing or empty");
+    }
+
+    if (semver.gt(this.apiVersion, '0.0.2')) {
+      throw new Error("Invalid apiVersion, it should be <= 0.0.2");
+    }
+
+    // datasources can have multiple objects, but should not be empty
+    if (!this.dataSources || this.dataSources.length === 0) {
+      throw new Error("dataSources should not be empty");
+    }
+
+    const sourceNetworks = [];
+
+    this.dataSources.forEach(dataSource => {
+      // every object in datasources MUST have network
+      if (!dataSource.kind || !dataSource.network) {
+        throw new Error("dataSource object is missing required fields");
+      }
+
+      sourceNetworks.push(dataSource.network);
+
+      const eventCount = dataSource.event ? 1 : 0;
+      const storageCount = dataSource.storage ? 1 : 0;
+
+      if (eventCount + storageCount !== 1) {
+        throw new Error("must have one and only one 'event' or 'storage' field");
+      }
+    });
+
+    // every network field must be the same
+    if (new Set(sourceNetworks).size !== 1) {
+      throw new Error("All dataSource networks must be the same");
+    }
+
+    // all mapping fields must be not empty
+    if (!this.mapping.language || !this.mapping.file || !this.mapping.handler) {
+      throw new Error("Some required fields are empty in mapping");
+    }
+
+    // data destination must have network and destination
+    if (this.dataDestinations) {
+      if (!this.dataDestinations[0].network || !this.dataDestinations[0].address) {
+        throw new Error("dataDestinations object is missing required fields");
+      }
+
+      // address must be the ethereum address and not address zero
+      if (!isEthereumAddress(this.dataDestinations[0].address)) {
+        throw new Error("Invalid Ethereum address in dataDestinations");
+      }
+    }
+
+    // 12. the network must be same as the source network
+    // TODO: right now we don't check the block hash, so skip the same network check
+    // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
+    //   throw new Error("dataDestinations network must match dataSources network");
+    // }
   }
 }

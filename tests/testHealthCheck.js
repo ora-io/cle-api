@@ -1,8 +1,8 @@
-import {loadYaml, yamlhealthCheck} from '../common/config_utils.js';
+import { ZkGraphYaml } from "../type/zkgyaml.js";
 
 try{
-    const yaml1 = loadYaml('tests/testsrc/zkgraph.yaml');
-    yamlhealthCheck(yaml1);
+    const yaml1 = ZkGraphYaml.fromYamlPath('tests/testsrc/zkgraph.yaml');
+    yaml1.yamlhealthCheck();
     console.log("valid yaml1");
 
 } catch(e) {
@@ -10,8 +10,8 @@ try{
 }
 
 try{
-    const yaml2 = loadYaml('tests/testsrc/zkgraph2.yaml');
-    yamlhealthCheck(yaml2);
+    const yaml2 = ZkGraphYaml.fromYamlPath('tests/testsrc/zkgraph2.yaml');
+    yaml2.yamlhealthCheck();
     console.log("valid yaml2");
 
 } catch(e) {
@@ -19,8 +19,8 @@ try{
 }
 
 try {
-    const yaml3 = loadYaml('tests/testsrc/zkgraph3.yaml');
-    yamlhealthCheck(yaml3);
+    const yaml3 = ZkGraphYaml.fromYamlPath('tests/testsrc/zkgraph3.yaml');
+    yaml3.yamlhealthCheck();
     console.log("valid yaml3");
 } catch(e) {
     console.log(e);

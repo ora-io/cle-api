@@ -1,207 +1,127 @@
-import yaml from "js-yaml";
-import fs from "fs";
-import semver from "semver";
-import { ethers } from "ethers";
+// import yaml from "js-yaml";
+// import fs from "fs";
+// import semver from "semver";
+// import { ethers } from "ethers";
 
-export function loadYaml(fname) {
-  try {
-    // Read the YAML file contents
-    const fileContents = fs.readFileSync(fname, "utf8");
-    // Parse the YAML content
-    return yaml.load(fileContents);
-  } catch (error) {
-    console.error(error);
-  }
-}
+// TODO: remove this, hint: currently only used in this & test
+// export function loadYaml(fname) {
+//   try {
+//     // Read the YAML file contents
+//     const fileContents = fs.readFileSync(fname, "utf8");
+//     // Parse the YAML content
+//     return yaml.load(fileContents);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 
-export function loadYamlContent(fileContent) {
-  try {
-    // Parse the YAML content
-    return yaml.load(fileContent);
-  } catch (error) {
-    console.error(error);
-  }
-}
+// TODO: remove this, hint: currently only used in this file
+// export function loadYamlContent(fileContent) {
+//   try {
+//     // Parse the YAML content
+//     return yaml.load(fileContent);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 
-export function yamlhealthCheck(config) {
-  // specVersion check
+// export function loadZKGraphEventSources(yamlContent) {
+//   const config = loadYamlContent(yamlContent);
+//   yamlhealthCheck(config);
 
-  if (!config.specVersion || typeof config.specVersion !== 'string' || config.specVersion.trim() === '') {
-    throw new Error("specVersion is missing or empty");
-  }
+//   if (!config.dataSources[0].event) {
+//     throw new Error("not event zkgraph");
+//   }
 
-  if (semver.gt(config.specVersion, '0.0.2')) {
-    throw new Error("Invalid specVersion, it should be <= 0.0.2");
-  }
+//   let loadFromEventSource = (event) => {
+//     const source_address = event.address;
+//       const source_esigs = event.events.map((ed) => {
+//         const eventHash = ed.startsWith("0x") ? ed : ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed));
+//         return eventHash;
+//       });
 
-  // apiVersion → zkgraph-lib version check
-  if (!config.apiVersion || typeof config.apiVersion !== 'string' || config.apiVersion.trim() === '') {
-    throw new Error("apiVersion is missing or empty");
-  }
+//       return [source_address, source_esigs];
+//   }
 
-  if (semver.gt(config.apiVersion, '0.0.2')) {
-    throw new Error("Invalid apiVersion, it should be <= 0.0.2");
-  }
+//   const eventDSAddrList=[];
+//   const eventDSEsigsList=[];
+//   config.dataSources[0].event.map((event) => {let [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se)})
+//   return [eventDSAddrList, eventDSEsigsList];
+// }
 
-  // datasources can have multiple objects, but should not be empty
-  if (!config.dataSources || config.dataSources.length === 0) {
-    throw new Error("dataSources should not be empty");
-  }
+// export function loadZKGraphStorageSources(yamlContent) {
+//   const config = loadYamlContent(yamlContent);
+//   // yamlhealthCheck(config);
 
-  const sourceNetworks = [];
+//   if (!config.dataSources[0].storage) {
+//     throw new Error("not storage zkgraph");
+//   }
 
-  config.dataSources.forEach(dataSource => {
-    // every object in datasources MUST have network
-    if (!dataSource.kind || !dataSource.network) {
-      throw new Error("dataSource object is missing required fields");
-    }
+//   let loadFromStorageSource = (storage) => {
+//     const source_address = storage.address;
+//       const source_slots = storage.slots.map((sl) => {
+//         return ethers.utils.hexZeroPad(sl, 32);;
+//       });
 
-    sourceNetworks.push(dataSource.network);
+//       return [source_address, source_slots];
+//   }
 
-    const eventCount = dataSource.event ? 1 : 0;
-    const storageCount = dataSource.storage ? 1 : 0;
+//   const stateDSAddrList=[];
+//   const stateDSSlotsList=[];
+//   config.dataSources[0].storage.map((storage) => {let [sa, sl] = loadFromStorageSource(storage); stateDSAddrList.push(sa); stateDSSlotsList.push(sl)})
+//   return [stateDSAddrList, stateDSSlotsList];
+// }
 
-    if (eventCount + storageCount !== 1) {
-      throw new Error("must have one and only one 'event' or 'storage' field");
-    }
-  });
+// export function loadZKGraphName(fname) {
+//   const config = loadYaml(fname);
+//   return config.name;
+// }
 
-  // every network field must be the same
-  if (new Set(sourceNetworks).size !== 1) {
-    throw new Error("All dataSource networks must be the same");
-  }
+// export function loadZKGraphType(fileContent) {
+//   const config = loadYamlContent(fileContent);
+//   if (config.dataSources[0].event) {
+//     return "event";
+//   };
 
-  // all mapping fields must be not empty
-  if (!config.mapping.language || !config.mapping.file || !config.mapping.handler) {
-    throw new Error("Some required fields are empty in mapping");
-  }
+//   return "storage";
+// }
 
-  // data destination must have network and destination
-  if (config.dataDestinations) {
-    if (!config.dataDestinations[0].network || !config.dataDestinations[0].address) {
-      throw new Error("dataDestinations object is missing required fields");
-    }
+// export function loadZKGraphDestinations(fileContent) {
+//   const config = loadYamlContent(fileContent);
+//   return config.dataDestinations;
 
-    // address must be the ethereum address and not address zero
-    if (!isEthereumAddress(config.dataDestinations[0].address)) {
-      throw new Error("Invalid Ethereum address in dataDestinations");
-    }
-  }
+// }
 
-  // 12. the network must be same as the source network
-  // TODO: right now we don't check the block hash, so skip the same network check
-  // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
-  //   throw new Error("dataDestinations network must match dataSources network");
-  // }
-}
+// export function loadZKGraphNetworks(fileContent) {
+//   const sourceNetworks = [];
+//   const destinationNetworks = [];
+//   const config = loadYamlContent(fileContent);
 
-export function isEthereumAddress(address) {
-  try {
-    const parsedAddress = ethers.utils.getAddress(address);
-    return parsedAddress !== '0x0000000000000000000000000000000000000000';
-  } catch (error) {
-    return false;
-  }
-}
+//   // Load network from dataSources
+//   config.dataSources.forEach((dataSource) => {
+//     sourceNetworks.push(dataSource.network);
+//   });
 
+//   // Load network from dataDestinations
+//   if (config.dataDestinations) {
+//     destinationNetworks.push(config.dataDestinations[0].network);
+//   }
 
-export function loadZKGraphEventSources(yamlContent) {
-  const config = loadYamlContent(yamlContent);
-  yamlhealthCheck(config);
+//   // If sourceNetworks has multiple networks, throw error
+//   if (new Set(sourceNetworks).size > 1) {
+//     throw new Error("Different networks in dataSources is not supported.");
+//   }
 
-  if (!config.dataSources[0].event) {
-    throw new Error("not event zkgraph");
-  }
+//   // If destinationNetworks has multiple networks, throw error
+//   if (new Set(destinationNetworks).size > 1) {
+//     throw new Error("Different networks in dataDestinations is not supported.");
+//   }
 
-  let loadFromEventSource = (event) => {
-    const source_address = event.address;
-      const source_esigs = event.events.map((ed) => {
-        const eventHash = ed.startsWith("0x") ? ed : ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed));
-        return eventHash;
-      });
-
-      return [source_address, source_esigs];
-  }
-
-  const eventDSAddrList=[];
-  const eventDSEsigsList=[];
-  config.dataSources[0].event.map((event) => {let [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se)})
-  return [eventDSAddrList, eventDSEsigsList];
-}
-
-export function loadZKGraphStorageSources(yamlContent) {
-  const config = loadYamlContent(yamlContent);
-  // yamlhealthCheck(config);
-
-  if (!config.dataSources[0].storage) {
-    throw new Error("not storage zkgraph");
-  }
-
-  let loadFromStorageSource = (storage) => {
-    const source_address = storage.address;
-      const source_slots = storage.slots.map((sl) => {
-        return ethers.utils.hexZeroPad(sl, 32);;
-      });
-
-      return [source_address, source_slots];
-  }
-
-  const stateDSAddrList=[];
-  const stateDSSlotsList=[];
-  config.dataSources[0].storage.map((storage) => {let [sa, sl] = loadFromStorageSource(storage); stateDSAddrList.push(sa); stateDSSlotsList.push(sl)})
-  return [stateDSAddrList, stateDSSlotsList];
-}
-
-export function loadZKGraphName(fname) {
-  const config = loadYaml(fname);
-  return config.name;
-}
-
-export function loadZKGraphType(fileContent) {
-  const config = loadYamlContent(fileContent);
-  if (config.dataSources[0].event) {
-    return "event";
-  };
-
-  return "storage";
-}
-
-export function loadZKGraphDestinations(fileContent) {
-  const config = loadYamlContent(fileContent);
-  return config.dataDestinations;
-
-}
-
-export function loadZKGraphNetworks(fileContent) {
-  const sourceNetworks = [];
-  const destinationNetworks = [];
-  const config = loadYamlContent(fileContent);
-
-  // Load network from dataSources
-  config.dataSources.forEach((dataSource) => {
-    sourceNetworks.push(dataSource.network);
-  });
-
-  // Load network from dataDestinations
-  if (config.dataDestinations) {
-    destinationNetworks.push(config.dataDestinations[0].network);
-  }
-
-  // If sourceNetworks has multiple networks, throw error
-  if (new Set(sourceNetworks).size > 1) {
-    throw new Error("Different networks in dataSources is not supported.");
-  }
-
-  // If destinationNetworks has multiple networks, throw error
-  if (new Set(destinationNetworks).size > 1) {
-    throw new Error("Different networks in dataDestinations is not supported.");
-  }
-
-  // If destinationNetworks is not empty, use destinationNetworks' network
-  if (destinationNetworks.length !== 0) {
-    return destinationNetworks[0];
-  } else {
-    // If destinationNetworks is empty, use sourceNetworks' network
-    return sourceNetworks[0];
-  }
-}
+//   // If destinationNetworks is not empty, use destinationNetworks' network
+//   if (destinationNetworks.length !== 0) {
+//     return destinationNetworks[0];
+//   } else {
+//     // If destinationNetworks is empty, use sourceNetworks' network
+//     return sourceNetworks[0];
+//   }
+// }
