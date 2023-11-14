@@ -39,7 +39,7 @@ export async function zkwasm_prove(
   // formData.append("signature", signature);
   const req = JSON.stringify({
     user_address,
-    md5: image_md5,
+    md5: image_md5.toLowerCase(),
     public_inputs: public_inputs,
     private_inputs: private_inputs,
     signature,

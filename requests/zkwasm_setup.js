@@ -34,7 +34,7 @@ export async function zkwasm_setup(
 
   let formData = new FormData();
   formData.append("name", name);
-  formData.append("image_md5", image_md5);
+  formData.append("image_md5", image_md5.toLowerCase());
   formData.append("image", image);
   formData.append("user_address", user_address);
   formData.append("description_url", description_url);
