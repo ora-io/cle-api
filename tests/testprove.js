@@ -22,7 +22,7 @@ import { config } from "./config.js";
 
 let isLocal = false
 let blocknumfortest = {
-  sepolia: 4676631, // to test event use 2279547, to test storage use latest blocknum
+  sepolia: 4691546, // to test event use 2279547, to test storage use latest blocknum
   mainnet: 17633573,
 };
 let zkgstatefortest = {
@@ -68,16 +68,56 @@ async function test_proveMock(options) {
   )
 }
 
-// let [err, result] = await zkgapi.prove(
-//     wasmUint8Array,
-//     pri,
-//     pub,
-//     "https://zkwasm-explorer.delphinuslab.com:8090",
-//     config.UserPrivateKey,
-//     !enableLog)
+
+async function test_proveProve(options) {
+  const { wasmPath, yamlPath, blockId, expectedStateStr, zkwasmUrl } = options
+
+  const wasm = fs.readFileSync(wasmPath)
+  const wasmUint8Array = new Uint8Array(wasm)
+  let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
+
+  let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
+  
+  const proveParams = dsp.toProveParams(
+    config.JsonRpcProviderUrl.sepolia,
+    blockId,
+    expectedStateStr,
+  )
+
+  const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
+    {'wasmUint8Array': null, 'zkgraphYaml': yaml}, // doesn't care about wasmUint8Array
+    proveParams,
+    false,
+    true,
+  )
+
+  console.log([privateInputStr, publicInputStr])
+  
+  let result = await zkgapi.prove(
+    {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': null}, // doesn't care about zkgraphYaml
+      privateInputStr,
+      publicInputStr,
+      zkwasmUrl,
+      config.UserPrivateKey,
+      true)
+ return result;
+}
 
 // console.log('error:', err)
 // console.log('result:', result)
 
-let result = await test_proveMock(proveOptions)
+// let result = await test_proveMock(proveOptions)
+
+
+let proveModeOptions = {
+  'wasmPath': "tests/build/zkgraph_full.wasm",
+  'yamlPath': "tests/testsrc/zkgraph2.yaml",
+  'blockId': blocknumfortest.sepolia,
+  'expectedStateStr': zkgstatefortest.sepolia,
+  'zkwasmUrl': "https://rpc.zkwasmhub.com:8090", 
+}
+
+let result = await test_proveProve(proveModeOptions)
+
+
 console.log(`ZKGRAPH PROVE MOCK: ${result ? 'SUCCESS!' : 'FAILED. please check your expectState or "require" conditions.'}\n`)
