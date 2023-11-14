@@ -24,7 +24,7 @@ export async function zkwasm_prove(
 
   let message = JSON.stringify({
     user_address,
-    md5: image_md5,
+    md5: image_md5.toLowerCase(),
     public_inputs: public_inputs,
     private_inputs: private_inputs,
   });
@@ -44,12 +44,19 @@ export async function zkwasm_prove(
     private_inputs: private_inputs,
     signature,
   });
+
+  let zkwasmHeaders = {
+    "X-Eth-Address": user_address,
+    "X-Eth-Signature": signature
+  }
+
   let requestConfig = {
     method: "post",
     maxBodyLength: Infinity,
     url: url.proveWasmImageURL(zkwasmProverUrl).url,
     headers: {
       ...url.proveWasmImageURL(zkwasmProverUrl).contentType,
+      ...zkwasmHeaders,
     },
     data: req,
   };
