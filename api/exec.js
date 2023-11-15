@@ -1,98 +1,71 @@
-import { filterEvents } from "../common/api_helper.js";
-import {
-  toHexString
-} from "../common/utils.js";
-import { proveInputGen } from "./prove_inputgen.js";
 import { ZKWASMMock } from "../common/zkwasm_mock.js";
 import { instantiateWasm, setupZKWasmMock } from "../common/bundle.js";
-import { providers } from "ethers";
-import { getRawReceipts } from "../common/ethers_helper.js";
-import { loadZKGraphEventSources, loadZKGraphType } from "../common/config_utils.js";
+import { Input } from "../common/input.js";
+import { dspHub } from "../dsp/hub.js";
+import { DataPrep } from "../dsp/interface.js";
 
 /**
- * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
- * @param {string} wasmUnit8Array
- * @param {string} yamlContent
- * @param {string} rpcUrl
- * @param {number | string} blockid
- * @param {boolean} isLocal
- * @param {boolean} enableLog
+ * Execute the given zkGraphExecutable in the context of execParams
+ * @param {object} zkGraphExecutable {'zkgraphYaml': zkgraphYaml}
+ * @param {object} execParams 
+ * @param {boolean} isLocal 
+ * @param {boolean} enableLog 
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
-export async function execute(wasmUnit8Array, yamlContent, rpcUrl, blockid, isLocal=false, enableLog=true) {
+export async function execute(zkGraphExecutable, execParams, isLocal=false, enableLog=true) {
 
-    const provider = new providers.JsonRpcProvider(rpcUrl);
-
-    if (enableLog){
-        console.log(`[*] Run zkgraph on block ${blockid}\n`);
-    }
-
-    let graphType = loadZKGraphType(yamlContent);
-    if (graphType === "event") {
-      // Fetch raw receipts
-      const rawreceiptList = await getRawReceipts(provider, blockid).catch((error) => {
-        throw error;
-      })
-      return await executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal, enableLog)
-    }
-
+  // TODO: mv this log to cli
+    // if (enableLog){
+    //     console.log(`[*] Run zkgraph on block ${blockid}\n`);
+    // }
+    const { zkgraphYaml } = zkGraphExecutable;
   
-    let [privateInputStr, publicInputStr] = await proveInputGen(yamlContent, rpcUrl, blockid, "0x0", isLocal, enableLog);
-    console.log(privateInputStr)
-    console.log(publicInputStr)
-    return await executeOnStorages(wasmUnit8Array, privateInputStr, publicInputStr)
+    let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
+
+    let prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
+    let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
+
+    return executeOnDataPrep(zkGraphExecutable, dataPrep)
 }
 
 /**
- * Execute the given zkgraph {$wasmUnit8Array, $yamlContent} in the context of $blockid
- * @param {string} wasmUnit8Array
- * @param {string} yamlContent
- * @param {Array<string>} rawreceiptList
- * @param {boolean} isLocal
- * @param {boolean} enableLog
- * @returns {Uint8Array} - execution result (aka. zkgraph state)
+ * 
+ * @param {object} zkGraphExecutable 
+ * @param {DataPrep} dataPrep 
+ * @param {boolean} isLocal 
+ * @param {boolean} enableLog 
+ * @returns 
  */
-export async function executeOnRawReceipts(wasmUnit8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
+export async function executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal=false, enableLog=true) {
+  const { zkgraphYaml } = zkGraphExecutable;
+  
+  let input = new Input();
 
-    const [sourceAddressList, sourceEsigsList] = loadZKGraphEventSources(yamlContent);
-    // Fetch receipts and filter
-    const [rawReceipts, matchedEventOffsets] = await filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog).catch((error) => {
-      throw error;
-    })
+  let dsp /**:DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, {'isLocal': isLocal});
 
-    let asmain_exported;
-    if (isLocal) {
-      const { asmain, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
-        throw error
-      });
-      asmain_exported = asmain;
-      runRegisterHandle()
-    } else {
-      const { asmain, __as_start, runRegisterHandle } = await instantiateWasm(wasmUnit8Array).catch((error) => {
-        throw error
-      });
-      asmain_exported = asmain;
-      __as_start();
-      runRegisterHandle()
-    }
+  input = dsp.fillExecInput(input, zkgraphYaml, dataPrep)
+  
+  let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
-    // Execute zkgraph that would call mapping.ts
-    let stateU8a = asmain_exported(rawReceipts, matchedEventOffsets);
-
-    if (enableLog) {
-        console.log("[+] ZKGRAPH STATE OUTPUT:", toHexString(stateU8a), "\n");
-    }
-
-    return stateU8a
+  return await executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr)
 }
 
-export async function executeOnStorages(wasmUnit8Array, privateInputStr, publicInputStr) {
+/**
+ * 
+ * @param {object} zkGraphExecutable 
+ * @param {string} privateInputStr 
+ * @param {string} publicInputStr 
+ * @returns 
+ */
+export async function executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr) {
+  const { wasmUint8Array } = zkGraphExecutable;
+
   const mock = new ZKWASMMock();
   mock.set_private_input(privateInputStr);
   mock.set_public_input(publicInputStr);
   setupZKWasmMock(mock);
 
-  const { asmain } = await instantiateWasm(wasmUnit8Array).catch((error) => {
+  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
       throw error
   });
 
@@ -102,6 +75,54 @@ export async function executeOnStorages(wasmUnit8Array, privateInputStr, publicI
   } catch (e){
       throw e
   }
-
   return stateU8a;
 }
+
+// /**
+//  * // TODO: compitable purpose
+//  * // Deprecated since yaml specVersion: v0.0.2
+//  * Execute the given zkgraph {$wasmUint8Array, $yamlContent} in the context of $blockid
+//  * @param {string} wasmUint8Array
+//  * @param {string} yamlContent
+//  * @param {Array<string>} rawreceiptList
+//  * @param {boolean} isLocal
+//  * @param {boolean} enableLog
+//  * @returns {Uint8Array} - execution result (aka. zkgraph state)
+//  */
+// export async function executeOnRawReceipts(wasmUint8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
+
+//     const zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
+//     const provider = new providers.JsonRpcProvider(rpcUrl);
+
+//     const [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.dataSources[0].event.toArray();
+
+
+//     // prepare data
+
+//     // filter
+//     const [rawReceipts, matchedEventOffsets] = filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog).catch((error) => {
+//       throw error;
+//     })
+
+//     // create blockPrepMap
+//     let blockNumber = 0; // to compitable, use fixed block num
+
+//     let blockPrep = new BlockPrep(
+//       blockNumber,
+//       // header rlp
+//       "0x00",
+//     )
+//     blockPrep.addRLPReceipts(rawreceiptList)
+
+//     let blockPrepMap = new Map();
+//     blockPrepMap.set(blockNumber, blockPrep)
+
+//     let blocknumOrder = [blockNumber]
+
+//     // gen inputs
+//     let input = new Input();
+//     input = fillExecInput(input, zkgraphYaml, blockPrepMap, blocknumOrder)
+//     let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
+
+//     return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)
+// }

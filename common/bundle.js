@@ -6,13 +6,19 @@ export function setupZKWasmMock(mock) {
   zkwasmmock = mock;
 }
 
+export let hasDebugOnlyFunc = false;
+
 async function instantiate(module, imports = {}) {
+
+  hasDebugOnlyFunc = false;
+
   const adaptedImports = {
     env: Object.assign(Object.create(globalThis), imports.env || {}, {
       "console.log"(text) {
         // ~lib/bindings/dom/console.log(~lib/string/String) => void
         text = __liftString(text >>> 0);
         console.log(text);
+        hasDebugOnlyFunc = true;
       },
       require(x) {
         // sdk/zkwasm/require1(i32) => i64
@@ -52,7 +58,7 @@ async function instantiate(module, imports = {}) {
   const memory = exports.memory || imports.env.memory;
   const adaptedExports = Object.setPrototypeOf(
     {
-      asmain(rawreceipts, matched_event_offsets) {
+      asmain_local(rawreceipts, matched_event_offsets) {
         // lib/main_local/asmain(~lib/typedarray/Uint8Array, ~lib/typedarray/Uint32Array) => ~lib/typedarray/Uint8Array
         rawreceipts = __retain(
           __lowerTypedArray(Uint8Array, 4, 0, rawreceipts) || __notnull(),
@@ -67,6 +73,15 @@ async function instantiate(module, imports = {}) {
           );
         } finally {
           __release(rawreceipts);
+        }
+      },
+      asmain() {
+        try {
+          return __liftTypedArray(
+            Uint8Array,
+            exports.asmain() >>> 0,
+          );
+        } finally {
         }
       },
     },
@@ -163,7 +178,7 @@ async function instantiate(module, imports = {}) {
 //     {},
 //   ))(new URL("../../build/zkgraph_full.wasm", import.meta.url));
 
-export const instantiateWasm = async (wasmUnit8Array) => {
+export const instantiateWasm = async (wasmUint8Array) => {
 
   return instantiate(
     await (async () => {
@@ -174,7 +189,7 @@ export const instantiateWasm = async (wasmUnit8Array) => {
       // }
       // catch {
         return globalThis.WebAssembly.compile(
-          wasmUnit8Array.buffer
+          wasmUint8Array.buffer
         );
       // }
     })(),

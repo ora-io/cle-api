@@ -92,24 +92,14 @@ export function formatVarLenInput(input) {
   return formatted;
 }
 
-export async function filterEvents(sourceAddressList, sourceEsigsList, rawreceiptList, enableLog){
-    if (enableLog) {
-        // if (sourceAddressList.length <= 1) {
-        //     console.log("[*] Source address", sourceAddressList);
-        //     console.log("[*] Source events signatures:", sourceEsigsList, "\n");
-        // } else {
-            console.log("[*] Data Sources:");
-            for (let i = 0; i < sourceAddressList.length; i++){
-                console.log("    ("+i+") Address:", sourceAddressList[i], '\n        Event Sigs:', sourceEsigsList[i], "\n");
-            }
-        // }
-    }
+export function filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog){
+
 
     // RLP Decode and Filter
     const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
       rawreceiptList,
-      sourceAddressList.map((addr) => fromHexString(addr)),
-      sourceEsigsList.map((esigList) => esigList.map((esig) => fromHexString(esig))),
+      eventDSAddrList.map((addr) => fromHexString(addr)),
+      eventDSEsigsList.map((esigList) => esigList.map((esig) => fromHexString(esig))),
     );
 
     // Gen Offsets

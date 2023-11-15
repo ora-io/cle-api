@@ -17,13 +17,11 @@ export async function zkwasm_setup(
   avator_url,
   circuit_size
 ) {
-  let isSetUpSuccess = true;
-
   const user_address = computeAddress(user_privatekey).toLowerCase();
 
   let message = ZkWasmUtil.createAddImageSignMessage({
     name: name,
-    image_md5: image_md5,
+    image_md5: image_md5.toLowerCase(),
     image: image,
     user_address: user_address,
     description_url: description_url,
@@ -36,13 +34,18 @@ export async function zkwasm_setup(
 
   let formData = new FormData();
   formData.append("name", name);
-  formData.append("image_md5", image_md5);
+  formData.append("image_md5", image_md5.toLowerCase());
   formData.append("image", image);
   formData.append("user_address", user_address);
   formData.append("description_url", description_url);
   formData.append("avator_url", avator_url);
   formData.append("circuit_size", circuit_size);
-  formData.append("signature", signature);
+  // formData.append("signature", signature);
+
+  let zkwasmHeaders = {
+    "X-Eth-Address": user_address,
+    "X-Eth-Signature": signature
+  }
 
   let requestConfig = {
     method: "post",
@@ -50,6 +53,7 @@ export async function zkwasm_setup(
     url: url.postNewWasmImage(ZkwasmProviderUrl).url,
     headers: {
       ...formData.getHeaders(),
+      ...zkwasmHeaders,
     },
     data: formData,
   };
@@ -72,7 +76,8 @@ export async function zkwasm_setup(
             throw new PaymentError(errorMessage);
         } else {
             // console.error("Error in zkwasm_setup. Please retry.");
-            throw error;
+            // throw error;
+            console.log(error.message)
         }
         // errorMessage = error.response.data;
       });

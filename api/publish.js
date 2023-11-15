@@ -4,7 +4,6 @@ import {
   abiFactory,
   AddressZero,
 } from "../common/constants.js";
-import {loadZKGraphDestinations} from "../common/config_utils.js";
 import {logLoadingAnimation} from "../common/log_utils.js";
 
 /**
@@ -19,22 +18,19 @@ import {logLoadingAnimation} from "../common/log_utils.js";
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function publish(
-  yamlContent,
-  rpcUrl,
+  zkGraphExecutable,
+  provider,
   deployedContractAddress,
   ipfsHash,
   bountyRewardPerTrigger,
-  userPrivateKey,
+  signer,
   enableLog = true,
 ) {
-  const networkName = loadZKGraphDestinations(yamlContent)[0].network;
-  const destinationContractAddress = loadZKGraphDestinations(yamlContent)[0].destination.address;
+  const { zkgraphYaml } = zkGraphExecutable;
 
-  const provider = new providers.JsonRpcProvider(rpcUrl);
-
-  const wallet = new Wallet(userPrivateKey, provider);
-
-  const factoryContract = new Contract(addressFactory, abiFactory, wallet);
+  const networkName = zkgraphYaml.dataDestinations[0].network;
+  const destinationContractAddress = zkgraphYaml.dataDestinations[0].address;
+  const factoryContract = new Contract(addressFactory, abiFactory, provider).connect(signer);
 
   const tx = await factoryContract
     .registry(
@@ -49,12 +45,6 @@ export async function publish(
       // if (enableLog === true) console.log(`[-] ERROR WHEN CONSTRUCTING TX: ${err}`, "\n");
       // return "";
     });
-
-  const signedTx = await wallet.signTransaction(tx).catch((err) => {
-    throw err;
-    // if (enableLog === true) console.log(`[-] ERROR WHEN SIGNING TX: ${err}`, "\n");
-    // return "";
-  });
 
   let loading;
   if (enableLog === true) {

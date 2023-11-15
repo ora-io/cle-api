@@ -1,57 +1,123 @@
-import fs from "fs";
-
-// import * as zkgapi from "@hyperoracle/zkgraph-api"
-import * as zkgapi from "../index.js"
-
-let isLocal = false
-let enableLog = true
-let blocknumfortest = {
-    'sepolia': 2279547,
-    'mainnet': 17633573
-}
-let zkgstatefortest = {
-    'sepolia': '0xa60ecf32309539dd84f27a9563754dca818b815e',
-    'mainnet': 'b4fc6d0168e52d35cacd2c6185b44281ec28c9dc'
-
-}
-
-// Get rawReceiptList, blockNumber, blockHash, receiptsRoot first to test proveInputGenOnRawReceipts
-import { config } from "./config.js";
-let rpcUrl = config.provider.sepolia;
-const yamlContent =fs.readFileSync("tests/testsrc/zkgraph.yaml", "utf8");
-
-// Test proveInputGen
-let [pri, pub] = await zkgapi.proveInputGen(
-    yamlContent,
-    rpcUrl,
-    blocknumfortest.sepolia,
-    zkgstatefortest.sepolia,
-    isLocal,
-    enableLog)
-
-// console.log(pri)
-// console.log(pub)
-
-const wasm = fs.readFileSync("tests/build/zkgraph_full.wasm");
-const wasmUnit8Array = new Uint8Array(wasm);
-let mock_succ = await zkgapi.proveMock(
-        wasmUnit8Array,
-        pri,
-        pub)
-
-console.log('mock succ:', mock_succ)
-
 
 // const wasm = fs.readFileSync("tests/build/zkgraph_local.wasm");
-// const wasmUnit8Array = new Uint8Array(wasm);
+// const wasmUint8Array = new Uint8Array(wasm);
 
 // let [err, result] = await zkgapi.prove(
-//     wasmUnit8Array,
+//     wasmUint8Array,
 //     pri,
 //     pub,
 //     "https://zkwasm-explorer.delphinuslab.com:8090",
-//     config.SignerSecretKey,
+//     config.UserPrivateKey,
 //     !enableLog)
 
 // console.log('error:', err)
 // console.log('result:', result)
+
+import fs from "fs";
+
+import * as zkgapi from "../index.js";
+
+import { config } from "./config.js";
+
+
+let isLocal = false
+let blocknumfortest = {
+  sepolia: 4691546, // to test event use 2279547, to test storage use latest blocknum
+  mainnet: 17633573,
+};
+let zkgstatefortest = {
+   // update this when update the blocknumfortest
+    'sepolia': '0x6370902000000003336530047e5ec3da40c000000000068f1888e6eb7036fffe',
+}
+
+console.log(config)
+
+let proveOptions = {
+  'blockId': blocknumfortest.sepolia,
+  'wasmPath': "tests/build/zkgraph_full.wasm",
+  'yamlPath': "tests/testsrc/zkgraph-storage.yaml",
+  'jsonRpcProviderUrl': config.JsonRpcProviderUrl.sepolia,
+  'expectedStateStr': zkgstatefortest.sepolia,
+  'local': isLocal
+}
+async function test_proveMock(options) {
+  const { yamlPath, jsonRpcProviderUrl, wasmPath, blockId, local, expectedStateStr } = options
+  
+  const wasm = fs.readFileSync(wasmPath)
+  const wasmUint8Array = new Uint8Array(wasm)
+  // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
+  let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
+  let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
+  
+  const proveParams = dsp.toProveParams(
+    jsonRpcProviderUrl,
+    blockId,
+    expectedStateStr,
+  )
+  const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
+    {'wasmUint8Array': null, 'zkgraphYaml': yaml}, // doesn't care about wasmUint8Array
+    proveParams,
+    local,
+    true,
+  )
+
+  return await zkgapi.proveMock(
+    {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': null},
+    privateInputStr,
+    publicInputStr
+  )
+}
+
+
+async function test_proveProve(options) {
+  const { wasmPath, yamlPath, blockId, expectedStateStr, zkwasmUrl } = options
+
+  const wasm = fs.readFileSync(wasmPath)
+  const wasmUint8Array = new Uint8Array(wasm)
+  let yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
+
+  let dsp = zkgapi.dspHub.getDSPByYaml(yaml, {'isLocal':false})
+  
+  const proveParams = dsp.toProveParams(
+    config.JsonRpcProviderUrl.sepolia,
+    blockId,
+    expectedStateStr,
+  )
+
+  const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
+    {'wasmUint8Array': null, 'zkgraphYaml': yaml}, // doesn't care about wasmUint8Array
+    proveParams,
+    false,
+    true,
+  )
+
+  console.log([privateInputStr, publicInputStr])
+  
+  let result = await zkgapi.prove(
+    {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': null}, // doesn't care about zkgraphYaml
+      privateInputStr,
+      publicInputStr,
+      zkwasmUrl,
+      config.UserPrivateKey,
+      true)
+ return result;
+}
+
+// console.log('error:', err)
+// console.log('result:', result)
+
+// let result = await test_proveMock(proveOptions)
+
+
+let proveModeOptions = {
+  'wasmPath': "tests/build/zkgraph_full.wasm",
+  'yamlPath': "tests/testsrc/zkgraph-storage.yaml",
+  'blockId': blocknumfortest.sepolia,
+  'expectedStateStr': zkgstatefortest.sepolia,
+  'zkwasmUrl': "https://rpc.zkwasmhub.com:8090", 
+}
+
+let result = await test_proveProve(proveModeOptions)
+
+
+console.log(`ZKGRAPH PROVE MOCK: ${result ? 'SUCCESS!' : 'FAILED. please check your expectState or "require" conditions.'}\n`)

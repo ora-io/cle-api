@@ -9,7 +9,7 @@ import {
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {string} wasmUnit8Array - the uint8Array format of wasm bin file
+ * @param {object} zkGraphExecutable 
  * @param {string} privateInputStr - the packed private input in hex string
  * @param {string} publicInputStr - the packed public input in hex string
  * @param {string} zkwasmProverUrl - the url of the zkwasm prover
@@ -18,7 +18,7 @@ import {
  * @returns {object} - proof task details in json
  */
 export async function prove(
-  wasmUnit8Array,
+  zkGraphExecutable,
   privateInputStr,
   publicInputStr,
   zkwasmProverUrl,
@@ -29,16 +29,18 @@ export async function prove(
     md5: null,
     taskId: null,
   };
+  const { wasmUint8Array } = zkGraphExecutable;
 
   // Prove mode
   const privateInputArray = privateInputStr.trim().split(" ");
   const publicInputArray = publicInputStr.trim().split(" ");
 
   // Message and form data
-  const md5 = ZkWasmUtil.convertToMd5(wasmUnit8Array).toUpperCase();
+  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase();
 
   result["md5"] = md5;
 
+  // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
   let [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
     zkwasmProverUrl,
     userPrivateKey,
@@ -52,6 +54,8 @@ export async function prove(
   if (enableLog) {
     console.log(`[*] IMAGE MD5: ${md5}`, "\n");
   }
+
+  // TODO: move log to cli
 
   if (isSetUpSuccess) {
     //   console.log(`[+] IMAGE MD5: ${response.data.result.md5}`, "\n");

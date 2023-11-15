@@ -13,10 +13,10 @@ dataSources:
         slots:
           - 8
           - 9
-      - address: "0x539dd84f27a9563754dcaa60ecf32309818b815e"
-        slots:
-          - 1
-          - 2
+      # - address: "0x539dd84f27a9563754dcaa60ecf32309818b815e"
+      #   slots:
+      #     - 1
+      #     - 2
 
 mapping:
   language: wasm/assemblyscript
@@ -26,4 +26,4 @@ mapping:
 dataDestinations:
   - kind: ethereum
     network: sepolia
-    address: Your_Destination_Contract_Address_Here
+    address: "0x1B17C66e37CB33202Fd1C058fa1B97e36b7e517D"

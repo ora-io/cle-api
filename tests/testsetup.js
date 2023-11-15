@@ -5,7 +5,15 @@ import * as zkgapi from "../index.js"
 import { config } from "./config.js";
 
 const wasm = fs.readFileSync("tests/build/zkgraph_full.wasm");
-const wasmUnit8Array = new Uint8Array(wasm);
-let result = await zkgapi.setup('poc.wasm', wasmUnit8Array, 22, config.SignerSecretKey, "https://zkwasm-explorer.delphinuslab.com:8090", true, true);
+const wasmUint8Array = new Uint8Array(wasm);
+let result = await zkgapi.setup(
+  'poc.wasm', 
+  {'wasmUint8Array': wasmUint8Array, 'zkgraphYaml': null},
+  22, 
+  config.UserPrivateKey, 
+  // "https://zkwasm-explorer.delphinuslab.com:8090", 
+  "https://rpc.zkwasmhub.com:8090", 
+  true, 
+  true);
 
 console.log(result)

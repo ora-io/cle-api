@@ -1,12 +1,11 @@
 import { pinata_upload } from '../requests/pinata_upload.js';
-import { loadZKGraphName } from '../common/config_utils.js';
 
 /**
  * Upload the given zkgraph {$mappingPath, $yamlPath} to ipfs
  * @param {string} mappingPath
  * @param {string} wasmPath
  * @param {string} yamlPath
- * @param {string} userPrivateKey
+ * @param {string} userAddress
  * @param {string} pinataEndpoint
  * @param {string} pinataJWT
  * @param {boolean} enableLog
@@ -16,28 +15,30 @@ export async function upload(
   mappingPath,
   wasmPath,
   yamlPath,
-  userPrivateKey,
+  // userAddress,
   pinataEndpoint,
   pinataJWT,
   enableLog = true,
 ) {
-  const zkGraphName =
-    loadZKGraphName('src/zkgraph.yaml') === null
-      ? 'zkGraph'
-      : loadZKGraphName('src/zkgraph.yaml');
+  // const zkGraphName =
+  //   loadZKGraphName('src/zkgraph.yaml') === null
+  //     ? 'zkGraph'
+  //     : loadZKGraphName('src/zkgraph.yaml');
+
 
   let [response, isUploadSuccess, errorMessage] = await pinata_upload(
-    userPrivateKey,
+    // userAddress,
     wasmPath,
     mappingPath,
     yamlPath,
-    zkGraphName,
+    // zkGraphName,
     pinataEndpoint,
     pinataJWT,
   ).catch((error) => {
     throw error;
   });
 
+  // TODO: move log to cli, use return and Error class (e.g. UploadDuplicated) to pass info.
   if (isUploadSuccess) {
     if (enableLog) {
       console.log(`[+] IPFS UPLOAD SUCCESS!`, '\n');

@@ -5,9 +5,9 @@ export async function zkwasm_imagetask(zkwasmProverUrl, md5, taskType) {
   let requestConfig = {
     method: "get",
     maxBodyLength: Infinity,
-    url: url.checkWasmImageStatus(zkwasmProverUrl, md5, taskType).url,
+    url: url.checkWasmImageStatus(zkwasmProverUrl, md5.toUpperCase(), taskType).url,
     headers: {
-      ...url.checkWasmImageStatus(zkwasmProverUrl, md5, taskType).contentType,
+      ...url.checkWasmImageStatus(zkwasmProverUrl, md5.toUpperCase(), taskType).contentType,
     },
   };
 
