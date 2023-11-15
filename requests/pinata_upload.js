@@ -3,6 +3,7 @@ import fs from "fs";
 import FormData from "form-data";
 import axios from "axios";
 import { handleAxiosError } from "./error_handle.js";
+import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 
 export async function pinata_upload(
   userAddress,
