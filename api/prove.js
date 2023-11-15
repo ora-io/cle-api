@@ -40,6 +40,7 @@ export async function prove(
 
   result["md5"] = md5;
 
+  // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
   let [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
     zkwasmProverUrl,
     userPrivateKey,
@@ -53,6 +54,8 @@ export async function prove(
   if (enableLog) {
     console.log(`[*] IMAGE MD5: ${md5}`, "\n");
   }
+
+  // TODO: move log to cli
 
   if (isSetUpSuccess) {
     //   console.log(`[+] IMAGE MD5: ${response.data.result.md5}`, "\n");

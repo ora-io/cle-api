@@ -8,7 +8,8 @@ import {
 } from "../common/utils.js";
 import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import Web3EthContract from "web3-eth-contract";
-import { verifier_abi } from "../common/constants.js";
+import { globalVerifierContract, verifier_abi } from "../common/constants.js";
+import { ProveTaskNotReady as ProofNotFound } from "../common/error.js";
 
 /**
  * Verify zk proof onchain.
@@ -21,12 +22,9 @@ import { verifier_abi } from "../common/constants.js";
 export async function verify(
   zkGraphExecutable,
   proveTaskId,
-  ZkwasmProviderUrl,
-  enableLog = true
+  ZkwasmProviderUrl
 ) {
   const { zkgraphYaml } = zkGraphExecutable;
-
-  let verificationResult;
 
   const networkName = zkgraphYaml.dataDestinations[0].network;
   const targetNetwork = getTargetNetwork(networkName);
@@ -35,31 +33,17 @@ export async function verify(
   const taskDetails = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ["Done", "Fail"], 3000, 0).catch((err) => {
     throw err;
   })
+
    //TODO: timeout
   if (taskDetails.status !== "Done") {
-    if (enableLog === true) console.log("[-] PROVE TASK IS NOT DONE. EXITING...", "\n");
-    verificationResult = false;
+    throw new ProofNotFound("Prove task is not 'Done', can't verify")
   }
 
-  // Get deployed contract address of verification contract.
-  const imageId = taskDetails.md5;
-  const [imageStatus, error] = await zkwasm_imagedetails(ZkwasmProviderUrl, imageId).catch((err) => {
-    throw err;
-  });
-  const imageDeployment = imageStatus.data.result[0].deployment;
-  const deployedContractInfo = imageDeployment.find(
-    (x) => x.chain_id === targetNetwork.value
-  );
-  if (!deployedContractInfo) {
-    if (enableLog === true) {
-      console.log(
-      `[-] DEPLOYED CONTRACT ADDRESS ON TARGET NETWORK IS NOT FOUND. EXITING...`,
-      "\n"
-      );
-    }
-    verificationResult = false;
-  }
-  const deployedContractAddress = deployedContractInfo.address;
+  // TODO: read proof from local file rather than the zkwasm server
+
+  // Get deployed verification contract address.
+  const verifierContractAddress= globalVerifierContract;
+  // '0xa60ecf32309539dd84f27a9563754dca818b815e';
 
   // Inputs for verification
   const instances = ZkWasmUtil.bytesToBN(taskDetails.batch_instances);
@@ -74,19 +58,21 @@ export async function verify(
   if (targetNetwork.value === 11155111) {
     Web3EthContract.setProvider("https://rpc2.sepolia.org");
   }
-  let contract = new Web3EthContract(verifier_abi.abi, deployedContractAddress);
+  let contract = new Web3EthContract(verifier_abi.abi, verifierContractAddress);
 
-  const result = await contract.methods
+
+  let verificationResult = true;
+  // verify success if no err throw
+  await contract.methods
     .verify(proof, instances, aux, [arg])
     .call()
     .catch((err) => {
-      throw err;
+      if (err.message.startsWith('Returned error: execution reverted')) {
+        verificationResult = false;
+      } else {
+        throw err;
+      }
     });
-
-  if (verificationResult !== false) {
-    if (enableLog === true) console.log(`[+] VERIFICATION SUCCESS!`, "\n");
-    verificationResult = true;
-  }
 
   return verificationResult;
 }
