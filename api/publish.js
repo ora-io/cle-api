@@ -19,23 +19,18 @@ import {logLoadingAnimation} from "../common/log_utils.js";
  */
 export async function publish(
   zkGraphExecutable,
-  rpcUrl,
+  provider,
   deployedContractAddress,
   ipfsHash,
   bountyRewardPerTrigger,
-  userPrivateKey,
+  signer,
   enableLog = true,
 ) {
   const { zkgraphYaml } = zkGraphExecutable;
 
   const networkName = zkgraphYaml.dataDestinations[0].network;
   const destinationContractAddress = zkgraphYaml.dataDestinations[0].address;
-
-  const provider = new providers.JsonRpcProvider(rpcUrl);
-
-  const wallet = new Wallet(userPrivateKey, provider);
-
-  const factoryContract = new Contract(addressFactory, abiFactory, wallet);
+  const factoryContract = new Contract(addressFactory, abiFactory, provider).connect(signer);
 
   const tx = await factoryContract
     .registry(
@@ -50,12 +45,6 @@ export async function publish(
       // if (enableLog === true) console.log(`[-] ERROR WHEN CONSTRUCTING TX: ${err}`, "\n");
       // return "";
     });
-
-  const signedTx = await wallet.signTransaction(tx).catch((err) => {
-    throw err;
-    // if (enableLog === true) console.log(`[-] ERROR WHEN SIGNING TX: ${err}`, "\n");
-    // return "";
-  });
 
   let loading;
   if (enableLog === true) {
