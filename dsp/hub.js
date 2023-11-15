@@ -1,4 +1,5 @@
 import { EthereumDataSourcePlugin } from "./ethereum/index.js";
+import { EthereumLocalDataSourcePlugin } from "./ethereum_local/index.js";
 
 // export const DSPHub = new Map();
 
@@ -28,18 +29,23 @@ export class DSPHub{
    * @param {object} foreignKeys {"isLocal": boolean}
    * @returns Combined Key String: Better to be human readable
    */
-  static toHubKey(primaryKey, foreignKeys){
+  toHubKey(primaryKey, foreignKeys){
     let { isLocal } = foreignKeys;
     let keyFullLocal = (! isLocal || isLocal == null) ? 'full' : 'local'
     return `${primaryKey}-${keyFullLocal}`
   }
 
+  toHubKeyByYaml(zkgraphYaml, foreignKeys){
+    let primaryKey = zkgraphYaml.dataSources[0].kind;
+    return this.toHubKey(primaryKey, foreignKeys);
+  }
+
   setDSP(primaryKey, foreignKeys, dsp) {
-    this.hub.set(DSPHub.toHubKey(primaryKey, foreignKeys), dsp);
+    this.hub.set(this.toHubKey(primaryKey, foreignKeys), dsp);
   }
 
   getDSP(primaryKey, foreignKeys){
-    let key = DSPHub.toHubKey(primaryKey, foreignKeys)
+    let key = this.toHubKey(primaryKey, foreignKeys)
     if (!this.hub.has(key)) {
       throw new Error(`Data Source Plugin Hub Key "${key}" doesn't exist.`)
     }
@@ -61,3 +67,4 @@ export const dspHub = new DSPHub();
  * Register DSPs
  */
 dspHub.setDSP('ethereum', {'isLocal': false}, EthereumDataSourcePlugin);
+dspHub.setDSP('ethereum', {'isLocal': true}, EthereumLocalDataSourcePlugin);
