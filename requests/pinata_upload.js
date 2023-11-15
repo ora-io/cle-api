@@ -6,7 +6,7 @@ import { handleAxiosError } from "./error_handle.js";
 import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 
 export async function pinata_upload(
-  userAddress,
+  // userAddress,
   wasmPath,
   mappingPath,
   yamlPath,
@@ -29,7 +29,7 @@ export async function pinata_upload(
   mergedArray.set(yamlU8A, wasmU8A.length);
   const md5_merged = ZkWasmUtil.convertToMd5(mergedArray).toUpperCase();
 
-  const directoryName = `${userAddress} - ${md5_merged}`;
+  const directoryName = `zkgraph-md5-${md5_merged}`;
 
   const formData = new FormData();
   formData.append("file", mappingFile, {

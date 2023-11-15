@@ -15,7 +15,7 @@ export async function upload(
   mappingPath,
   wasmPath,
   yamlPath,
-  userAddress,
+  // userAddress,
   pinataEndpoint,
   pinataJWT,
   enableLog = true,
@@ -27,7 +27,7 @@ export async function upload(
 
 
   let [response, isUploadSuccess, errorMessage] = await pinata_upload(
-    userAddress,
+    // userAddress,
     wasmPath,
     mappingPath,
     yamlPath,
@@ -38,7 +38,7 @@ export async function upload(
     throw error;
   });
 
-  // TODO: move log to cli
+  // TODO: move log to cli, use return and Error class (e.g. UploadDuplicated) to pass info.
   if (isUploadSuccess) {
     if (enableLog) {
       console.log(`[+] IPFS UPLOAD SUCCESS!`, '\n');
