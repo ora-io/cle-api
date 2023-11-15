@@ -12,7 +12,7 @@ let blocknumfortest = {
 let execOptions = {
   'blockId': blocknumfortest.sepolia,
   'wasmPath': "tests/build/zkgraph_full.wasm",
-  'yamlPath': "tests/testsrc/zkgraph2.yaml",
+  'yamlPath': "tests/testsrc/zkgraph-storage.yaml",
   'jsonRpcProviderUrl': config.JsonRpcProviderUrl.sepolia,
   'local': false
 }

@@ -35,7 +35,7 @@ console.log(config)
 let proveOptions = {
   'blockId': blocknumfortest.sepolia,
   'wasmPath': "tests/build/zkgraph_full.wasm",
-  'yamlPath': "tests/testsrc/zkgraph2.yaml",
+  'yamlPath': "tests/testsrc/zkgraph-storage.yaml",
   'jsonRpcProviderUrl': config.JsonRpcProviderUrl.sepolia,
   'expectedStateStr': zkgstatefortest.sepolia,
   'local': isLocal
@@ -111,7 +111,7 @@ async function test_proveProve(options) {
 
 let proveModeOptions = {
   'wasmPath': "tests/build/zkgraph_full.wasm",
-  'yamlPath': "tests/testsrc/zkgraph2.yaml",
+  'yamlPath': "tests/testsrc/zkgraph-storage.yaml",
   'blockId': blocknumfortest.sepolia,
   'expectedStateStr': zkgstatefortest.sepolia,
   'zkwasmUrl': "https://rpc.zkwasmhub.com:8090", 

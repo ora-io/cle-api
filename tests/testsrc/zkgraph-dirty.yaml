@@ -5,7 +5,7 @@ description: "Demo zkgraph. "
 repository: https://github.com/hyperoracle/zkgraph
 dataSources:
   - kind: ethereum
-    network: sepolia
+    network: mainnet
     # block:
     #   - offset: [0]
     event:
