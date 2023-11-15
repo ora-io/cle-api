@@ -55,7 +55,7 @@ export class TaskDispatch {
      * @returns {Promise<ethers.ContractTransaction>}
      */
     async deploy(imageId, chainid) {
-        const tx = await this.dispatcherContract.prove(imageId, chainid, {
+        const tx = await this.dispatcherContract.deploy(imageId, chainid, {
             value: this.feeInWei,
         });
         return tx;
