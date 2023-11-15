@@ -2,6 +2,7 @@ import yaml from "js-yaml";
 import fs from "fs";
 import { ethers } from "ethers";
 import semver from "semver";
+import { YamlHealthCheckFailed } from "../common/error.js";
 
 function isEthereumAddress(address) {
   try {
@@ -185,9 +186,9 @@ export class ZkGraphYaml {
 
   static fromYaml(yaml) {
     if (yaml.specVersion == "0.0.1"){
-      return ZkGraphYaml.from_v_0_0_1(yaml)
+      return ZkGraphYaml.from_v_0_0_1(yaml).healthCheck()
     } else if (yaml.specVersion == "0.0.2") {
-      return ZkGraphYaml.from_v_0_0_2(yaml)
+      return ZkGraphYaml.from_v_0_0_2(yaml).healthCheck()
     } else {
       throw new Error("Unsupported specVersion: ", this.specVersion)
     }
@@ -236,29 +237,29 @@ export class ZkGraphYaml {
     throw new Error("Unsupported specVersion: ", this.specVersion)
   }
 
-  yamlhealthCheck() {
-    // specVersion check
+  healthCheck() {
 
+    // specVersion check
     if (!this.specVersion || typeof this.specVersion !== 'string' || this.specVersion.trim() === '') {
-      throw new Error("specVersion is missing or empty");
+      throw new YamlHealthCheckFailed("specVersion is missing or empty");
     }
 
     if (semver.gt(this.specVersion, '0.0.2')) {
-      throw new Error("Invalid specVersion, it should be <= 0.0.2");
+      throw new YamlHealthCheckFailed("Invalid specVersion, it should be <= 0.0.2");
     }
 
     // apiVersion → zkgraph-lib version check
     if (!this.apiVersion || typeof this.apiVersion !== 'string' || this.apiVersion.trim() === '') {
-      throw new Error("apiVersion is missing or empty");
+      throw new YamlHealthCheckFailed("apiVersion is missing or empty");
     }
 
     if (semver.gt(this.apiVersion, '0.0.2')) {
-      throw new Error("Invalid apiVersion, it should be <= 0.0.2");
+      throw new YamlHealthCheckFailed("Invalid apiVersion, it should be <= 0.0.2");
     }
 
     // datasources can have multiple objects, but should not be empty
     if (!this.dataSources || this.dataSources.length === 0) {
-      throw new Error("dataSources should not be empty");
+      throw new YamlHealthCheckFailed("dataSources should not be empty");
     }
 
     const sourceNetworks = [];
@@ -266,7 +267,7 @@ export class ZkGraphYaml {
     this.dataSources.forEach(dataSource => {
       // every object in datasources MUST have network
       if (!dataSource.kind || !dataSource.network) {
-        throw new Error("dataSource object is missing required fields");
+        throw new YamlHealthCheckFailed("dataSource object is missing required fields");
       }
 
       sourceNetworks.push(dataSource.network);
@@ -275,29 +276,29 @@ export class ZkGraphYaml {
       const storageCount = dataSource.storage ? 1 : 0;
 
       if (eventCount + storageCount !== 1) {
-        throw new Error("must have one and only one 'event' or 'storage' field");
+        throw new YamlHealthCheckFailed("must have one and only one 'event' or 'storage' field");
       }
     });
 
     // every network field must be the same
     if (new Set(sourceNetworks).size !== 1) {
-      throw new Error("All dataSource networks must be the same");
+      throw new YamlHealthCheckFailed("All dataSource networks must be the same");
     }
 
     // all mapping fields must be not empty
     if (!this.mapping.language || !this.mapping.file || !this.mapping.handler) {
-      throw new Error("Some required fields are empty in mapping");
+      throw new YamlHealthCheckFailed("Some required fields are empty in mapping");
     }
 
     // data destination must have network and destination
     if (this.dataDestinations) {
       if (!this.dataDestinations[0].network || !this.dataDestinations[0].address) {
-        throw new Error("dataDestinations object is missing required fields");
+        throw new YamlHealthCheckFailed("dataDestinations object is missing required fields");
       }
 
       // address must be the ethereum address and not address zero
       if (!isEthereumAddress(this.dataDestinations[0].address)) {
-        throw new Error("Invalid Ethereum address in dataDestinations");
+        throw new YamlHealthCheckFailed("Invalid Ethereum address in dataDestinations");
       }
     }
 
@@ -306,5 +307,6 @@ export class ZkGraphYaml {
     // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
     //   throw new Error("dataDestinations network must match dataSources network");
     // }
+    return this;
   }
 }

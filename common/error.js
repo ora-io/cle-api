@@ -15,3 +15,9 @@ export class PaymentError extends Error{
         super(message);
       }
 }
+
+export class YamlHealthCheckFailed extends Error{
+  constructor(message) {
+    super(message);
+  }
+}
