@@ -6,6 +6,11 @@
 export class DataPrep {}
 
 export class DataSourcePlugin {
+  static getLibFuncNames(){
+    // SHOULD align with zkgraph-lib/dsp/ethereum/index.ts
+    // return ['zkmain_name_in_lib', 'asmain_name_in_lib']
+    throw new Error("default: getLibFuncNames not implemented in DSP.")
+  }
   static async prepareData(zkgraphYaml, prepareParams){
     throw new Error("default: prepareData not implemented in DSP.")
   }
