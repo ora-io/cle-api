@@ -43,14 +43,12 @@ export async function verify(
 
   // Get deployed verification contract address.
   const verifierContractAddress= globalVerifierContract;
-  // '0xa60ecf32309539dd84f27a9563754dca818b815e';
 
   // Inputs for verification
-  const instances = ZkWasmUtil.bytesToBN(taskDetails.batch_instances);
-  const proof = ZkWasmUtil.bytesToBN(taskDetails.proof);
-  const aux = ZkWasmUtil.bytesToBN(taskDetails.aux);
-  let arg = parseArgs(taskDetails.public_inputs).map((x) => x.toString(10));
-  if (arg.length === 0) arg = [0];
+  const proof = ZkWasmUtil.bytesToBigIntArray(taskDetails.proof);
+  const instances = ZkWasmUtil.bytesToBigIntArray(taskDetails.batch_instances);
+  const aux = ZkWasmUtil.bytesToBigIntArray(taskDetails.aux);
+  const arg = ZkWasmUtil.bytesToBigIntArray(taskDetails.instances);
 
   if (targetNetwork.value === 5) {
     Web3EthContract.setProvider("https://rpc.ankr.com/eth_goerli");
@@ -59,7 +57,6 @@ export async function verify(
     Web3EthContract.setProvider("https://rpc2.sepolia.org");
   }
   let contract = new Web3EthContract(verifier_abi.abi, verifierContractAddress);
-
 
   let verificationResult = true;
   // verify success if no err throw
