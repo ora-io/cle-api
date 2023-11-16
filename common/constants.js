@@ -20,7 +20,7 @@ export const networks = [
   }
 ]
 
-export const verifier_abi = {
+export const AggregatorVerifierABI = {
   "contractName": "AggregatorVerifier",
   "abi": [
       {
@@ -414,5 +414,3 @@ export const abiFactory = [
 ];
 
 export const AddressZero = "0x0000000000000000000000000000000000000000";
-
-export const globalVerifierContract = '0x714C66711F6552D4F388Ec79D4A33FE20173cC34';

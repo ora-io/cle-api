@@ -1,15 +1,10 @@
 import {
   waitTaskStatus,
 } from "../requests/zkwasm_taskdetails.js";
-import {zkwasm_imagedetails} from "../requests/zkwasm_imagedetails.js";
-import {
-  getTargetNetwork,
-  parseArgs
-} from "../common/utils.js";
 import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
 import Web3EthContract from "web3-eth-contract";
-import { globalVerifierContract, verifier_abi } from "../common/constants.js";
-import { ProveTaskNotReady as ProofNotFound } from "../common/error.js";
+import { AggregatorVerifierABI } from "../common/constants.js";
+import { ProveTaskNotReady } from "../common/error.js";
 
 /**
  * Verify zk proof onchain.
@@ -20,15 +15,11 @@ import { ProveTaskNotReady as ProofNotFound } from "../common/error.js";
  * @returns {boolean} - true if verification success, false otherwise.
  */
 export async function verify(
-  zkGraphExecutable,
   proveTaskId,
-  ZkwasmProviderUrl
+  ZkwasmProviderUrl,
+  verifierContractAddress,
+  jsonRpcProviderUrl,
 ) {
-  const { zkgraphYaml } = zkGraphExecutable;
-
-  const networkName = zkgraphYaml.dataDestinations[0].network;
-  const targetNetwork = getTargetNetwork(networkName);
-
   // Check task status of prove.
   const taskDetails = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ["Done", "Fail"], 3000, 0).catch((err) => {
     throw err;
@@ -36,13 +27,10 @@ export async function verify(
 
    //TODO: timeout
   if (taskDetails.status !== "Done") {
-    throw new ProofNotFound("Prove task is not 'Done', can't verify")
+    throw new ProveTaskNotReady("Prove task is not 'Done', can't verify")
   }
 
-  // TODO: read proof from local file rather than the zkwasm server
-
-  // Get deployed verification contract address.
-  const verifierContractAddress= globalVerifierContract;
+  // TODO: read proof from local file rather than the zkwasm server (but need compitable to ho node)
 
   // Inputs for verification
   const proof = ZkWasmUtil.bytesToBigIntArray(taskDetails.proof);
@@ -50,13 +38,9 @@ export async function verify(
   const aux = ZkWasmUtil.bytesToBigIntArray(taskDetails.aux);
   const arg = ZkWasmUtil.bytesToBigIntArray(taskDetails.instances);
 
-  if (targetNetwork.value === 5) {
-    Web3EthContract.setProvider("https://rpc.ankr.com/eth_goerli");
-  }
-  if (targetNetwork.value === 11155111) {
-    Web3EthContract.setProvider("https://rpc2.sepolia.org");
-  }
-  let contract = new Web3EthContract(verifier_abi.abi, verifierContractAddress);
+  Web3EthContract.setProvider(jsonRpcProviderUrl);
+
+  let contract = new Web3EthContract(AggregatorVerifierABI.abi, verifierContractAddress);
 
   let verificationResult = true;
   // verify success if no err throw
