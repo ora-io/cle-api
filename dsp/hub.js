@@ -33,7 +33,6 @@ export class DSPHub{
   toHubKey(primaryKey, foreignKeys){
     let { isLocal } = foreignKeys;
     let keyFullLocal = (! isLocal || isLocal == null) ? 'full' : 'local'
-    console.log('toHubKey',`${primaryKey}:${keyFullLocal}`)
     return `${primaryKey}:${keyFullLocal}`
   }
 
