@@ -28,13 +28,13 @@ export async function prepareBlocksByYaml(provider, latestBlocknumber, latestBlo
 export async function prepareOneBlockByYaml(provider, blockNumber, zkgraphYaml) {
 
   let stateDSAddrList, stateDSSlotsList;
-  if (zkgraphYaml.dataSources[0].storage) {
-    [stateDSAddrList, stateDSSlotsList] = zkgraphYaml.dataSources[0].storage.toArray();
+  if (zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].storage) {
+    [stateDSAddrList, stateDSSlotsList] = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].storage.toArray();
   } else {
     [stateDSAddrList, stateDSSlotsList] = [[], []]
   }
 
-  let needRLPReceiptList = zkgraphYaml.dataSources[0].event != null;
+  let needRLPReceiptList = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].event != null;
 
   return await prepareOneBlock(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList)
 }
