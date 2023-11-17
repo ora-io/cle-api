@@ -10,8 +10,8 @@ export { EthereumDataPrep } from "./blockprep.js";
 
 export class EthereumDataSourcePlugin extends DataSourcePlugin{
   
-  // SHOULD align with zkgraph-lib/dsp/ethereum/index.ts
-  static getLibFuncNames() {return ['zkmain_ethereum', 'asmain_ethereum']}
+  // SHOULD align with zkgraph-lib/dsp/<DSPName>
+  static getLibDSPName() {return 'ethereum'}
 
   static async prepareData(zkgraphYaml, prepareParams){
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams

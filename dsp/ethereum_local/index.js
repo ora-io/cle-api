@@ -6,6 +6,6 @@ import { DataSourcePlugin } from "../interface.js";
 
 export class EthereumLocalDataSourcePlugin extends DataSourcePlugin{
   
-  // SHOULD align with zkgraph-lib/dsp/ethereum_local/index.ts
-  static getLibFuncNames() {return ['zkmain_ethereum_local', 'asmain_ethereum_local']}
+  // SHOULD align with zkgraph-lib/dsp/<DSPName>
+  static getLibDSPName() {return 'ethereum_local'}
 }
