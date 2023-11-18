@@ -4,9 +4,11 @@ import semver from "semver";
 import { YamlHealthCheckFailed } from "../common/error.js";
 import { EthereumDataDestination, EthereumDataSource } from "./zkgyaml_eth.js";
 import { Mapping } from "./zkgyaml_def.js";
+import { OffchainDataSource } from "./zkgyaml_off.js";
 
 const dataSourceClassMap = new Map();
 dataSourceClassMap.set('ethereum', EthereumDataSource)
+dataSourceClassMap.set('offchain', OffchainDataSource)
 
 const dataDestinationClassMap = new Map();
 dataDestinationClassMap.set('ethereum', EthereumDataDestination)
@@ -41,12 +43,15 @@ export class ZkGraphYaml {
   }
 
   static fromYaml(yaml) {
+    // health check before parse
+    ZkGraphYaml.healthCheck(yaml);
+
     if (yaml.specVersion == "0.0.1"){
-      return ZkGraphYaml.from_v_0_0_1(yaml).healthCheck()
+      return ZkGraphYaml.from_v_0_0_1(yaml)
     } else if (yaml.specVersion == "0.0.2") {
-      return ZkGraphYaml.from_v_0_0_2(yaml).healthCheck()
+      return ZkGraphYaml.from_v_0_0_2(yaml)
     } else {
-      throw new Error("Unsupported specVersion: ", this.specVersion)
+      throw new Error("Unsupported specVersion: ", ttt.specVersion)
     }
   }
 
@@ -101,43 +106,56 @@ export class ZkGraphYaml {
     return this.dataSources.filter(ds => ds.kind === kind)
   }
 
-  healthCheck() {
+  static healthCheck(yaml) {
 
     // specVersion check
-    if (!this.specVersion || typeof this.specVersion !== 'string' || this.specVersion.trim() === '') {
+    if (!yaml.specVersion || typeof yaml.specVersion !== 'string' || yaml.specVersion.trim() === '') {
       throw new YamlHealthCheckFailed("specVersion is missing or empty");
     }
 
-    if (semver.gt(this.specVersion, '0.0.2')) {
+    if (semver.gt(yaml.specVersion, '0.0.2')) {
       throw new YamlHealthCheckFailed("Invalid specVersion, it should be <= 0.0.2");
     }
 
     // apiVersion → zkgraph-lib version check
-    if (!this.apiVersion || typeof this.apiVersion !== 'string' || this.apiVersion.trim() === '') {
+    if (!yaml.apiVersion || typeof yaml.apiVersion !== 'string' || yaml.apiVersion.trim() === '') {
       throw new YamlHealthCheckFailed("apiVersion is missing or empty");
     }
 
-    if (semver.gt(this.apiVersion, '0.0.2')) {
+    if (semver.gt(yaml.apiVersion, '0.0.2')) {
       throw new YamlHealthCheckFailed("Invalid apiVersion, it should be <= 0.0.2");
     }
 
     // datasources can have multiple objects, but should not be empty
-    if (!this.dataSources || this.dataSources.length === 0) {
+    if (!yaml.dataSources || yaml.dataSources.length === 0) {
       throw new YamlHealthCheckFailed("dataSources should not be empty");
     }
 
     const sourceKinds = [];
 
-    this.dataSources.forEach(dataSource => {
+    yaml.dataSources.forEach(dataSource => {
       // every object in datasources MUST have kind
       if (!dataSource.kind) {
         throw new YamlHealthCheckFailed("dataSource is missing 'kind' field");
       }
-
-     // check data sources
-      dataSourceClassMap.get(dataSource.kind).healthCheck(dataSource);
-
       sourceKinds.push(dataSource.kind);
+    });
+
+    const validKind = ['ethereum', 'offchain']
+
+    //TODO: implement offchain
+    if (!sourceKinds.every((kind) => validKind.includes(kind) )){
+      throw new YamlHealthCheckFailed("Invalid dataSource kind, only support " + validKind.toString());
+    }
+
+    // can only have 1 data source with kind 'ethereum' right now
+    if (sourceKinds.indexOf('ethereum') != sourceKinds.lastIndexOf('ethereum')){
+      throw new YamlHealthCheckFailed("Only 1 'ethereum' kind is allowed in data sources right now");
+    }
+
+    yaml.dataSources.forEach(dataSource => {
+     // check data sources
+     dataSourceClassMap.get(dataSource.kind).healthCheck(dataSource);
     });
 
     // every network field must be the same
@@ -145,17 +163,13 @@ export class ZkGraphYaml {
     //   throw new YamlHealthCheckFailed("All dataSource networks must be the same");
     // }
 
-    // can only have 1 data source with kind 'ethereum' right now
-    if (sourceKinds.indexOf('ethereum') != sourceKinds.lastIndexOf('ethereum')){
-      throw new YamlHealthCheckFailed("Only 1 'ethereum' kind is allowed in data sources right now");
-    }
 
     // all mapping fields must be not empty
-    if (!this.mapping.language || !this.mapping.file || !this.mapping.handler) {
+    if (!yaml.mapping.language || !yaml.mapping.file || !yaml.mapping.handler) {
       throw new YamlHealthCheckFailed("Some required fields are empty in mapping");
     }
 
-    this.dataDestinations.forEach(dataDest => {
+    yaml.dataDestinations.forEach(dataDest => {
       // every object in datasources MUST have kind
       if (!dataDest.kind) {
         throw new YamlHealthCheckFailed("dataDestination is missing 'kind' field");
@@ -169,6 +183,5 @@ export class ZkGraphYaml {
     // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
     //   throw new Error("dataDestinations network must match dataSources network");
     // }
-    return this;
   }
 }

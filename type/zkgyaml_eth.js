@@ -1,6 +1,6 @@
 
 import { ethers } from "ethers";
-import { YamlHealthCheckFailed } from "../common/error.js";
+import { YamlHealthCheckFailed, YamlNotSupported } from "../common/error.js";
 import { DataSource, DataDestination } from "./zkgyaml_def.js";
 
 function isEthereumAddress(address) {
@@ -41,7 +41,7 @@ export class EthereumDataSource extends DataSource {
     const storageCount = ds.storage ? 1 : 0;
 
     if (eventCount + storageCount !== 1) {
-      throw new YamlHealthCheckFailed("must have one and only one 'event' or 'storage' field");
+      throw new YamlNotSupported("currently requires only one 'event' or 'storage' field");
     }
   }
 }
