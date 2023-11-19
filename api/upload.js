@@ -38,6 +38,12 @@ export async function upload(
     throw error;
   });
 
+  return {
+    response,
+    isUploadSuccess,
+    errorMessage,
+  }
+
   // TODO: move log to cli, use return and Error class (e.g. UploadDuplicated) to pass info.
   if (isUploadSuccess) {
     if (enableLog) {
