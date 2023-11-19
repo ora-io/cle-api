@@ -63,18 +63,18 @@ export async function prove(
     const taskId = response.data.result.id;
     result["taskId"] = taskId;
 
-    if (enableLog) {
-      console.log(`[+] PROVE TASK STARTED. TASK ID: ${taskId}`, "\n");
+    // if (enableLog) {
+    //   console.log(`[+] PROVE TASK STARTED. TASK ID: ${taskId}`, "\n");
 
-      console.log(
-        "[*] Please wait for proof generation... (estimated: 1-5 min)",
-        "\n"
-      );
-    }
+    //   console.log(
+    //     "[*] Please wait for proof generation... (estimated: 1-5 min)",
+    //     "\n"
+    //   );
+    // }
   } else {
-    if (enableLog) {
-      console.log(`[-] PROVE CANNOT BE STARTED. MIGHT NEED TO SETUP`, "\n");
-    }
+    // if (enableLog) {
+    //   console.log(`[-] PROVE CANNOT BE STARTED. MIGHT NEED TO SETUP`, "\n");
+    // }
   }
 
   return result;
