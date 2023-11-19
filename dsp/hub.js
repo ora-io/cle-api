@@ -1,4 +1,4 @@
-import { EthereumOffchainDSP } from "./ethereum-offchain/index.js";
+import { EthereumOffchainDSP } from "./ethereum-offchain.bytes/index.js";
 import { EthereumDataSourcePlugin } from "./ethereum/index.js";
 import { EthereumLocalDataSourcePlugin } from "./ethereum_local/index.js";
 
@@ -37,13 +37,13 @@ export class DSPHub{
   }
 
   toHubKeyByYaml(zkgraphYaml, foreignKeys){
-    const kinds = zkgraphYaml.getKinds(true);
-    const primaryKey = this.toPrimaryKey(kinds);
+    const sigKeys = zkgraphYaml.getSignificantKeys(true);
+    const primaryKey = this.toPrimaryKey(sigKeys);
     return this.toHubKey(primaryKey, foreignKeys);
   }
 
-  toPrimaryKey(kinds){
-    return kinds.join('-');
+  toPrimaryKey(sigKeys){
+    return sigKeys.map((keys)=>keys.join('.')).join('-');
   }
 
   setDSP(primaryKey, foreignKeys, dsp) {
@@ -59,8 +59,8 @@ export class DSPHub{
   }
 
   getDSPByYaml(zkgraphYaml, foreignKeys){
-    const kinds = zkgraphYaml.getKinds(true);
-    const primaryKey = this.toPrimaryKey(kinds);
+    const sigKeys = zkgraphYaml.getSignificantKeys(true);
+    const primaryKey = this.toPrimaryKey(sigKeys);
     return this.getDSP(primaryKey, foreignKeys);
   }
 }
@@ -75,4 +75,4 @@ export const dspHub = new DSPHub();
  */
 dspHub.setDSP('ethereum', {'isLocal': false}, EthereumDataSourcePlugin);
 dspHub.setDSP('ethereum', {'isLocal': true}, EthereumLocalDataSourcePlugin);
-dspHub.setDSP('ethereum-offchain', {'isLocal': true}, EthereumOffchainDSP);
+dspHub.setDSP('ethereum-offchain.bytes', {'isLocal': false}, EthereumOffchainDSP);

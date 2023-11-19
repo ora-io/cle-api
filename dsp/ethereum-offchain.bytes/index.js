@@ -22,7 +22,7 @@ export class EthereumOffchainDP extends DataPrep {
 export class EthereumOffchainDSP extends DataSourcePlugin{
   
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
-  static getLibDSPName() {return 'ethereum-offchain'}
+  static getLibDSPName() {return 'ethereum-offchain.bytes'}
 
   static async prepareData(zkgraphYaml, prepareParams){
     const { provider, latestBlocknumber, latestBlockhash, offchainData, expectedStateStr } = prepareParams
@@ -54,7 +54,8 @@ export class EthereumOffchainDSP extends DataSourcePlugin{
     return input;
   }
   
-  static toPrepareParams(provider, latestBlocknumber, latestBlockhash, offchainData, expectedStateStr) {
+  static toPrepareParams(generalParams) {
+    const { provider, latestBlocknumber, latestBlockhash, offchainData, expectedStateStr } = generalParams
     return {
       "provider": provider,
       "latestBlocknumber": latestBlocknumber, 
@@ -65,19 +66,21 @@ export class EthereumOffchainDSP extends DataSourcePlugin{
     }
   }
 
-  static toExecParams(rpcUrl, blockid, offchainData){
+  static toExecParams(generalParams){
+    const { jsonRpcUrl, blockId, offchainData } = generalParams;
     return {
-      "rpcUrl": rpcUrl,
-      "blockid": blockid,
+      "jsonRpcUrl": jsonRpcUrl,
+      "blockId": blockId,
       // add offchain data
       "offchainData": offchainData,
     }
   }
 
-  static toProveParams(rpcUrl, blockid, offchainData, expectedStateStr){
+  static toProveParams(generalParams){
+    const { jsonRpcUrl, blockId, offchainData, expectedStateStr } = generalParams;
     return {
-      "rpcUrl": rpcUrl,
-      "blockid": blockid,
+      "jsonRpcUrl": jsonRpcUrl,
+      "blockId": blockId,
       // add offchain data
       "offchainData": offchainData,
       "expectedStateStr": expectedStateStr,
@@ -85,13 +88,13 @@ export class EthereumOffchainDSP extends DataSourcePlugin{
   }
 
   static async toPrepareParamsFromExecParams(execParams){
-    const { rpcUrl, blockid, offchainData } = execParams
+    const { jsonRpcUrl, blockId, offchainData } = execParams
 
-    const provider = new providers.JsonRpcProvider(rpcUrl);
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl);
     
     // Get block
-    // TODO: optimize: no need to getblock if blockid is block num
-    let rawblock = await getBlock(provider, blockid);
+    // TODO: optimize: no need to getblock if blockId is block num
+    let rawblock = await getBlock(provider, blockId);
     const blockNumber = parseInt(rawblock.number);
     const blockHash = rawblock.hash;
     
@@ -106,13 +109,13 @@ export class EthereumOffchainDSP extends DataSourcePlugin{
   }
 
   static async toPrepareParamsFromProveParams(proveParams){
-    const { rpcUrl, blockid, offchainData, expectedStateStr } = proveParams
+    const { jsonRpcUrl, blockId, offchainData, expectedStateStr } = proveParams
 
-    const provider = new providers.JsonRpcProvider(rpcUrl);
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl);
     
     // Get block
-    // TODO: optimize: no need to getblock if blockid is block num
-    let rawblock = await getBlock(provider, blockid);
+    // TODO: optimize: no need to getblock if blockId is block num
+    let rawblock = await getBlock(provider, blockId);
     const blockNumber = parseInt(rawblock.number);
     const blockHash = rawblock.hash;
     
