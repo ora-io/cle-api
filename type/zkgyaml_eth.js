@@ -36,6 +36,11 @@ export class EthereumDataSource extends DataSource {
     throw new Error('no 0.0.1 support'); //TODO
   }
 
+  // signaficant to decide which lib dsp main it should use.
+  getSignificantKeys(){
+    return [this.kind]
+  }
+
   static healthCheck(ds){
     const eventCount = ds.event ? 1 : 0;
     const storageCount = ds.storage ? 1 : 0;
@@ -52,6 +57,12 @@ export class EthereumDataDestination extends DataDestination{
     this.network = network;
     this.address = address;
   }
+
+  // signaficant to decide which lib dsp main it should use.
+  getSignificantKeys(){
+    return [this.kind]
+  }
+
   static from_v_0_0_2(yamlEthDD){
     return new EthereumDataDestination(
       yamlEthDD.kind,

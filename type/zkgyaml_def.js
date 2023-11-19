@@ -2,14 +2,23 @@ export class DataSource {
   constructor(kind) {
     this.kind = kind;
   }
+  getSignificantKeys() {
+    throw new Error(`default: getSignificantKeys not implemented for DataSource kind ${this.kind}.`)
+  }
   healthCheck() {
-    throw new Error("default: healthCheck not implemented for this DataSource kind.")
+    throw new Error(`default: healthCheck not implemented for DataSource kind ${this.kind}.`)
   }
 }
 
 export class DataDestination {
   constructor(kind) {
     this.kind = kind;
+  }
+  getSignificantKeys() {
+    throw new Error(`default: getSignificantKeys not implemented for DataDestination kind ${this.kind}.`)
+  }
+  healthCheck() {
+    throw new Error(`default: healthCheck not implemented for DataDestination kind ${this.kind}.`)
   }
 }
 

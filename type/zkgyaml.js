@@ -45,7 +45,6 @@ export class ZkGraphYaml {
   static fromYaml(yaml) {
     // health check before parse
     ZkGraphYaml.healthCheck(yaml);
-
     if (yaml.specVersion == "0.0.1"){
       return ZkGraphYaml.from_v_0_0_1(yaml)
     } else if (yaml.specVersion == "0.0.2") {
@@ -98,8 +97,8 @@ export class ZkGraphYaml {
   //   throw new Error("Unsupported specVersion: ", this.specVersion)
   // }
 
-  getKinds(isSource){
-    return isSource ? this.dataSources.map(ds => ds.kind) : this.dataDestinations.map(ds => ds.kind)
+  getSignificantKeys(isSource){
+    return isSource ? this.dataSources.map(ds => ds.getSignificantKeys()) : this.dataDestinations.map(ds => ds.getSignificantKeys())
   }
 
   getFilteredSourcesByKind(kind){
