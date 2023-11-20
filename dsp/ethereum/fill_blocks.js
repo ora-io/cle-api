@@ -37,9 +37,9 @@ export function fillInputOneBlock(input, zkgraphYaml, blockPrep){
    * Fill storage
    * */ 
 
-  if (zkgraphYaml.dataSources[0].storage) {
+  if (zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].storage) {
 
-    let [stateDSAddrList, stateDSSlotsList] = zkgraphYaml.dataSources[0].storage.toArray();
+    let [stateDSAddrList, stateDSSlotsList] = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].storage.toArray();
     input.addInt(stateDSAddrList.length, false); // account count
 
     console.log("[*] Defined Data Sources - Storage:");
@@ -90,12 +90,12 @@ export function fillInputOneBlock(input, zkgraphYaml, blockPrep){
    * Fill RLP(receipt)
    * */ 
 
-  if (zkgraphYaml.dataSources[0].event) {
+  if (zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].event) {
 
     // TODO move logs to cli
     let enableLog = true;
     
-    let [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.dataSources[0].event.toArray()
+    let [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0].event.toArray()
 
     // TODO: move this to cli
     console.log("[*] Defined Data Sources - Event:");

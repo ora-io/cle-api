@@ -29,8 +29,9 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
     input.addVarLenHexString(expectedStateStr, true);
     return input;
   }
-  
-  static toPrepareParams(provider, latestBlocknumber, latestBlockhash, expectedStateStr) {
+  // validate params exist
+  static toPrepareParams(generalParams) {
+    const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = generalParams;
     return {
       "provider": provider,
       "latestBlocknumber": latestBlocknumber, 
@@ -39,29 +40,33 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
     }
   }
 
-  static toExecParams(rpcUrl, blockid){
+  // validate params exist
+  static toExecParams(generalParams){
+    const { jsonRpcUrl, blockId } = generalParams;
     return {
-      "rpcUrl": rpcUrl,
-      "blockid": blockid
+      "jsonRpcUrl": jsonRpcUrl,
+      "blockId": blockId
     }
   }
 
-  static toProveParams(rpcUrl, blockid, expectedStateStr){
+  // validate params exist
+  static toProveParams(generalParams){
+    const { jsonRpcUrl, blockId, expectedStateStr } = generalParams
     return {
-      "rpcUrl": rpcUrl,
-      "blockid": blockid,
+      "jsonRpcUrl": jsonRpcUrl,
+      "blockId": blockId,
       "expectedStateStr": expectedStateStr
     }
   }
 
   static async toPrepareParamsFromExecParams(execParams){
-    const { rpcUrl, blockid } = execParams
+    const { jsonRpcUrl, blockId } = execParams
 
-    const provider = new providers.JsonRpcProvider(rpcUrl);
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl);
     
     // Get block
-    // TODO: optimize: no need to getblock if blockid is block num
-    let rawblock = await getBlock(provider, blockid);
+    // TODO: optimize: no need to getblock if blockId is block num
+    let rawblock = await getBlock(provider, blockId);
     const blockNumber = parseInt(rawblock.number);
     const blockHash = rawblock.hash;
     
@@ -74,13 +79,13 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
   }
 
   static async toPrepareParamsFromProveParams(proveParams){
-    const { rpcUrl, blockid, expectedStateStr } = proveParams
+    const { jsonRpcUrl, blockId, expectedStateStr } = proveParams
 
-    const provider = new providers.JsonRpcProvider(rpcUrl);
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl);
     
     // Get block
-    // TODO: optimize: no need to getblock if blockid is block num
-    let rawblock = await getBlock(provider, blockid);
+    // TODO: optimize: no need to getblock if blockId is block num
+    let rawblock = await getBlock(provider, blockId);
     const blockNumber = parseInt(rawblock.number);
     const blockHash = rawblock.hash;
     

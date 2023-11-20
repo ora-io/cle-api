@@ -27,3 +27,9 @@ export class YamlHealthCheckFailed extends Error{
     super(message);
   }
 }
+
+export class YamlNotSupported extends Error{
+  constructor(message) {
+    super(message);
+  }
+}
