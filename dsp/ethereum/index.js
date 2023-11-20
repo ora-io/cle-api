@@ -4,7 +4,7 @@ import { fillInputBlocks } from "./fill_blocks.js";
 
 import { providers } from "ethers";
 import { getBlock } from "../../common/ethers_helper.js";
-import { trimPrefix } from "../../common/utils.js";
+import { trimPrefix, dspParamsNormalize } from "../../common/utils.js";
 
 export { EthereumDataPrep } from "./blockprep.js";
 
@@ -40,23 +40,18 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
     }
   }
 
+  static execParams = ["jsonRpcUrl", "blockId"]
+
   // validate params exist
   static toExecParams(generalParams){
-    const { jsonRpcUrl, blockId } = generalParams;
-    return {
-      "jsonRpcUrl": jsonRpcUrl,
-      "blockId": blockId
-    }
+    return dspParamsNormalize(this.execParams, generalParams)
   }
+
+  static proveParams = ["jsonRpcUrl", "blockId", "expectedStateStr"]
 
   // validate params exist
   static toProveParams(generalParams){
-    const { jsonRpcUrl, blockId, expectedStateStr } = generalParams
-    return {
-      "jsonRpcUrl": jsonRpcUrl,
-      "blockId": blockId,
-      "expectedStateStr": expectedStateStr
-    }
+    return dspParamsNormalize(this.proveParams, generalParams)
   }
 
   static async toPrepareParamsFromExecParams(execParams){

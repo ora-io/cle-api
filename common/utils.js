@@ -116,3 +116,11 @@ export function getTargetNetwork(inputtedNetworkName) {
   );
   return targetNetwork;
 }
+
+export function dspParamsNormalize(params = [], realParams = {}) {
+  return params.map((param) => {
+    return {
+      [param]: realParams[param],
+    };
+  });
+}
