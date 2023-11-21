@@ -117,10 +117,8 @@ export function getTargetNetwork(inputtedNetworkName) {
   return targetNetwork;
 }
 
-export function dspParamsNormalize(params = [], realParams = {}) {
-  return params.map((param) => {
-    return {
-      [param]: realParams[param],
-    };
-  });
+export function dspParamsNormalize(paramNames = [], paramKeyValue = {}) {
+  return paramNames.map((param) => ({
+    [param]: paramKeyValue[param],
+  }));
 }
