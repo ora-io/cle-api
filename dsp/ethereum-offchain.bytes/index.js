@@ -6,7 +6,7 @@ import { fillInputBlocks } from "../ethereum/fill_blocks.js";
 
 import { providers } from "ethers";
 import { getBlock } from "../../common/ethers_helper.js";
-import { trimPrefix } from "../../common/utils.js";
+import { dspParamsNormalize, trimPrefix } from "../../common/utils.js";
 
 export class EthereumOffchainDP extends DataPrep {
   constructor(blockPrepMap, blocknumberOrder, latestBlockhash, offchainData, expectedStateStr) {
@@ -66,25 +66,16 @@ export class EthereumOffchainDSP extends DataSourcePlugin{
     }
   }
 
+  static execParams = ["jsonRpcUrl", "blockId", "offchainData"]
+
   static toExecParams(generalParams){
-    const { jsonRpcUrl, blockId, offchainData } = generalParams;
-    return {
-      "jsonRpcUrl": jsonRpcUrl,
-      "blockId": blockId,
-      // add offchain data
-      "offchainData": offchainData,
-    }
+    return dspParamsNormalize(this.execParams, generalParams)
   }
 
+  static proveParams = ["jsonRpcUrl", "blockId", "offchainData", "expectedStateStr"]
+
   static toProveParams(generalParams){
-    const { jsonRpcUrl, blockId, offchainData, expectedStateStr } = generalParams;
-    return {
-      "jsonRpcUrl": jsonRpcUrl,
-      "blockId": blockId,
-      // add offchain data
-      "offchainData": offchainData,
-      "expectedStateStr": expectedStateStr,
-    }
+    return dspParamsNormalize(this.proveParams, generalParams)
   }
 
   static async toPrepareParamsFromExecParams(execParams){

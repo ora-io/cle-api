@@ -26,9 +26,14 @@ export class DataSourcePlugin {
       "default": null,
     }
   }
+
+  static execParams = []
+
   static toExecParams(){
     throw new Error("default: toExecParams not implemented in DSP.")
   }
+
+  static proveParams = []
 
   static toProveParams(){
     throw new Error("default: toProveParams not implemented in DSP.")
