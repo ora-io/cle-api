@@ -14,6 +14,9 @@ async function instantiate(module, imports = {}) {
 
   const adaptedImports = {
     env: Object.assign(Object.create(globalThis), imports.env || {}, {
+      "wasm_write_context"(u64) {
+        // pass
+      },
       "console.log"(text) {
         // ~lib/bindings/dom/console.log(~lib/string/String) => void
         text = __liftString(text >>> 0);
