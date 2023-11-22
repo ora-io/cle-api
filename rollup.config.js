@@ -25,12 +25,10 @@ const external = [
 const plugins = [
   json(),
   // nodeResolve({
-  //   preferBuiltins: true,
+  //   preferBuiltins: false,
+  //   bowser: true
   // }),
   commonjs(),
-  esbuild.default({
-    target: 'node14',
-  }),
 ]
 
 export default () => defineConfig([
@@ -44,6 +42,12 @@ export default () => defineConfig([
     external,
     plugins: [
       ...plugins,
+      esbuild.default({
+        target: 'node14',
+        define: {
+          __BROWSER__: 'false'
+        },
+      }),
     ],
   },
   {
@@ -56,6 +60,48 @@ export default () => defineConfig([
     external,
     plugins: [
       ...plugins,
+      esbuild.default({
+        target: 'node14',
+        define: {
+          __BROWSER__: 'false'
+        },
+      }),
+    ],
+  },
+  {
+    input,
+    output: {
+      dir: 'dist',
+      format: 'esm',
+      entryFileNames: '[name].browser.mjs',
+    },
+    external,
+    plugins: [
+      ...plugins,
+      esbuild.default({
+        target: 'node14',
+        define: {
+          __BROWSER__: 'true'
+        },
+      }),
+    ],
+  },
+  {
+    input,
+    output: {
+      dir: 'dist',
+      format: 'cjs',
+      entryFileNames: '[name].browser.cjs',
+    },
+    external,
+    plugins: [
+      ...plugins,
+      esbuild.default({
+        target: 'node14',
+        define: {
+          __BROWSER__: 'true'
+        },
+      }),
     ],
   },
   // {

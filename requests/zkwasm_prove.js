@@ -4,7 +4,7 @@ import { Wallet } from "ethers";
 import { computeAddress } from "ethers/lib/utils.js";
 import { handleAxiosError } from "./error_handle.js";
 import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
-import { sign } from "crypto";
+// import { sign } from "crypto";
 
 export async function zkwasm_prove(
   zkwasmProverUrl,

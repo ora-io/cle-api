@@ -1,5 +1,4 @@
 import yaml from "js-yaml";
-import fs from "fs";
 import semver from "semver";
 import { YamlHealthCheckFailed } from "../common/error.js";
 import { EthereumDataDestination, EthereumDataSource } from "./zkgyaml_eth.js";
@@ -66,14 +65,18 @@ export class ZkGraphYaml {
   }
 
   static fromYamlPath(yamlPath) {
-    let fileContents;
-    try {
-      // Read the YAML file contents
-      fileContents = fs.readFileSync(yamlPath, "utf8");
-    } catch (error) {
-      console.error(error);
+    if(!__BROWSER__) {
+      const fs = require('fs')
+      let fileContents;
+      try {
+        // Read the YAML file contents
+        fileContents = fs.readFileSync(yamlPath, "utf8");
+      } catch (error) {
+        console.error(error);
+      }
+      return ZkGraphYaml.fromYamlContent(fileContents)
     }
-    return ZkGraphYaml.fromYamlContent(fileContents)
+
   }
 
   static from_v_0_0_1(yaml) {

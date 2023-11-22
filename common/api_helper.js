@@ -1,7 +1,3 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-
 import { TxReceipt } from "./tx_receipt.js";
 import { trimPrefix, fromHexString } from "./utils.js";
 import { logReceiptAndEvents } from "./log_utils.js";
@@ -92,50 +88,54 @@ export function formatVarLenInput(input) {
   return formatted;
 }
 
-export function filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog){
+export function filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog) {
 
 
-    // RLP Decode and Filter
-    const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
+  // RLP Decode and Filter
+  const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
+    rawreceiptList,
+    eventDSAddrList.map((addr) => fromHexString(addr)),
+    eventDSEsigsList.map((esigList) => esigList.map((esig) => fromHexString(esig))),
+  );
+
+  // Gen Offsets
+  let [rawReceipts, matchedEventOffsets] = genStreamAndMatchedEventOffsets(
+    filteredRawReceiptList,
+    filteredEventList,
+  );
+
+  if (enableLog) {
+    // Log
+    logReceiptAndEvents(
       rawreceiptList,
-      eventDSAddrList.map((addr) => fromHexString(addr)),
-      eventDSEsigsList.map((esigList) => esigList.map((esig) => fromHexString(esig))),
-    );
-
-    // Gen Offsets
-    let [rawReceipts, matchedEventOffsets] = genStreamAndMatchedEventOffsets(
-      filteredRawReceiptList,
+      matchedEventOffsets,
       filteredEventList,
     );
+  }
 
-    if (enableLog){
-        // Log
-        logReceiptAndEvents(
-          rawreceiptList,
-          matchedEventOffsets,
-          filteredEventList,
-        );
-    }
+  // may remove
+  matchedEventOffsets = Uint32Array.from(matchedEventOffsets);
 
-    // may remove
-    matchedEventOffsets = Uint32Array.from(matchedEventOffsets);
-
-    return [rawReceipts, matchedEventOffsets]
+  return [rawReceipts, matchedEventOffsets]
 }
 
 export function createFileFromUint8Array(array, fileName) {
+  // Running in a browser environment
+  if (__BROWSER__) {
+    return new File([array], fileName, {
+      type: "application/wasm",
+      lastModified: Date.now()
+    });
+  } 
   // Check if running in a Node.js environment
-  if (typeof window === 'undefined') {
+  if(!__BROWSER__) {
+    const os = require('os')
+    const path = require('path')  
+    const fs = require('fs')  
     const tempDir = os.tmpdir();
     const filePath = path.join(tempDir, fileName)
     fs.writeFileSync(filePath, array);
     return fs.createReadStream(filePath);
-  } else {
-    // Running in a browser environment
-    return new File( [array], fileName, {
-      type: "application/wasm",
-      lastModified: Date.now()
-  });
   }
 }
 

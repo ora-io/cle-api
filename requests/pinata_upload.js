@@ -1,5 +1,4 @@
 import url from "./url.js";
-import fs from "fs";
 import FormData from "form-data";
 import axios from "axios";
 import { handleAxiosError } from "./error_handle.js";
@@ -15,6 +14,8 @@ export async function pinata_upload(
   pinataJWT,
 ) {
   let isUploadSuccess = true;
+
+  const fs = require('fs')  
 
   // TODO: upload src/ rather than mapping only
   const mappingFile = fs.createReadStream(mappingPath);

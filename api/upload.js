@@ -25,42 +25,44 @@ export async function upload(
   //     ? 'zkGraph'
   //     : loadZKGraphName('src/zkgraph.yaml');
 
+  if (!__BROWSER__) {
+    let [response, isUploadSuccess, errorMessage] = await pinata_upload(
+      // userAddress,
+      wasmPath,
+      mappingPath,
+      yamlPath,
+      // zkGraphName,
+      pinataEndpoint,
+      pinataJWT,
+    ).catch((error) => {
+      throw error;
+    });
 
-  let [response, isUploadSuccess, errorMessage] = await pinata_upload(
-    // userAddress,
-    wasmPath,
-    mappingPath,
-    yamlPath,
-    // zkGraphName,
-    pinataEndpoint,
-    pinataJWT,
-  ).catch((error) => {
-    throw error;
-  });
+    return {
+      response,
+      isUploadSuccess,
+      errorMessage,
+    }
 
-  return {
-    response,
-    isUploadSuccess,
-    errorMessage,
-  }
-
-  // TODO: move log to cli, use return and Error class (e.g. UploadDuplicated) to pass info.
-  if (isUploadSuccess) {
-    if (enableLog) {
-      console.log(`[+] IPFS UPLOAD SUCCESS!`, '\n');
-      console.log(`[+] IPFS HASH: ${response.data.IpfsHash}`, '\n');
-      if (response.data.isDuplicate) {
-        console.log(`[*] Please note that this upload is duplicated.`, '\n');
+      // TODO: move log to cli, use return and Error class (e.g. UploadDuplicated) to pass info.
+    if (isUploadSuccess) {
+      if (enableLog) {
+        console.log(`[+] IPFS UPLOAD SUCCESS!`, '\n');
+        console.log(`[+] IPFS HASH: ${response.data.IpfsHash}`, '\n');
+        if (response.data.isDuplicate) {
+          console.log(`[*] Please note that this upload is duplicated.`, '\n');
+        }
       }
+
+      return true;
+    } else {
+      if (enableLog) {
+        console.log(`[-] IPFS UPLOAD FAILED.`, '\n');
+        console.log(`[-] ${errorMessage}`, '\n');
+      }
+
+      return false;
     }
 
-    return true;
-  } else {
-    if (enableLog) {
-      console.log(`[-] IPFS UPLOAD FAILED.`, '\n');
-      console.log(`[-] ${errorMessage}`, '\n');
-    }
-
-    return false;
   }
 }
