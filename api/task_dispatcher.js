@@ -3,9 +3,9 @@ import axios from "axios";
 import axiosRetry from 'axios-retry'
 
 axiosRetry(axios, {
-    retries: 3,
+    retries: 5,
     retryDelay: (retryCount) => {
-      return retryCount * 1000
+      return retryCount * 2000
     },
 })
 
