@@ -118,9 +118,11 @@ export function getTargetNetwork(inputtedNetworkName) {
 }
 
 export function dspParamsNormalize(paramNames = [], paramKeyValue = {}) {
-  return paramNames.map((param) => ({
-    [param]: paramKeyValue[param],
-  }));
+  const params = {}
+  paramNames.forEach((param) => {
+    Reflect.set(params, param, paramKeyValue[param])
+  });
+  return params
 }
 
 export function isNumber(value) {
