@@ -3,6 +3,8 @@ import { formatEther } from "ethers/lib/utils.js";
 
 import { RLP } from '@ethereumjs/rlp'
 
+import {isNumber} from './utils'
+
 
 async function getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx) {
     // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -138,12 +140,14 @@ export async function getBlock(ethersProvider, blockid)
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);
     });
-  } else {
-    return await getBlockByNumber(ethersProvider, blockid).catch((error) => {
+  } else if(isNumber(blockid)) {
+    return await getBlockByNumber(ethersProvider, Number(blockid)).catch((error) => {
       throw error;
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);
     });
+  } else{
+    throw Error("please provide a valid block number.")
   }
 }
 
