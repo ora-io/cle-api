@@ -2,7 +2,9 @@ import { TxReceipt } from "./tx_receipt.js";
 import { trimPrefix, fromHexString } from "./utils.js";
 import { logReceiptAndEvents } from "./log_utils.js";
 import assert from "assert";
-
+import os from 'os'
+import path from 'path'
+import fs from 'fs'
 
 function eventTo7Offsets(event, receiptBaseOffset) {
   let rst = [event.address_offset[0] + receiptBaseOffset];
@@ -129,9 +131,6 @@ export function createFileFromUint8Array(array, fileName) {
   } 
   // Check if running in a Node.js environment
   if(!__BROWSER__) {
-    const os = require('os')
-    const path = require('path')  
-    const fs = require('fs')  
     const tempDir = os.tmpdir();
     const filePath = path.join(tempDir, fileName)
     fs.writeFileSync(filePath, array);

@@ -1,5 +1,6 @@
 import yaml from "js-yaml";
 import semver from "semver";
+import fs from 'fs'
 import { YamlHealthCheckFailed } from "../common/error.js";
 import { EthereumDataDestination, EthereumDataSource } from "./zkgyaml_eth.js";
 import { Mapping } from "./zkgyaml_def.js";
@@ -66,7 +67,6 @@ export class ZkGraphYaml {
 
   static fromYamlPath(yamlPath) {
     if(!__BROWSER__) {
-      const fs = require('fs')
       let fileContents;
       try {
         // Read the YAML file contents

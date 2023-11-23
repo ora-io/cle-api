@@ -31,77 +31,75 @@ const plugins = [
   commonjs(),
 ]
 
+const nodePlugins = [
+  ...plugins,
+  esbuild.default({
+    target: 'node14',
+    define: {
+      __BROWSER__: 'false'
+    },
+  }),
+]
+
+const browserPlugins = [
+  ...plugins,
+  esbuild.default({
+    target: 'node14',
+    define: {
+      __BROWSER__: 'true'
+    },
+  }),
+]
+
+const commonConfig = {
+  input,
+  external,
+  treeshake: 'smallest',
+}
+
 export default () => defineConfig([
   {
-    input,
+    ...commonConfig,
     output: {
       dir: 'dist',
       format: 'esm',
       entryFileNames: '[name].mjs',
     },
-    external,
     plugins: [
-      ...plugins,
-      esbuild.default({
-        target: 'node14',
-        define: {
-          __BROWSER__: 'false'
-        },
-      }),
+      ...nodePlugins,
     ],
   },
   {
-    input,
+    ...commonConfig,
     output: {
       dir: 'dist',
       format: 'cjs',
       entryFileNames: '[name].cjs',
     },
-    external,
     plugins: [
-      ...plugins,
-      esbuild.default({
-        target: 'node14',
-        define: {
-          __BROWSER__: 'false'
-        },
-      }),
+      ...nodePlugins,
     ],
   },
   {
-    input,
+    ...commonConfig,
     output: {
       dir: 'dist',
       format: 'esm',
       entryFileNames: '[name].browser.mjs',
     },
-    external,
     plugins: [
-      ...plugins,
-      esbuild.default({
-        target: 'node14',
-        define: {
-          __BROWSER__: 'true'
-        },
-      }),
+      ...browserPlugins,
     ],
   },
   {
-    input,
+    ...commonConfig,
     output: {
       dir: 'dist',
       format: 'cjs',
       entryFileNames: '[name].browser.cjs',
     },
-    external,
     plugins: [
-      ...plugins,
-      esbuild.default({
-        target: 'node14',
-        define: {
-          __BROWSER__: 'true'
-        },
-      }),
+      ...browserPlugins,
     ],
   },
   // {
