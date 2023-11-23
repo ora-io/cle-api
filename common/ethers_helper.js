@@ -3,7 +3,7 @@ import { formatEther } from "ethers/lib/utils.js";
 
 import { RLP } from '@ethereumjs/rlp'
 
-import {isNumber} from './utils'
+import {isNumber} from './utils.js'
 
 
 async function getRawLogsFromBlockReceipts(ethersProvider, blockNumber, ignoreFailedTx) {

@@ -25,7 +25,7 @@ export async function execute(zkGraphExecutable, execParams, isLocal=false, enab
     let prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
     let dataPrep /**:DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
-    return executeOnDataPrep(zkGraphExecutable, dataPrep)
+    return await executeOnDataPrep(zkGraphExecutable, dataPrep)
 }
 
 /**
