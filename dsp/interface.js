@@ -6,10 +6,10 @@
 export class DataPrep {}
 
 export class DataSourcePlugin {
-  static getLibFuncNames(){
+  static getLibDSPName(){
     // SHOULD align with zkgraph-lib/dsp/ethereum/index.ts
     // return ['zkmain_name_in_lib', 'asmain_name_in_lib']
-    throw new Error("default: getLibFuncNames not implemented in DSP.")
+    throw new Error("default: getLibDSPName not implemented in DSP.")
   }
   static async prepareData(zkgraphYaml, prepareParams){
     throw new Error("default: prepareData not implemented in DSP.")
@@ -20,11 +20,13 @@ export class DataSourcePlugin {
   static fillProveInput(input, zkgraphYaml, dataPrep){
     throw new Error("default: fillInput not implemented in DSP.")
   }
+
+  static toProveDataPrep(execDataPrep, execResult){
+    throw new Error("default: toProveDataPrep not implemented in DSP.")
+  }
+
   static toPrepareParams() {
     throw new Error("default: toPrepareParams not implemented in DSP.")
-    return {
-      "default": null,
-    }
   }
 
   static execParams = []

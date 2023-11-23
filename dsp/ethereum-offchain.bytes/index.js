@@ -53,6 +53,13 @@ export class EthereumOffchainDSP extends DataSourcePlugin{
     input.addVarLenHexString(expectedStateStr, true);
     return input;
   }
+
+  // TODO: copy instead of rename
+  static toProveDataPrep(execDataPrep, execResult){
+    let proveDataPrep = execDataPrep;
+    proveDataPrep.expectedStateStr = execResult;
+    return proveDataPrep
+  }
   
   static toPrepareParams(generalParams) {
     const { provider, latestBlocknumber, latestBlockhash, offchainData, expectedStateStr } = generalParams

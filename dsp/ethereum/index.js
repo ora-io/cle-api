@@ -15,7 +15,8 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
 
   static async prepareData(zkgraphYaml, prepareParams){
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
-    return await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgraphYaml)
+    let dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr, zkgraphYaml)
+    return dataPrep;
   }
 
   static fillExecInput(input, zkgraphYaml, dataPrep){
@@ -29,6 +30,14 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
     input.addVarLenHexString(expectedStateStr, true);
     return input;
   }
+
+  // TODO: copy instead of rename
+  static toProveDataPrep(execDataPrep, execResult){
+    let proveDataPrep = execDataPrep;
+    proveDataPrep.expectedStateStr = execResult;
+    return proveDataPrep
+  }
+
   // validate params exist
   static toPrepareParams(generalParams) {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = generalParams;
@@ -42,7 +51,7 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin{
 
   static execParams = ["jsonRpcUrl", "blockId"]
 
-  // validate params exist
+  // validate params exist // TODO: move to DataSourcePlugin as shared methods?
   static toExecParams(generalParams){
     return dspParamsNormalize(this.execParams, generalParams)
   }
