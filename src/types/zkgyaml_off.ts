@@ -1,5 +1,5 @@
-import { YamlHealthCheckFailed, YamlNotSupported } from "../common/error.js";
-import { DataSource } from "./zkgyaml_def.js";
+import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
+import { DataSource } from './zkgyaml_def.js'
 
 // can't do this, because of lib handleFunc requires static type
 // class CustomDataSection {
@@ -21,43 +21,41 @@ import { DataSource } from "./zkgyaml_def.js";
 // }
 
 export class OffchainDataSource extends DataSource {
-  constructor(kind, type) {
-    super(kind);
-    this.type = type;
+  type: any
+  constructor(kind: any, type: any) {
+    super(kind)
+    this.type = type
   }
 
   // signaficant to decide which lib dsp main it should use.
-  getSignificantKeys(){
+  getSignificantKeys() {
     return [this.kind, this.type]
   }
 
-  static from_v_0_0_2(yamlOffDS){
+  static from_v_0_0_2(yamlOffDS: { kind: any; type: any }) {
     return new OffchainDataSource(
       yamlOffDS.kind,
       yamlOffDS.type,
       // CustomDataSection.from_v_0_0_2(yamlOffDS.data)
     )
   }
-  static from_v_0_0_1(yamlOffDS){
-    throw new Error('offchain dataSource is only supported in spec >= v0.0.2');
+
+  static from_v_0_0_1(_yamlOffDS: any) {
+    throw new Error('offchain dataSource is only supported in spec >= v0.0.2')
   }
 
-  static healthCheck(yamlOffDS){
-
-    if (yamlOffDS.kind != 'offchain') {
+  static healthCheck(yamlOffDS: { kind: string; type: string }) {
+    if (yamlOffDS.kind !== 'offchain')
       throw new YamlHealthCheckFailed(`offchain dataSource is parsing wrong 'kind'. expect offchain, but got ${yamlOffDS.kind}.`)
-    }
 
-    if (!yamlOffDS.type) {
+    if (!yamlOffDS.type)
       throw new YamlHealthCheckFailed('offchain dataSource missing `type`')
-    }
 
     const validType = ['bytes']
     // const validType = ['bytes', 'arraybytes', 'multiarraybytes']
 
-    if ( !validType.includes(yamlOffDS.type) ){
-      throw new YamlNotSupported("Invalid offchain dataSource `type`, only support " + validType.toString());
-    }
+    if (!validType.includes(yamlOffDS.type))
+      throw new YamlNotSupported(`Invalid offchain dataSource \`type\`, only support ${validType.toString()}`)
 
     // if (ds.type == 'bytes') {
     //   if (!ds.data) {
