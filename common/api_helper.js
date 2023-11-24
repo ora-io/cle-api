@@ -48,7 +48,10 @@ export function genStreamAndMatchedEventOffsets(rawreceiptList, eventList) {
   let accumulateReceiptLength = 0;
   let rawreceipts = "";
 
-  assert(rawreceiptList.length == eventList.length);
+  if(!__BROWSER__) {
+    assert(rawreceiptList.length == eventList.length);
+  }
+
 
   for (let rcpid in rawreceiptList) {
     const es = eventList[rcpid];
