@@ -3,11 +3,14 @@ import yaml from 'js-yaml'
 import semver from 'semver'
 import { YamlHealthCheckFailed } from '../common/error'
 import { EthereumDataDestination, EthereumDataSource } from './zkgyaml_eth'
-import type { DataDestination, DataSource } from './zkgyaml_def'
+import type { DataDestination, DataSource, DataSourceKind } from './zkgyaml_def'
 import { Mapping } from './zkgyaml_def'
 import { OffchainDataSource } from './zkgyaml_off'
 
-const dataSourceClassMap = new Map()
+export type DataSourceClassType = 'ethereum' | 'offchain'
+export type DataSourceClassMap<T = DataSourceClassType> = Map<T, typeof EthereumDataSource | typeof OffchainDataSource>
+
+const dataSourceClassMap: DataSourceClassMap = new Map()
 dataSourceClassMap.set('ethereum', EthereumDataSource)
 dataSourceClassMap.set('offchain', OffchainDataSource)
 
@@ -19,8 +22,8 @@ export class ZkGraphYaml {
   apiVersion: string
   description: string
   repository: string
-  dataSources: DataSource[]
-  dataDestinations: DataDestination[]
+  dataSources: any[]
+  dataDestinations: any[]
   mapping: Mapping
   name: string
 
@@ -30,8 +33,8 @@ export class ZkGraphYaml {
     name: string,
     description: string,
     repository: any,
-    dataSources: DataSource[],
-    dataDestinations: DataDestination[],
+    dataSources: any[],
+    dataDestinations: any[],
     mapping: Mapping,
   ) {
     this.specVersion = specVersion
@@ -45,8 +48,8 @@ export class ZkGraphYaml {
   }
 
   static from_v_0_0_2(yaml: any) {
-    const dataSources: DataSource[] = []
-    yaml.dataSources.forEach((ds: { kind: any }) => dataSources.push(dataSourceClassMap.get(ds.kind).from_v_0_0_2(ds)))
+    const dataSources: any[] = []
+    yaml.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
     const dataDestinations: DataDestination[] = []
     yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
 
@@ -125,14 +128,14 @@ export class ZkGraphYaml {
   // }
 
   getSignificantKeys(isSource: boolean) {
-    return isSource ? this.dataSources.map((ds: DataSource) => ds.getSignificantKeys()) : this.dataDestinations.map((ds: DataSource) => ds.getSignificantKeys())
+    return isSource ? this.dataSources.map((ds: DataSource) => ds.getSignificantKeys()) : this.dataDestinations.map((ds: DataDestination) => ds.getSignificantKeys())
   }
 
-  getFilteredSourcesByKind(kind: DataSource['kind']) {
-    return this.dataSources.filter((ds: DataSource) => ds.kind === kind)
+  getFilteredSourcesByKind(kind: DataSourceKind) {
+    return this.dataSources.filter((ds: DataSource) => ds.kind === kind) as typeof kind extends 'ethereum' ? EthereumDataSource[] : OffchainDataSource[]
   }
 
-  static healthCheck(yaml: { specVersion: string; apiVersion: string ; dataSources: DataSource[]; mapping: Mapping; dataDestinations: DataDestination[] }) {
+  static healthCheck(yaml: { specVersion: string; apiVersion: string; dataSources: DataSource[]; mapping: Mapping; dataDestinations: DataDestination[] }) {
     // specVersion check
     if (!yaml.specVersion || typeof yaml.specVersion !== 'string' || yaml.specVersion.trim() === '')
       throw new YamlHealthCheckFailed('specVersion is missing or empty')
@@ -171,9 +174,9 @@ export class ZkGraphYaml {
     if (sourceKinds.indexOf('ethereum') !== sourceKinds.lastIndexOf('ethereum'))
       throw new YamlHealthCheckFailed('Only 1 \'ethereum\' kind is allowed in data sources right now')
 
-    yaml.dataSources.forEach((dataSource: { kind: any }) => {
+    yaml.dataSources.forEach((dataSource: any) => {
       // check data sources
-      dataSourceClassMap.get(dataSource.kind).healthCheck(dataSource)
+      dataSourceClassMap.get(dataSource.kind)?.healthCheck(dataSource)
     })
 
     // every network field must be the same

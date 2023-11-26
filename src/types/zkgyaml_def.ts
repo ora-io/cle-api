@@ -1,10 +1,13 @@
+export type DataSourceKind = 'ethereum' | 'offchain'
+export type DataDestinationKind = 'ethereum' | 'offchain'
+
 export class DataSource {
-  kind: string
-  constructor(kind: string) {
+  kind: DataSourceKind
+  constructor(kind: DataSourceKind) {
     this.kind = kind
   }
 
-  getSignificantKeys() {
+  getSignificantKeys(): any {
     throw new Error(`default: getSignificantKeys not implemented for DataSource kind ${this.kind}.`)
   }
 
@@ -14,12 +17,12 @@ export class DataSource {
 }
 
 export class DataDestination {
-  kind: string
-  constructor(kind: string) {
+  kind: DataDestinationKind
+  constructor(kind: DataDestinationKind) {
     this.kind = kind
   }
 
-  getSignificantKeys() {
+  getSignificantKeys(): any {
     throw new Error(`default: getSignificantKeys not implemented for DataDestination kind ${this.kind}.`)
   }
 

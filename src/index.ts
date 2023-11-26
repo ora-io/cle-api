@@ -1,7 +1,8 @@
 export { Input } from './common/input'
 
 // export { DataSourcePlugin, DataPrep } from './dsp/interface'
-// export { dspHub } from './dsp/hub'
+export { dspHub } from './dsp/hub'
+export type * from './dsp/types'
 export { ZkGraphYaml } from './types/zkgyaml'
 // // export { EthereumDataSourcePlugin } from "./dsp/ethereum/index";
 // export * as ETHDSP from './dsp/ethereum/index'

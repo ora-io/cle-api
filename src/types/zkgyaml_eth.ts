@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error.js'
+import type { DataDestinationKind, DataSourceKind } from './zkgyaml_def'
 import { DataDestination, DataSource } from './zkgyaml_def'
 
 function isEthereumAddress(address: string) {
@@ -19,7 +20,7 @@ export class EthereumDataSource extends DataSource {
   account: any
   block: any
   constructor(
-    kind: string,
+    kind: DataSourceKind,
     network: string,
     eventSection: EventSection | null,
     storageSection: StorageSection | null,
@@ -34,7 +35,7 @@ export class EthereumDataSource extends DataSource {
     this.block = blockSection
   }
 
-  static from_v_0_0_2(yamlEthDS: { kind: string; network: string; event: EventSection[]; storage: StorageSection[] }) {
+  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventSection[]; storage: StorageSection[] }) {
     return new EthereumDataSource(
       yamlEthDS.kind,
       yamlEthDS.network,
@@ -66,7 +67,7 @@ export class EthereumDataSource extends DataSource {
 export class EthereumDataDestination extends DataDestination {
   network: string
   address: string
-  constructor(kind: string, network: string, address: string) {
+  constructor(kind: DataDestinationKind, network: string, address: string) {
     super(kind)
     this.network = network
     this.address = address
@@ -77,7 +78,7 @@ export class EthereumDataDestination extends DataDestination {
     return [this.kind]
   }
 
-  static from_v_0_0_2(yamlEthDD: { kind: string; network: string; address: string }) {
+  static from_v_0_0_2(yamlEthDD: { kind: DataDestinationKind; network: string; address: string }) {
     return new EthereumDataDestination(
       yamlEthDD.kind,
       yamlEthDD.network,
@@ -85,7 +86,7 @@ export class EthereumDataDestination extends DataDestination {
     )
   }
 
-  static from_v_0_0_1(yamlEthDD: { kind: string; network: string; destination: { address: string } }) {
+  static from_v_0_0_1(yamlEthDD: { kind: DataDestinationKind; network: string; destination: { address: string } }) {
     return new EthereumDataDestination(
       yamlEthDD.kind,
       yamlEthDD.network,

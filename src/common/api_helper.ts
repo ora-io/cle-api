@@ -44,7 +44,7 @@ export function rlpDecodeAndEventFilter(rawreceiptList: any, srcAddrList: any, s
   return [filteredRawReceiptList, filteredEventsList]
 }
 
-export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList: any[]) {
+export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList: any[]): [Uint8Array, any[]] {
   let matched_offset_list: any[] = []
   let accumulateReceiptLength = 0
   let rawreceipts = ''
@@ -92,7 +92,7 @@ export function formatVarLenInput(input: string) {
   return formatted
 }
 
-export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[], enableLog: any) {
+export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[], enableLog: any): [Uint8Array, any[]] {
   // RLP Decode and Filter
   const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
     rawreceiptList,
