@@ -1,29 +1,28 @@
-import axios from "axios";
-import url from "./url.js";
-import { Wallet } from "ethers";
-import { computeAddress } from "ethers/lib/utils.js";
-import { handleAxiosError } from "./error_handle.js";
-import { ZkWasmUtil } from "@hyperoracle/zkwasm-service-helper";
+import axios from 'axios'
+import { Wallet } from 'ethers'
+import { computeAddress } from 'ethers/lib/utils'
+import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { handleAxiosError } from './error_handle'
+import url from './url'
 // import { sign } from "crypto";
 
 export async function zkwasm_prove(
-  zkwasmProverUrl,
-  user_privatekey,
-  image_md5,
-  public_inputs,
-  private_inputs,
+  zkwasmProverUrl: string,
+  user_privatekey: string,
+  image_md5: string,
+  public_inputs: string[],
+  private_inputs: string[],
 ) {
-  let isSetUpSuccess = true;
+  let isSetUpSuccess = true
 
-  const user_address = computeAddress(user_privatekey).toLowerCase();
+  const user_address = computeAddress(user_privatekey).toLowerCase()
 
-  let message = ZkWasmUtil.createProvingSignMessage({
+  const message = ZkWasmUtil.createProvingSignMessage({
     user_address: user_address.toLowerCase(),
     md5: image_md5.toUpperCase(),
-    public_inputs: public_inputs,
-    private_inputs: private_inputs,
-  });
-
+    public_inputs,
+    private_inputs,
+  })
 
   // console.log('message', message)
 
@@ -34,8 +33,8 @@ export async function zkwasm_prove(
   //   private_inputs: private_inputs,
   // });
 
-  const wallet = new Wallet(user_privatekey);
-  let signature = await wallet.signMessage(message);
+  const wallet = new Wallet(user_privatekey)
+  const signature = await wallet.signMessage(message)
 
   // let formData = new FormData();
   // formData.append("user_address", user_address);
@@ -46,20 +45,20 @@ export async function zkwasm_prove(
   const req = JSON.stringify({
     user_address: user_address.toLowerCase(),
     md5: image_md5.toUpperCase(),
-    public_inputs: public_inputs,
-    private_inputs: private_inputs,
+    public_inputs,
+    private_inputs,
     // signature,
-  });
+  })
 
-  let zkwasmHeaders = {
-    "X-Eth-Address": user_address.toLowerCase(),
-    "X-Eth-Signature": signature
+  const zkwasmHeaders = {
+    'X-Eth-Address': user_address.toLowerCase(),
+    'X-Eth-Signature': signature,
   }
 
   // console.log('signature:', signature)
 
-  let requestConfig = {
-    method: "post",
+  const requestConfig = {
+    method: 'post',
     maxBodyLength: Infinity,
     url: url.proveWasmImageURL(zkwasmProverUrl).url,
     headers: {
@@ -67,15 +66,16 @@ export async function zkwasm_prove(
       ...zkwasmHeaders,
     },
     data: req,
-  };
+  }
 
-  let errorMessage = "";
-  let _;
+  let errorMessage = ''
+  // NODE: fix this, useless var
+  // let _
   const response = await axios.request(requestConfig).catch((error) => {
-    [errorMessage, _] = handleAxiosError(error);
-    isSetUpSuccess = false;
-  });
+    [errorMessage] = handleAxiosError(error)
+    isSetUpSuccess = false
+  })
 
   // console.log('response:', response)
-  return [response, isSetUpSuccess, errorMessage];
+  return [response, isSetUpSuccess, errorMessage]
 }
