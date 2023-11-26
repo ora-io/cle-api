@@ -1,13 +1,13 @@
 import { builtinModules } from 'node:module'
 import path from 'node:path'
 import esbuild from 'rollup-plugin-esbuild'
-// import { dts } from 'rollup-plugin-dts'
+import { dts } from 'rollup-plugin-dts'
 // import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import { defineConfig } from 'rollup'
 
-const input = path.join(__dirname, './index.js')
+const input = path.join(__dirname, './src/index.ts')
 
 const external = [
   ...builtinModules,
@@ -19,7 +19,7 @@ const external = [
   'semver',
   'axios',
   'form-data',
-  '@ethereumjs/rlp'
+  '@ethereumjs/rlp',
 ]
 
 const plugins = [
@@ -36,7 +36,7 @@ const nodePlugins = [
   esbuild.default({
     target: 'node14',
     define: {
-      __BROWSER__: 'false'
+      __BROWSER__: 'false',
     },
   }),
 ]
@@ -46,7 +46,7 @@ const browserPlugins = [
   esbuild.default({
     target: 'node14',
     define: {
-      __BROWSER__: 'true'
+      __BROWSER__: 'true',
     },
   }),
 ]
@@ -102,16 +102,16 @@ export default () => defineConfig([
       ...browserPlugins,
     ],
   },
-  // {
-  //   input,
-  //   output: {
-  //     dir: 'dist',
-  //     entryFileNames: 'index.d.ts',
-  //     format: 'esm',
-  //   },
-  //   external,
-  //   plugins: [
-  //     dts({ respectExternal: true }),
-  //   ],
-  // },
+  {
+    input,
+    output: {
+      dir: 'dist',
+      entryFileNames: '[name].d.ts',
+      format: 'esm',
+    },
+    external,
+    plugins: [
+      dts({ respectExternal: true }),
+    ],
+  },
 ])
