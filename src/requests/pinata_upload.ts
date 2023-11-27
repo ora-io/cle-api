@@ -1,4 +1,5 @@
 import FormData from 'form-data'
+import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'
@@ -68,5 +69,5 @@ export async function pinata_upload(
     isUploadSuccess = false
   })
 
-  return [response, isUploadSuccess, errorMessage]
+  return [response as AxiosResponse<any>, isUploadSuccess as boolean, errorMessage as string]
 }

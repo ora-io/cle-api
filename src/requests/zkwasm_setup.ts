@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import FormData from 'form-data'
+import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { Wallet } from 'ethers'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
@@ -90,5 +91,5 @@ export async function zkwasm_setup(
     // for debug purpose, can delete after stable.
     console.log(errorMessage, 'retrying..')
   }
-  return response
+  return response as AxiosResponse<any>
 }

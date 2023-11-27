@@ -61,11 +61,13 @@
     "testverify": "node tests/testverify.js"
   },
   "dependencies": {
+    "@ethereumjs/rlp": "^5.0.1",
     "@hyperoracle/zkwasm-service-helper": "1.0.1",
     "axios": "^1.6.2",
     "axios-retry": "^3.9.1",
     "bn.js": "^5.2.1",
     "ethers": "^5.7.2",
+    "form-data": "^4.0.0",
     "js-yaml": "^4.1.0",
     "semver": "^7.5.4",
     "web3-eth-contract": "^1.8.2"
@@ -78,6 +80,7 @@
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.2.1",
+    "@types/bn.js": "^5.1.5",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.0",
     "@types/semver": "^7.5.6",

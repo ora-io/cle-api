@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import type { AxiosError } from 'axios'
+import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 import url from './url'
 import { handleAxiosError } from './error_handle'
 
-export async function zkwasm_taskdetails(zkwasmProverUrl: string, taskId: string): Promise<[any, AxiosError<unknown, any> | null]> {
+export async function zkwasm_taskdetails(zkwasmProverUrl: string, taskId: string): Promise<[AxiosResponse<any, any>, null | AxiosError]> {
   // let isSetUpSuccess = true;
 
   const requestConfig = {
@@ -16,7 +16,7 @@ export async function zkwasm_taskdetails(zkwasmProverUrl: string, taskId: string
     },
   }
 
-  let errorMessage = null
+  let errorMessage: null | AxiosError = null
   const response = await axios.request(requestConfig).catch((error) => {
     // isSetUpSuccess = false;
     // console.log(error.message)
@@ -30,7 +30,7 @@ export async function zkwasm_taskdetails(zkwasmProverUrl: string, taskId: string
     errorMessage = error
     // errorMessage = error.response.data;//todo: is this usefull?
   })
-  return [response, errorMessage]
+  return [response as AxiosResponse<any, any>, errorMessage]
 }
 
 // TODO: timeout
@@ -50,11 +50,11 @@ export async function waitTaskStatus(
   //     }
   // }, interval)
   // var [response, isSetUpSuccess, errorMessage] = await zkwasm_taskdetails(taskId)
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     const checkStatus = async () => {
       const [response, error] = await zkwasm_taskdetails(zkwasmProverUrl, taskId)
 
-      if (error != null) {
+      if (error !== null) {
         const [errMsg, isRetry] = handleAxiosError(error)
         if (isRetry) {
           console.log(errMsg, 'Retry.')

@@ -1,3 +1,4 @@
+import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { Wallet } from 'ethers'
 import { computeAddress } from 'ethers/lib/utils'
@@ -12,7 +13,7 @@ export async function zkwasm_prove(
   image_md5: string,
   public_inputs: string[],
   private_inputs: string[],
-) {
+): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isSetUpSuccess = true
 
   const user_address = computeAddress(user_privatekey).toLowerCase()
@@ -77,5 +78,5 @@ export async function zkwasm_prove(
   })
 
   // console.log('response:', response)
-  return [response, isSetUpSuccess, errorMessage]
+  return [response as AxiosResponse<any>, isSetUpSuccess as boolean, errorMessage as string]
 }
