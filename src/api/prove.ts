@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import type { Nullable } from '@murongg/utils'
 import { toHexStringBytes32Reverse } from '../common/utils'
 import { logLoadingAnimation } from '../common/log_utils'
 import { zkwasm_prove } from '../requests/zkwasm_prove'
@@ -8,7 +9,6 @@ import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { ZkGraphExecutable } from '../types/api'
-import type { Nullable } from '../types/utils'
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.

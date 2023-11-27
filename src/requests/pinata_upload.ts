@@ -13,7 +13,7 @@ export async function pinata_upload(
   // zkGraphName,
   pinataEndpoint: string,
   pinataJWT: string,
-) {
+): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isUploadSuccess = true
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires

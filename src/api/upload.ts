@@ -42,4 +42,7 @@ export async function upload(
       errorMessage,
     }
   }
+  else {
+    return {}
+  }
 }

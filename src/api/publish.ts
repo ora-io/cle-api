@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-import type { providers } from 'ethers'
+import type { ethers, providers } from 'ethers'
 import { Contract } from 'ethers'
+import type { NullableObject } from '@murongg/utils'
 import {
   AddressZero,
   abiFactory,
@@ -8,7 +9,6 @@ import {
 } from '../common/constants'
 import { logLoadingAnimation } from '../common/log_utils'
 import type { ZkGraphExecutable } from '../types/api'
-import type { NullableObject } from '../types/utils'
 
 /**
  * Publish and register zkGraph onchain.
@@ -27,7 +27,7 @@ export async function publish(
   deployedContractAddress: string,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
-  signer: string,
+  signer: ethers.Wallet | string,
   enableLog = true,
 ) {
   const { zkgraphYaml } = zkGraphExecutable

@@ -1,9 +1,9 @@
 import { Wallet, ethers, providers } from 'ethers'
-import { formatEther } from 'ethers/lib/utils.js'
+import { formatEther } from 'ethers/lib/utils'
 
 import { RLP } from '@ethereumjs/rlp'
 
-import { isNumber } from './utils.js'
+import { isMaybeNumber, toNumber } from '@murongg/utils'
 
 async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -106,7 +106,7 @@ export async function getRawReceipts(ethersProvider: providers.JsonRpcProvider, 
     return await getRawReceiptsWithoutDebugRPC(ethersProvider, blockid, false)
 }
 
-export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: string) {
+export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
   const fullBlock = await ethersProvider.send('eth_getBlockByNumber', [
     ethers.utils.hexValue(blockNumber),
     false,
@@ -135,8 +135,8 @@ export async function getBlock(ethersProvider: providers.JsonRpcProvider, blocki
       // process.exit(1);
     })
   }
-  else if (isNumber(blockid)) {
-    return await getBlockByNumber(ethersProvider, blockid).catch((error) => {
+  else if (isMaybeNumber(blockid)) {
+    return await getBlockByNumber(ethersProvider, toNumber(blockid)).catch((error) => {
       throw error
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);

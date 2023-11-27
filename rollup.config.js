@@ -57,47 +57,27 @@ const commonConfig = {
   treeshake: 'smallest',
 }
 
+const outputs = env => [{
+  dir: 'dist',
+  format: 'esm',
+  entryFileNames: `[name]${env ? `.${env}` : ''}.mjs`,
+}, {
+  dir: 'dist',
+  format: 'cjs',
+  entryFileNames: `[name]${env ? `.${env}` : ''}.cjs`,
+}]
+
 export default () => defineConfig([
   {
     ...commonConfig,
-    output: {
-      dir: 'dist',
-      format: 'esm',
-      entryFileNames: '[name].mjs',
-    },
+    output: outputs(),
     plugins: [
       ...nodePlugins,
     ],
   },
   {
     ...commonConfig,
-    output: {
-      dir: 'dist',
-      format: 'cjs',
-      entryFileNames: '[name].cjs',
-    },
-    plugins: [
-      ...nodePlugins,
-    ],
-  },
-  {
-    ...commonConfig,
-    output: {
-      dir: 'dist',
-      format: 'esm',
-      entryFileNames: '[name].browser.mjs',
-    },
-    plugins: [
-      ...browserPlugins,
-    ],
-  },
-  {
-    ...commonConfig,
-    output: {
-      dir: 'dist',
-      format: 'cjs',
-      entryFileNames: '[name].browser.cjs',
-    },
+    output: outputs('browser'),
     plugins: [
       ...browserPlugins,
     ],

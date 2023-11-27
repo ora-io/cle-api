@@ -1,7 +1,8 @@
-import { ZKWASMMock } from '../common/zkwasm_mock.js'
-import { instantiateWasm, setupZKWasmMock } from '../common/bundle.js'
-import { ZKGraphRequireFailed } from '../common/error.js'
-import type { ZkGraphExecutable } from '../types/api.js'
+import type { NullableObjectWithKeys } from '@murongg/utils'
+import { ZKWASMMock } from '../common/zkwasm_mock'
+import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+import { ZKGraphRequireFailed } from '../common/error'
+import type { ZkGraphExecutable } from '../types/api'
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
@@ -10,7 +11,7 @@ import type { ZkGraphExecutable } from '../types/api.js'
  * @param {string} publicInputStr
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(zkGraphExecutable: ZkGraphExecutable, privateInputStr: string, publicInputStr: string) {
+export async function proveMock(zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'>, privateInputStr: string, publicInputStr: string) {
   const { wasmUint8Array } = zkGraphExecutable
 
   const mock = new ZKWASMMock()

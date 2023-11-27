@@ -106,7 +106,7 @@ export class ZkGraphYaml {
     }
   }
 
-  static from_v_0_0_1(_yaml: any) {
+  static from_v_0_0_1(_yaml: any): undefined {
     throw new Error('no 0.0.1 support') // TODO
   }
 
