@@ -30,7 +30,9 @@ export function fillInputBlocks(
 }
 
 // blockPrep: class BlockPrep, used for prepare data & interface params.
-export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPrep?: BlockPrep) {
+export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPrep: BlockPrep) {
+  input.addInt(blockPrep.number, false)
+
   input.addVarLenHexString(
     blockPrep?.rlpHeader,
     false,

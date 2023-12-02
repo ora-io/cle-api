@@ -16,6 +16,9 @@ async function instantiate(module: BufferSource, imports: Record<string, any> = 
 
   const adaptedImports = {
     env: Object.assign(Object.create(globalThis), imports.env || {}, {
+      'wasm_write_context': function (_: number) {
+        // pass
+      },
       'console.log': function (text?: string | null) {
         if (!text)
           return
