@@ -4,27 +4,28 @@ import { Contract } from 'ethers'
 import type { NullableObject } from '@murongg/utils'
 import {
   AddressZero,
+  AggregatorVerifierAddress,
   abiFactory,
   addressFactory,
 } from '../common/constants'
 import { logLoadingAnimation } from '../common/log_utils'
 import type { ZkGraphExecutable } from '../types/api'
+import { loadConfigByNetwork } from '../common/utils'
+import type { ZkGraphYaml } from '../types/zkgyaml'
 
 /**
  * Publish and register zkGraph onchain.
- * @param {string} yamlContent - the content to the yaml file
- * @param {string} rpcUrl - the rpc url of the target network
- * @param {string} deployedContractAddress - the deployed verification contract address
+ * @param {object} zkGraphExecutable {'zkgraphYaml': zkgraphYaml}
+ * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
- * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
+ * @param {object} signer - the acct for sign&submi prove task to zkwasm
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function publish(
   zkGraphExecutable: NullableObject<ZkGraphExecutable>,
   provider: providers.JsonRpcProvider,
-  deployedContractAddress: string,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | string,
@@ -36,11 +37,14 @@ export async function publish(
   const destinationContractAddress = zkgraphYaml?.dataDestinations[0].address
   const factoryContract = new Contract(addressFactory, abiFactory, provider).connect(signer)
 
+  // Get verification contract address.
+  const verifierContractAddress = loadConfigByNetwork(zkgraphYaml as ZkGraphYaml, AggregatorVerifierAddress, false)
+
   const tx = await factoryContract
     .registry(
       AddressZero,
       bountyRewardPerTrigger,
-      deployedContractAddress,
+      verifierContractAddress,
       destinationContractAddress,
       ipfsHash,
     )

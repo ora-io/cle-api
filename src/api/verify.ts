@@ -1,41 +1,48 @@
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import Web3EthContract from 'web3-eth-contract'
+import type { NullableObject } from '@murongg/utils'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import { AggregatorVerifierABI } from '../common/constants'
+import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
+import type { ZkGraphExecutable } from '../../dist'
+import { loadConfigByNetwork } from '../common/utils'
+import type { ZkGraphYaml } from '../types/zkgyaml'
+// import { VerifyProofParams } from '@hyperoracle/zkwasm-service-helper'
+export interface VerifyProofParams {
+  aggregate_proof: Uint8Array
+  batch_instances: Uint8Array
+  aux: Uint8Array
+  instances: Uint8Array
+}
 
-/**
- * Verify zk proof onchain.
- * @param {string} yamlContent
- * @param {string} proveTaskId
- * @param {string} ZkwasmProviderUrl
- * @param {boolean} enableLog
- * @returns {boolean} - true if verification success, false otherwise.
- */
 export async function verify(
-  proveTaskId: string,
-  ZkwasmProviderUrl: string,
-  verifierContractAddress: string,
+  zkGraphExecutable: NullableObject<ZkGraphExecutable>,
+  proofParams: VerifyProofParams,
   jsonRpcProviderUrl: string,
 ) {
-  // Check task status of prove.
-  const taskDetails = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
-    throw err
-  })
+  const { zkgraphYaml } = zkGraphExecutable
+  const verifierContractAddress = loadConfigByNetwork(zkgraphYaml as ZkGraphYaml, AggregatorVerifierAddress, false)
+  return await verifyProof(verifierContractAddress, proofParams, jsonRpcProviderUrl)
+}
 
-  // TODO: timeout
-  if (taskDetails.status !== 'Done')
-    throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
-
-  // TODO: read proof from local file rather than the zkwasm server (but need compitable to ho node)
-
-  // Inputs for verification
-  const proof = ZkWasmUtil.bytesToBigIntArray(taskDetails.proof)
-  const instances = ZkWasmUtil.bytesToBigIntArray(taskDetails.batch_instances)
-  const aux = ZkWasmUtil.bytesToBigIntArray(taskDetails.aux)
-  const arg = ZkWasmUtil.bytesToBigIntArray(taskDetails.instances)
+/**
+ * Verify zk proof with eth call.
+ * @param proofParams
+ * @param verifierContractAddress
+ * @param jsonRpcProviderUrl
+ * @returns
+ */
+export async function verifyProof(
+  verifierContractAddress: string,
+  proofParams: VerifyProofParams,
+  jsonRpcProviderUrl: string,
+) {
+  const proof = ZkWasmUtil.bytesToBigIntArray(proofParams.aggregate_proof)
+  const instances = ZkWasmUtil.bytesToBigIntArray(proofParams.batch_instances)
+  const aux = ZkWasmUtil.bytesToBigIntArray(proofParams.aux)
+  const arg = ZkWasmUtil.bytesToBigIntArray(proofParams.instances)
 
   Web3EthContract.setProvider(jsonRpcProviderUrl)
 
@@ -55,4 +62,34 @@ export async function verify(
     })
 
   return verificationResult
+}
+
+export async function getVerifyProofParamsByTaskID(
+  proveTaskId: string,
+  ZkwasmProviderUrl: string,
+) {
+  // Check task status of prove.
+  const task = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
+    throw err
+  })
+
+  // TODO: timeout
+  if (task.status !== 'Done')
+    throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
+    // Inputs for verification
+  const proofParams: VerifyProofParams = {
+    aggregate_proof: task.proof,
+    batch_instances: task.batch_instances,
+    aux: task.aux,
+    instances: task.instances,
+  }
+
+  return proofParams
+}
+
+// TODO: read proof from local file rather than the zkwasm server (but need compitable to ho node)
+export async function getVerifyProofParamsByFile(
+  _proofFileName: string,
+) {
+  throw new Error('not implemented.')
 }
