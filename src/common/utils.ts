@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import BN from 'bn.js'
+import type { ZkGraphYaml } from '../types/zkgyaml'
 import { networks } from './constants'
 
 /**
@@ -188,4 +189,46 @@ export function dspParamsNormalize(paramNames: string[] = [], paramKeyValue: Rec
  */
 export function isNumber(value: any) {
   return (typeof value === 'number' && isFinite(value)) || !isNaN(Number(value))
+}
+
+interface NetworksConfig {
+  mainnet?: string // Optional
+  sepolia?: string // Optional
+  goerli?: string // Optional
+}
+
+export function loadConfigByNetwork(yaml: Partial<ZkGraphYaml>, networksConfig: NetworksConfig, isDataSource: boolean) {
+  let network: string | undefined
+  if (yaml.dataSources?.[0].kind !== 'ethereum')
+    throw new Error('loadConfigByNetwork only support ethereum right now.')
+
+  // For exec and prove, we need to load the data source network
+  if (isDataSource)
+    network = yaml.dataSources?.[0].network
+
+  // For publish & verify, we need to load the data destination network
+  else
+    network = yaml.dataDestinations?.[0].network
+
+  // TODO: move health check
+  if (!network) {
+    throw new Error(
+      `Network of "${isDataSource ? 'dataSource' : 'dataDestination'}" is not defined in yaml.`,
+    )
+  }
+
+  // Check if the network is defined in constants.
+  // const targetNetwork = getTargetNetwork(network)?.name.toLowerCase()
+  // let targetConfig = ''
+  // if (targetNetwork) {
+  const targetConfig = networksConfig ? (networksConfig as any)[network] : undefined
+  // }
+
+  if (!targetConfig) {
+    throw new Error(
+      `[-] networksConfig for network "${network}" is not found in zkgraph-api.`,
+    )
+  }
+
+  return targetConfig
 }
