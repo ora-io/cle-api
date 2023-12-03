@@ -43,7 +43,7 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
    * */
   const ds = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
   if (ds.storage) {
-    const [stateDSAddrList, stateDSSlotsList] = ds.storage.toArray()
+    const [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
     input.addInt(stateDSAddrList.length, false) // account count
 
     console.log('[*] Defined Data Sources - Storage:')
@@ -98,7 +98,7 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
     // TODO move logs to cli
     const enableLog = true
 
-    const [eventDSAddrList, eventDSEsigsList] = ds.event.toArray()
+    const [eventDSAddrList, eventDSEsigsList] = ds.getEventLists()
 
     // TODO: move this to cli
     console.log('[*] Defined Data Sources - Event:')

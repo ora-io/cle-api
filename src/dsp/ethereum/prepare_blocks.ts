@@ -24,7 +24,7 @@ export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider,
   let stateDSAddrList, stateDSSlotsList
   const ds = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
   if (ds.storage)
-    [stateDSAddrList, stateDSSlotsList] = ds.storage.toArray()
+    [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
 
   else
     [stateDSAddrList, stateDSSlotsList] = [[], []]

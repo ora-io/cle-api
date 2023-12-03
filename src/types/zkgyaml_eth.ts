@@ -13,34 +13,56 @@ function isEthereumAddress(address: string) {
   }
 }
 
+class EventSection {
+  constructor(
+    public addressList: any[],
+    public esigsList: any[],
+  ) {}
+}
+
+class StorageSection {
+  constructor(
+    public addressList: any[],
+    public slotsList: any[],
+  ) {}
+}
+
 export class EthereumDataSource extends DataSource {
   network: string
-  event: EventSection | null
-  storage: StorageSection | null
-  account: any
+  // event: EventSection | null
+  // storage: StorageSection | null
+  event: any[] | null
+  storage: any[] | null
+  account: any[] | null
   block: any
+
+  eventSectionCache: EventSection | null = null
+  storageSectionCache: StorageSection | null = null
+
   constructor(
     kind: DataSourceKind,
     network: string,
-    eventSection: EventSection | null,
-    storageSection: StorageSection | null,
-    accountSection: any,
-    blockSection: any,
+    event: any[] | null,
+    storage: any[] | null,
+    account: any[] | null,
+    block: any,
   ) {
     super(kind)
     this.network = network
-    this.event = eventSection
-    this.storage = storageSection
-    this.account = accountSection
-    this.block = blockSection
+    this.event = event
+    this.storage = storage
+    this.account = account
+    this.block = block
   }
 
   static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventSection[]; storage: StorageSection[] }) {
     return new EthereumDataSource(
       yamlEthDS.kind,
       yamlEthDS.network,
-      (yamlEthDS.event != null) ? EventSection.from_v_0_0_2(yamlEthDS.event) : null,
-      (yamlEthDS.storage != null) ? StorageSection.from_v_0_0_2(yamlEthDS.storage) : null,
+      // (yamlEthDS.event != null) ? EventSection.from_v_0_0_2(yamlEthDS.event) : null,
+      // (yamlEthDS.storage != null) ? StorageSection.from_v_0_0_2(yamlEthDS.storage) : null,
+      yamlEthDS.event,
+      yamlEthDS.storage,
       null, // TODO: account section
       null, // TODO: block section
     )
@@ -53,6 +75,51 @@ export class EthereumDataSource extends DataSource {
   // signaficant to decide which lib dsp main it should use.
   getSignificantKeys() {
     return [this.kind]
+  }
+
+  getEventLists(useCache = true) {
+    // return if there's cache, cause it's always the same
+    if (!useCache || this.eventSectionCache == null) {
+      const loadFromEventSource = (event: { address: any; events: any[] }) => {
+        const source_address = event.address
+        const source_esigs = event.events.map((ed: string) => {
+          const eventHash = ed.startsWith('0x') ? ed : ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed))
+          return eventHash
+        })
+
+        return [source_address, source_esigs]
+      }
+
+      const eventDSAddrList: any[] = []
+      const eventDSEsigsList: any[] = []
+      if (this.event)
+        this.event.forEach((event: any) => { const [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se) })
+
+      this.eventSectionCache = new EventSection(eventDSAddrList, eventDSEsigsList)
+    }
+    return [this.eventSectionCache.addressList, this.eventSectionCache.esigsList]
+  }
+
+  getStorageLists(useCache = true) {
+    // return if there's cache, cause it's always the same
+    if (!useCache || this.storageSectionCache == null) {
+      const loadFromStorageSource = (storage: { address: any; slots: any[] }) => {
+        const source_address = storage.address
+        const source_slots = storage.slots.map((sl: ethers.utils.BytesLike) => {
+          return ethers.utils.hexZeroPad(sl, 32)
+        })
+
+        return [source_address, source_slots]
+      }
+
+      const stateDSAddrList: any[] = []
+      const stateDSSlotsList: any[] = []
+      if (this.storage)
+        this.storage.forEach((storage: any) => { const [sa, sl] = loadFromStorageSource(storage); stateDSAddrList.push(sa); stateDSSlotsList.push(sl) })
+
+      this.storageSectionCache = new StorageSection(stateDSAddrList, stateDSSlotsList)
+    }
+    return [this.storageSectionCache.addressList, this.storageSectionCache.slotsList]
   }
 
   static healthCheck(ds: { event: any; storage: any }) {
@@ -102,73 +169,5 @@ export class EthereumDataDestination extends DataDestination {
     // address must be the ethereum address and not address zero
     if (!isEthereumAddress(dd.address))
       throw new YamlHealthCheckFailed('Invalid Ethereum address in dataDestinations')
-  }
-}
-
-class EventSection {
-  addressList: any[]
-  esigsList: any[]
-  constructor(addressList: any[], esigsList: any[]) {
-    this.addressList = addressList
-    this.esigsList = esigsList
-  }
-
-  static from_v_0_0_2(yamlEvent: any[]) {
-    const loadFromEventSource = (event: { address: any; events: any[] }) => {
-      const source_address = event.address
-      const source_esigs = event.events.map((ed: string) => {
-        const eventHash = ed.startsWith('0x') ? ed : ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed))
-        return eventHash
-      })
-
-      return [source_address, source_esigs]
-    }
-
-    const eventDSAddrList: any[] = []
-    const eventDSEsigsList: any[] = []
-    yamlEvent.forEach((event: any) => { const [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se) })
-
-    return new EventSection(eventDSAddrList, eventDSEsigsList)
-  }
-
-  static from_v_0_0_1(_yamlEvent: any) {
-    throw new Error('no 0.0.1 support') // TODO
-  }
-
-  toArray() {
-    return [this.addressList, this.esigsList]
-  }
-}
-
-class StorageSection {
-  addressList: any
-  slotsList: any
-  constructor(addressList: any[], esigsList: any[]) {
-    this.addressList = addressList
-    this.slotsList = esigsList
-  }
-
-  static from_v_0_0_2(yamlStorage: StorageSection[]) {
-    const loadFromStorageSource = (storage: { address: any; slots: any[] }) => {
-      const source_address = storage.address
-      const source_slots = storage.slots.map((sl: ethers.utils.BytesLike) => {
-        return ethers.utils.hexZeroPad(sl, 32)
-      })
-
-      return [source_address, source_slots]
-    }
-
-    const stateDSAddrList: any[] = []
-    const stateDSSlotsList: any[] = []
-    yamlStorage.forEach((storage: any) => { const [sa, sl] = loadFromStorageSource(storage); stateDSAddrList.push(sa); stateDSSlotsList.push(sl) })
-    return new StorageSection(stateDSAddrList, stateDSSlotsList)
-  }
-
-  static from_v_0_0_1(_yamlStorage: any) {
-    throw new Error('no 0.0.1 support') // TODO
-  }
-
-  toArray() {
-    return [this.addressList, this.slotsList]
   }
 }
