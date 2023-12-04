@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import { describe, it } from 'vitest'
 import * as zkgapi from '../src/index'
 import { config } from './config'
+import { getLatestBlocknumber } from './utils/ethers'
 
 (global as any).__BROWSER__ = false
 
@@ -22,6 +23,7 @@ const proveModeOptions = {
   expectedStateStr: zkgstatefortest.sepolia,
   zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
 }
+proveModeOptions.blockId = await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia)
 
 describe('test prove', () => {
   it('test prove mode', async () => {
