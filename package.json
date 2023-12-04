@@ -54,10 +54,10 @@
     "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "testexec": "node tests/testexec.js",
-    "testprove": "node tests/testprove.js",
-    "testsetup": "node tests/testsetup.js",
-    "testverify": "node tests/testverify.js"
+    "testexec": "npm test exec",
+    "testprove": "npm test prove",
+    "testsetup": "npm test setup",
+    "testverify": "npm test verify"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
