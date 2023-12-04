@@ -5,7 +5,7 @@ import { RLP } from '@ethereumjs/rlp'
 
 import { isMaybeNumber, toNumber } from '@murongg/utils'
 
-async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string, ignoreFailedTx: boolean) {
+async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
   const blockReceipts = await ethersProvider.send('eth_getBlockReceipts', [blockNumber])
   if (blockReceipts == null)
@@ -30,7 +30,7 @@ async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProv
   return rawReceipt
 }
 
-async function getRawLogsFromTxsReceipt(ethersProvider: providers.JsonRpcProvider, blockNumber: string, ignoreFailedTx: boolean) {
+async function getRawLogsFromTxsReceipt(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   const block = await ethersProvider.getBlock(blockNumber)
   const rawReceipt = []
   for (const txHash of block.transactions) {
@@ -55,7 +55,7 @@ async function getRawLogsFromTxsReceipt(ethersProvider: providers.JsonRpcProvide
   return rawReceipt
 }
 
-async function getRawReceiptsWithoutDebugRPC(ethersProvider: providers.JsonRpcProvider, blockid: string, ignoreFailedTx = false) {
+async function getRawReceiptsWithoutDebugRPC(ethersProvider: providers.JsonRpcProvider, blockid: string | number, ignoreFailedTx = false) {
   // Parse block id
   // if (typeof blockid === "string"){
   //     blockid = blockid.length == 66 ? blockid : parseInt(blockid)
@@ -85,7 +85,7 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider: providers.JsonRpcPr
   }
 }
 
-async function getRawReceiptsWithDebugRPC(ethersProvider: providers.JsonRpcProvider, blockid: string) {
+async function getRawReceiptsWithDebugRPC(ethersProvider: providers.JsonRpcProvider, blockid: number | string) {
   // Parse block id
   // if (typeof blockid === "string"){
   //     blockid = blockid.length >= 64 ? blockid : parseInt(blockid)
@@ -98,12 +98,12 @@ async function getRawReceiptsWithDebugRPC(ethersProvider: providers.JsonRpcProvi
   return ethersProvider.send('debug_getRawReceipts', [blockid])
 }
 
-export async function getRawReceipts(ethersProvider: providers.JsonRpcProvider, blockid: string, useDebugRPC = false) {
+export async function getRawReceipts(ethersProvider: providers.JsonRpcProvider, blockid: string | number, useDebugRPC = false) {
   if (useDebugRPC)
-    return await getRawReceiptsWithDebugRPC(ethersProvider, blockid)
+    return await getRawReceiptsWithDebugRPC(ethersProvider, blockid as string)
 
   else
-    return await getRawReceiptsWithoutDebugRPC(ethersProvider, blockid, false)
+    return await getRawReceiptsWithoutDebugRPC(ethersProvider, blockid as string, false)
 }
 
 export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {

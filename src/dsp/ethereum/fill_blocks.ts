@@ -19,7 +19,7 @@ export function fillInputBlocks(
     if (!blockPrepMap.has(bn))
       throw new Error(`Lack blockPrep for block (${bn})`)
 
-    fillInputOneBlock(input, zkgraphYaml, blockPrepMap.get(bn))
+    fillInputOneBlock(input, zkgraphYaml, blockPrepMap.get(bn) as BlockPrep)
   })
 
   // Optional but easy to handle;
