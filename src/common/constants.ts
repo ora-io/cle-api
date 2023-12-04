@@ -405,10 +405,10 @@ export const graph_abi = [
   },
 ]
 
-export const addressFactory = '0xB1Bd5ddd22f3fC9dB067b57FC11f7C325663460C'
+export const addressFactory = '0x1800581C72e11e5805728C7cF145692Fa2259266'
 export const abiFactory = [
   'function getAllZkg() external view returns (address[] memory)',
-  'function registry(address _bountyToken, uint256 _bountyReward, address _verifier, address _destAddr, string memory _graphURI) external returns (address graph)',
+  'function registry(address destAddr, address bountyToken, uint256 bountyReward, bytes32 dspID, string memory _graphURI, uint256 pointX, uint256 pointY) external returns (address graph)',
   'function getGraphBycreator(address creator) external view returns (address[] memory)',
   'function getGraphInfoByAddress(address graph) external view returns (address creator, uint256 bountyReward, address verifier, address destAddr, string memory graphURI)',
 ]
