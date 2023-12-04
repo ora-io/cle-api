@@ -7,25 +7,21 @@ import { logLoadingAnimation } from '../common/log_utils'
 
 /**
  * Publish and register zkGraph onchain.
- * @param {string} rpcUrl - the rpc url of the target network
+ * @param {providers.JsonRpcProvider} provider - the provider of the target network
+ * @param {object} signer - the acct for sign tx
  * @param {string} deployedContractAddress - the deployed verification contract address
  * @param {number} depositAmount - the deposit amount in ETH
- * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function deposit(
-  rpcUrl: string,
+  provider: providers.JsonRpcProvider,
+  signer: ethers.Wallet | string,
   deployedContractAddress: string,
   depositAmount: string,
-  userPrivateKey: string,
   enableLog = true,
 ) {
-  const provider = new providers.JsonRpcProvider(rpcUrl)
-
-  const wallet = new Wallet(userPrivateKey, provider)
-
-  const graphContract = new Contract(deployedContractAddress, graph_abi, wallet)
+  const graphContract = new Contract(deployedContractAddress, graph_abi, provider).connect(signer)
   const tx = await graphContract
     .deposit(
       ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) },
@@ -33,11 +29,6 @@ export async function deposit(
     .catch((err: any) => {
       throw err
     })
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const signedTx = await wallet.signTransaction(tx).catch((err: any) => {
-    throw err
-  })
 
   let loading
   if (enableLog === true) {

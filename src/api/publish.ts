@@ -18,7 +18,7 @@ import { dspHub } from '../dsp/hub'
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
- * @param {object} signer - the acct for sign&submi prove task to zkwasm
+ * @param {object} signer - the acct for sign tx
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */

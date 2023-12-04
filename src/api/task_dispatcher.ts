@@ -19,7 +19,7 @@ const ABI = [
 export interface QueryTaskResponse {
   task?: {
     id?: string
-    type: 'setup' | 'prove' | 'deploy'
+    type: 'setup' | 'prove'
     status: 'processing' | 'submitted'
   }
 }
