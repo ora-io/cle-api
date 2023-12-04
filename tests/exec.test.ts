@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import { describe, it } from 'vitest'
 import * as zkgapi from '../src/index'
 import { config } from './config'
+import { getLatestBlocknumber } from './utils/ethers'
 
 (global as any).__BROWSER__ = false
 
@@ -10,6 +11,7 @@ const blocknumfortest = {
   sepolia: 4818711, // to test event use 2279547, to test storage use latest blocknum
   mainnet: 17633573,
 }
+
 const execOptions = {
   blockId: blocknumfortest.sepolia,
   wasmPath: 'tests/build/zkgraph_full.wasm',
@@ -17,6 +19,7 @@ const execOptions = {
   jsonRpcProviderUrl: config.JsonRpcProviderUrl.sepolia,
   local: false,
 }
+execOptions.blockId = await getLatestBlocknumber(execOptions.jsonRpcProviderUrl)
 
 describe('test exec', () => {
   it('test_exec', async () => {
