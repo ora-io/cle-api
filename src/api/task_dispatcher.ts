@@ -2,6 +2,7 @@ import type { providers } from 'ethers'
 import { ethers } from 'ethers'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
+import { polling, sleep } from '@murongg/utils'
 
 axiosRetry(axios, {
   retries: 5,
@@ -14,6 +15,14 @@ const ABI = [
   'function setup(string memory imageId, uint256 circuitSize) payable',
   'function prove(string memory imageId, string memory privateInput, string memory publicInput) payable',
 ]
+
+export interface QueryTaskResponse {
+  task?: {
+    id?: string
+    type: 'setup' | 'prove' | 'deploy'
+    status: 'processing' | 'submitted'
+  }
+}
 
 export class TaskDispatch {
   queryAPI: string
@@ -29,8 +38,22 @@ export class TaskDispatch {
      * Query task id by txhash.
      */
   async queryTask(txhash: string) {
-    const response = await axios.get(`${this.queryAPI}/task?txhash=${txhash}`)
-    return response.data
+    let res: QueryTaskResponse | undefined
+    const request = async () => {
+      const response = await axios.get<QueryTaskResponse>(`${this.queryAPI}/task?txhash=${txhash}`)
+      const data = response.data
+      if (data.task?.status === 'submitted') {
+        res = data
+        return true
+      }
+      return false
+    }
+    await sleep(2000)
+    await polling(request, 1000)
+    if (!res?.task?.id && res?.task?.status === 'submitted')
+      throw new Error('No corresponding task found for the transaction')
+
+    return res as QueryTaskResponse
   }
 
   /**
