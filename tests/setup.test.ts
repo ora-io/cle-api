@@ -7,7 +7,7 @@ import { config } from './config'
 
 describe('test exec', () => {
   it('test setup', async () => {
-    const wasm = fs.readFileSync('tests/build/zkgraph_full.wasm')
+    const wasm = fs.readFileSync('tests/build/zkgraph-storage.wasm')
     const wasmUint8Array = new Uint8Array(wasm)
     const result = await zkgapi.setup(
       'poc.wasm',

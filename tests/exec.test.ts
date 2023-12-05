@@ -2,28 +2,34 @@
 import fs from 'node:fs'
 import { describe, it } from 'vitest'
 import * as zkgapi from '../src/index'
+import { loadConfigByNetwork } from '../src/common/utils'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
 
 (global as any).__BROWSER__ = false
 
-const blocknumfortest = {
-  sepolia: 4818711, // to test event use 2279547, to test storage use latest blocknum
+const blocknumForEventTest = {
+  sepolia: 2279547, // to test event use 2279547, to test storage use latest blocknum
   mainnet: 17633573,
 }
 
-const execOptions = {
-  blockId: blocknumfortest.sepolia,
-  wasmPath: 'tests/build/zkgraph_full.wasm',
-  yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
-  jsonRpcProviderUrl: config.JsonRpcProviderUrl.sepolia,
+const testOptionsForEvent = {
+  blockId: blocknumForEventTest.sepolia,
+  wasmPath: 'tests/build/zkgraph-event.wasm',
+  yamlPath: 'tests/testsrc/zkgraph-event.yaml',
   local: false,
 }
-execOptions.blockId = await getLatestBlocknumber(execOptions.jsonRpcProviderUrl)
+
+const testOptionsForStorage = {
+  blockId: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
+  wasmPath: 'tests/build/zkgraph-storage.wasm',
+  yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
+  local: false,
+}
 
 describe('test exec', () => {
   it('test_exec', async () => {
-    const { yamlPath, jsonRpcProviderUrl, wasmPath, blockId, local } = execOptions
+    const { yamlPath, wasmPath, blockId, local } = testOptionsForEvent
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -31,12 +37,13 @@ describe('test exec', () => {
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
-    const execParams = dsp.toExecParams(
-      {
-        jsonRpcUrl: jsonRpcProviderUrl,
-        blockId,
-      },
-    )
+    const generalParams = {
+      jsonRpcUrl: loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true),
+      blockId,
+    }
+
+    const execParams = dsp.toExecParams(generalParams)
+
     const state = await zkgapi.execute(
       { wasmUint8Array, zkgraphYaml: yaml },
       execParams,
@@ -48,7 +55,7 @@ describe('test exec', () => {
   })
 
   it('test_exec_with_prepare_data', async () => {
-    const { yamlPath, jsonRpcProviderUrl, wasmPath, blockId, local } = execOptions
+    const { yamlPath, wasmPath, blockId, local } = testOptionsForStorage
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -56,12 +63,12 @@ describe('test exec', () => {
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
-    const execParams = dsp.toExecParams(
-      {
-        jsonRpcUrl: jsonRpcProviderUrl,
-        blockId,
-      },
-    )
+    const generalParams = {
+      jsonRpcUrl: loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true),
+      blockId,
+    }
+
+    const execParams = dsp.toExecParams(generalParams)
 
     /**
      * Prepare Data, can construct your own dataPrep based on this.
@@ -82,7 +89,7 @@ describe('test exec', () => {
   it('test_exec_then_prove', async () => {
     const generalParams = {
       jsonRpcUrl: config.JsonRpcProviderUrl.sepolia,
-      blockId: blocknumfortest.sepolia,
+      blockId: blocknumForEventTest.sepolia,
     }
 
     const testOptions = {

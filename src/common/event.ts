@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
-import type { Decoded } from './rlp'
+// import type { Decoded } from './rlp'
 import { areEqualArrays, toHexString } from './utils'
 export class Event {
   address: Uint8Array
   topics: Uint8Array[]
-  data: any
+  data: Uint8Array
   address_offset: number[]
   topics_offset: number[]
   data_offset: number[]
   constructor(
     address: Uint8Array,
-    topics: any[],
-    data: Uint8Array | Decoded | Decoded[],
+    topics: Uint8Array[],
+    data: Uint8Array,
     address_offset: number[],
     topics_offset: any[],
     data_offset: number[],

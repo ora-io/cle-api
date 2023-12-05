@@ -17,7 +17,7 @@ const zkgstatefortest = {
 }
 
 const proveModeOptions = {
-  wasmPath: 'tests/build/zkgraph_full.wasm',
+  wasmPath: 'tests/build/zkgraph-storage.wasm',
   yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
   blockId: blocknumfortest.sepolia,
   expectedStateStr: zkgstatefortest.sepolia,

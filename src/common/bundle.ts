@@ -84,15 +84,16 @@ async function instantiate(module: BufferSource, imports: Record<string, any> = 
         }
       },
       asmain() {
-        try {
-          return __liftTypedArray(
-            Uint8Array,
-            exports.asmain() >>> 0,
-          )
-        }
-        catch (e) {}
-        // eslint-disable-next-line no-empty
-        finally {}
+        // dev: always throw for zkgraph debug purpose.
+        // try {
+        return __liftTypedArray(
+          Uint8Array,
+          exports.asmain() >>> 0,
+        )
+        // }
+        // catch (e) {throw e}
+
+        // finally {}
       },
     },
     exports,

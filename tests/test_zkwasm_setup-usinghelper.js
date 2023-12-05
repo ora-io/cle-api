@@ -3,14 +3,14 @@
  * can delete after setup stable.
  */
 
-import fs from 'fs'
+// import fs from 'fs'
 import { Wallet } from 'ethers'
 import { computeAddress } from 'ethers/lib/utils.js'
 import {
   // AddImageParams,
   // WithSignature,
-  ZkWasmUtil,
   ZkWasmServiceHelper,
+  ZkWasmUtil,
 } from '@hyperoracle/zkwasm-service-helper'
 
 async function signMessage(message, sk) {
@@ -29,13 +29,14 @@ export async function zkwasm_setup(
   circuitSize,
 ) {
   const helper = new ZkWasmServiceHelper(ZkwasmProviderUrl, '', '')
-  const imagePath = 'tests/build/zkgraph_full.wasm'
+  // const imagePath = 'tests/build/zkgraph-storage.wasm'
 
   // const image = createFileFromUint8Array(wasmUint8Array, wasmName);
-  const fileSelected = fs.readFileSync(imagePath)
-  const md5 = ZkWasmUtil.convertToMd5(
-    fileSelected,
-  )
+  // const fileSelected = fs.readFileSync(imagePath)
+  // Given by the caller for md5 reuse purpose.
+  // const md5 = ZkWasmUtil.convertToMd5(
+  //   fileSelected,
+  // )
 
   const info = {
     name,

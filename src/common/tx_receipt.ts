@@ -9,7 +9,7 @@ export class TxReceipt {
   gasUsed: any
   logsBloom: any
   events: any
-  constructor(status: Uint8Array | Decoded | Decoded[], gasUsed: Uint8Array | Decoded | Decoded[], logsBloom: Uint8Array | Decoded | Decoded[], events: Event[]) {
+  constructor(status: number, gasUsed: number, logsBloom: Uint8Array, events: Event[]) {
     this.status = status
     this.gasUsed = gasUsed
     this.logsBloom = logsBloom
@@ -23,9 +23,9 @@ export class TxReceipt {
       rawReceipt = rawReceipt.slice(1)
     }
     const rlpdata = RLP.decode(rawReceipt)
-    const status = rlpdata[0].data
-    const gasUsed = rlpdata[1].data
-    const logsBloom = rlpdata[2].data
+    const status = (rlpdata[0].data as Uint8Array)[0]
+    const gasUsed = (rlpdata[1].data as Uint8Array)[0]
+    const logsBloom = (rlpdata[2].data as Uint8Array)
 
     const rlpevents = rlpdata[3].data as Decoded[]
     const events = []
