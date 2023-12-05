@@ -34,7 +34,7 @@ export async function publish(
   const { wasmUint8Array, zkgraphYaml } = zkGraphExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
   const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
-  const result = deatails[0].data.result[0]
+  const result = deatails[0]?.data.result[0]
   if (result === null)
     return
 
@@ -43,7 +43,7 @@ export async function publish(
 
   const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal: false })
   const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
-  console.log(dspID)
+
   const networkName = zkgraphYaml?.dataDestinations[0].network
   const destinationContractAddress = zkgraphYaml?.dataDestinations[0].address
   const factoryContract = new Contract(addressFactory, abiFactory, provider).connect(signer)
