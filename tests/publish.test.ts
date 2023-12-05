@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import { it } from 'vitest'
 import { ethers } from 'ethers'
 import * as zkgapi from '../src/index'
@@ -7,15 +8,17 @@ import { config } from './config'
 
 it('test publish', async () => {
   const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
-  const rpcUrl = 'http://rpc.ankr.com/eth_sepolia'
+  const rpcUrl = config.JsonRpcProviderUrl.sepolia
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-  const userPrivateKey = config.SignerSecretKey
+  const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
-  const zkgraphYaml = zkgapi.ZkGraphYaml.fromYamlPath('tests/testsrc/zkgraph-dirty.yaml')
+  const zkgraphYaml = zkgapi.ZkGraphYaml.fromYamlPath('tests/testsrc/zkgraph-dirty.yaml') as zkgapi.ZkGraphYaml
   const ipfsHash = '111'
   const newBountyRewardPerTrigger = 0
+  const wasm = fs.readFileSync('tests/build/zkgraph_full.wasm')
+  const wasmUint8Array = new Uint8Array(wasm)
   const publishTxHash = await zkgapi.publish(
-    { wasmUint8Array: null, zkgraphYaml },
+    { wasmUint8Array, zkgraphYaml },
     ZkwasmProviderUrl,
     provider,
     ipfsHash,
