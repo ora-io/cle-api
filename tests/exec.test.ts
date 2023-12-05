@@ -13,15 +13,18 @@ const blocknumForEventTest = {
   mainnet: 17633573,
 }
 
-const testOptionsForEvent = {
-  blockId: blocknumForEventTest.sepolia,
+const blocknumForStorageTest = {
+  sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
+  mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
+}
+
+const execOptionsForEvent = {
   wasmPath: 'tests/build/zkgraph-event.wasm',
   yamlPath: 'tests/testsrc/zkgraph-event.yaml',
   local: false,
 }
 
-const testOptionsForStorage = {
-  blockId: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
+const execOptionsForStorage = {
   wasmPath: 'tests/build/zkgraph-storage.wasm',
   yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
   local: false,
@@ -29,7 +32,7 @@ const testOptionsForStorage = {
 
 describe('test exec', () => {
   it('test_exec', async () => {
-    const { yamlPath, wasmPath, blockId, local } = testOptionsForEvent
+    const { wasmPath, yamlPath, local } = execOptionsForEvent
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -37,9 +40,11 @@ describe('test exec', () => {
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
+    const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const generalParams = {
-      jsonRpcUrl: loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true),
-      blockId,
+      jsonRpcUrl,
+      // blockId: loadConfigByNetwork(yaml, blocknumForStorageTest, true), // for storage
+      blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
     const execParams = dsp.toExecParams(generalParams)
@@ -55,7 +60,7 @@ describe('test exec', () => {
   })
 
   it('test_exec_with_prepare_data', async () => {
-    const { yamlPath, wasmPath, blockId, local } = testOptionsForStorage
+    const { wasmPath, yamlPath, local } = execOptionsForStorage
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -63,9 +68,11 @@ describe('test exec', () => {
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
+    const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const generalParams = {
-      jsonRpcUrl: loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true),
-      blockId,
+      jsonRpcUrl,
+      blockId: loadConfigByNetwork(yaml, blocknumForStorageTest, true), // for storage
+      // blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
     const execParams = dsp.toExecParams(generalParams)
@@ -87,20 +94,7 @@ describe('test exec', () => {
   })
 
   it('test_exec_then_prove', async () => {
-    const generalParams = {
-      jsonRpcUrl: config.JsonRpcProviderUrl.sepolia,
-      blockId: blocknumForEventTest.sepolia,
-    }
-
-    const testOptions = {
-      generalParams,
-      wasmPath: 'tests/build/zkgraph-event.wasm',
-      yamlPath: 'tests/testsrc/zkgraph-event.yaml',
-      local: false,
-      zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
-    }
-
-    const { wasmPath, yamlPath, local } = testOptions
+    const { wasmPath, yamlPath, local } = execOptionsForEvent
 
     /**
      * assemble zkGraphExecutable & get dsp
@@ -111,11 +105,16 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
-
     const zkGraphExecutable = { wasmUint8Array, zkgraphYaml: yaml }
-
     // get dsp
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    // get pre-defined test params
+    const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
+    const generalParams = {
+      jsonRpcUrl,
+      // blockId: loadConfigByNetwork(yaml, blocknumForStorageTest, true), // for storage
+      blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
+    }
 
     /**
      * Execute

@@ -192,9 +192,9 @@ export function isNumber(value: any) {
 }
 
 interface NetworksConfig {
-  mainnet?: string // Optional
-  sepolia?: string // Optional
-  goerli?: string // Optional
+  mainnet?: any // Optional
+  sepolia?: any // Optional
+  goerli?: any // Optional
 }
 
 export function loadConfigByNetwork(yaml: Partial<ZkGraphYaml>, networksConfig: NetworksConfig, isDataSource: boolean) {
