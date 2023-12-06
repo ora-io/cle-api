@@ -62,6 +62,7 @@
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
     "@hyperoracle/zkwasm-service-helper": "1.0.1",
+    "@murongg/utils": "^0.1.10",
     "axios": "^1.6.2",
     "axios-retry": "^3.9.1",
     "bn.js": "^5.2.1",
@@ -74,7 +75,6 @@
   "devDependencies": {
     "@antfu/ni": "^0.21.10",
     "@murongg/eslint-config": "^0.2.1",
-    "@murongg/utils": "^0.1.10",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",
