@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { providers } from 'ethers'
 import { Contract, ethers, utils } from 'ethers'
+import type { providers } from 'ethers'
 import {
   AddressZero,
   abiFactory,
@@ -14,7 +14,8 @@ import { dspHub } from '../dsp/hub'
 
 /**
  * Publish and register zkGraph onchain.
- * @param {object} zkGraphExecutable {'zkgraphYaml': zkgraphYaml}
+ * @param {object} zkGraphExecutable {wasmUint8Array, zkgraphYaml}
+ * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
@@ -31,15 +32,30 @@ export async function publish(
   signer: ethers.Wallet | string,
   enableLog = true,
 ) {
-  const { wasmUint8Array, zkgraphYaml } = zkGraphExecutable
-  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
-  const result = deatails[0]?.data.result[0]
-  if (result === null)
-    return
+  const codeHash = await getCodeHash(zkGraphExecutable, zkwasmProviderUrl)
+  return publishByCodeHash(zkGraphExecutable, codeHash, provider, ipfsHash, bountyRewardPerTrigger, signer, enableLog)
+}
 
-  const pointX = littleEndianToUint256(result.checksum.x)
-  const pointY = littleEndianToUint256(result.checksum.y)
+/**
+ * Publish and register zkGraph onchain, with code hash provided.
+ * @param {object} zkGraphExecutable {zkgraphYaml}
+ * @param {providers.JsonRpcProvider} provider - the provider of the target network
+ * @param {string} ipfsHash - the ipfs hash of the zkGraph
+ * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
+ * @param {object} signer - the acct for sign tx
+ * @param {boolean} enableLog - enable logging or not
+ * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
+ */
+export async function publishByCodeHash(
+  zkGraphExecutable: ZkGraphExecutable,
+  codeHash: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
+  provider: providers.JsonRpcProvider,
+  ipfsHash: string,
+  bountyRewardPerTrigger: number,
+  signer: ethers.Wallet | string,
+  enableLog = true,
+) {
+  const { zkgraphYaml } = zkGraphExecutable
 
   const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal: false })
   const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
@@ -55,8 +71,8 @@ export async function publish(
       bountyRewardPerTrigger,
       dspID,
       ipfsHash,
-      pointX,
-      pointY,
+      codeHash.pointX,
+      codeHash.pointY,
     )
     .catch((err: any) => {
       throw err
@@ -89,4 +105,27 @@ function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
   const hexString = `0x${reversedArray.map(byte => byte.toString(16).padStart(2, '0')).join('')}`
 
   return ethers.BigNumber.from(hexString)
+}
+
+/**
+ *
+ * @param {object} zkGraphExecutable {wasmUint8Array}
+ * @param zkGraphExecutable
+ * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
+ * @returns
+ */
+export async function getCodeHash(
+  zkGraphExecutable: ZkGraphExecutable,
+  zkwasmProviderUrl: string,
+) {
+  const { wasmUint8Array } = zkGraphExecutable
+  const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
+  const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
+  const result = deatails[0]?.data.result[0]
+  if (result === null)
+    throw new Error('Can\'t find zkWasm image details, please finish setup before publish.')
+
+  const pointX = littleEndianToUint256(result.checksum.x)
+  const pointY = littleEndianToUint256(result.checksum.y)
+  return { pointX, pointY }
 }
