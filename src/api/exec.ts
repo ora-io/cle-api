@@ -4,6 +4,7 @@ import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
 import type { ZkGraphExecutable } from '../types/api'
+import { OldBlockNumber } from '../common/error'
 
 /**
  * Execute the given zkGraphExecutable in the context of execParams
@@ -14,18 +15,25 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
 export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: Record<string, any>, isLocal = false, _enableLog = true) {
-  // TODO: mv this log to cli
-  // if (enableLog){
-  //     console.log(`[*] Run zkgraph on block ${blockid}\n`);
-  // }
   const { zkgraphYaml } = zkGraphExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
 
-  const prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
-  const dataPrep /** :DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
+  try {
+    const prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
+    const dataPrep /** :DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
 
-  return await executeOnDataPrep(zkGraphExecutable, dataPrep)
+    return await executeOnDataPrep(zkGraphExecutable, dataPrep)
+  }
+  catch (error: any) {
+    if (error.body.includes('requested block is too old')) {
+      const body = JSON.parse(error.body)
+      throw new OldBlockNumber(body.error.message)
+    }
+    else {
+      throw error
+    }
+  }
 }
 
 /**
