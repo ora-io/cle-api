@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { Contract, Wallet, ethers, providers } from 'ethers'
+import type { providers } from 'ethers'
+import { Contract, ethers } from 'ethers'
 import {
   graph_abi,
 } from '../common/constants'

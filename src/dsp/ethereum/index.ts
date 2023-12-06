@@ -1,4 +1,4 @@
-import { providers } from 'ethers'
+import type { providers } from 'ethers'
 import { DataSourcePlugin } from '../interface'
 import { getBlock } from '../../common/ethers_helper'
 import { dspParamsNormalize, trimPrefix } from '../../common/utils'
@@ -24,12 +24,12 @@ export interface EthereumDataSourcePluginDataPrep {
 }
 
 export interface EthereumDataSourcePluginExecParams {
-  jsonRpcUrl: string
+  provider: providers.JsonRpcProvider
   blockId: string
 }
 
 export interface EthereumDataSourcePluginProveParams {
-  jsonRpcUrl: string
+  provider: providers.JsonRpcProvider
   blockId: string
   expectedStateStr: string
 }
@@ -74,14 +74,14 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
     }
   }
 
-  static execParams = ['jsonRpcUrl', 'blockId']
+  static execParams = ['provider', 'blockId']
 
   // validate params exist // TODO: move to DataSourcePlugin as shared methods?
   static toExecParams(generalParams: Record<string, any>): EthereumDataSourcePluginExecParams {
     return dspParamsNormalize(this.execParams, generalParams) as EthereumDataSourcePluginExecParams
   }
 
-  static proveParams = ['jsonRpcUrl', 'blockId', 'expectedStateStr']
+  static proveParams = ['provider', 'blockId', 'expectedStateStr']
 
   // validate params exist
   static toProveParams(generalParams: Record<string, any>): EthereumDataSourcePluginProveParams {
@@ -89,9 +89,7 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
   }
 
   static async toPrepareParamsFromExecParams(execParams: EthereumDataSourcePluginExecParams): Promise<EthereumDataSourcePluginPrepareParams> {
-    const { jsonRpcUrl, blockId } = execParams
-
-    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const { provider, blockId } = execParams
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
@@ -108,9 +106,7 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
   }
 
   static async toPrepareParamsFromProveParams(proveParams: EthereumDataSourcePluginProveParams): Promise<EthereumDataSourcePluginPrepareParams> {
-    const { jsonRpcUrl, blockId, expectedStateStr } = proveParams
-
-    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const { provider, blockId, expectedStateStr } = proveParams
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
