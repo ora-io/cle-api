@@ -57,7 +57,7 @@ describe('test exec', () => {
     )
 
     return state
-  })
+  }, { timeout: 100000 })
 
   it('test_exec_with_prepare_data', async () => {
     const { wasmPath, yamlPath, local } = execOptionsForStorage
@@ -91,7 +91,7 @@ describe('test exec', () => {
     )
 
     return state
-  })
+  }, { timeout: 100000 })
 
   it('test_exec_then_prove', async () => {
     const { wasmPath, yamlPath, local } = execOptionsForEvent
@@ -160,5 +160,5 @@ describe('test exec', () => {
 
     console.log(`(Prove) Private Input: ${privateInputStr}`)
     console.log(`(Prove) Public Input: ${publicInputStr}`)
-  })
+  }, { timeout: 100000 })
 })

@@ -62,7 +62,7 @@ describe('test prove', () => {
       true,
     )
 
-    console.log([privateInputStr, publicInputStr])
+    // console.log([privateInputStr, publicInputStr])
 
     const result = await zkgapi.prove(
       { wasmUint8Array, zkgraphYaml: null }, // doesn't care about zkgraphYaml
@@ -71,7 +71,7 @@ describe('test prove', () => {
       zkwasmUrl,
       config.UserPrivateKey,
       true)
-    console.log(result)
+    console.log('issued a prove taslk: ', result)
   })
   // it('test mock mode', async () => {
   //   const { yamlPath, wasmPath, blockId, expectedStateStr } = proveModeOptions
