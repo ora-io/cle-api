@@ -1,5 +1,4 @@
-import { Wallet, ethers, providers } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
+import { Wallet, ethers, providers, utils } from 'ethers'
 
 import { RLP } from '@ethereumjs/rlp'
 
@@ -151,7 +150,7 @@ export async function getBalance(privateKey: string, networkName: providers.Netw
   const wallet = new Wallet(privateKey)
   // Using default provider to avoid errors in user defined provider
   const provider = providers.getDefaultProvider(networkName)
-  const balance = formatEther(await provider.getBalance(wallet.address))
+  const balance = utils.formatEther(await provider.getBalance(wallet.address))
   return balance
 }
 

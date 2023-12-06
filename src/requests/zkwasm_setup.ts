@@ -2,9 +2,8 @@
 import FormData from 'form-data'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import { Wallet } from 'ethers'
+import { Wallet, utils } from 'ethers'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import { computeAddress } from 'ethers/lib/utils'
 import { ImageAlreadyExists, PaymentError } from '../common/error'
 import { handleAxiosError } from './error_handle'
 import url from './url'
@@ -19,7 +18,7 @@ export async function zkwasm_setup(
   avator_url: string,
   circuit_size: number,
 ) {
-  const user_address = computeAddress(user_privatekey).toLowerCase()
+  const user_address = utils.computeAddress(user_privatekey).toLowerCase()
 
   const message = ZkWasmUtil.createAddImageSignMessage({
     name,

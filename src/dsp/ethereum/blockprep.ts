@@ -1,5 +1,5 @@
 import type { BytesLike } from 'ethers'
-import type { Hexable } from 'ethers/lib/utils.js'
+import type { Hexable } from 'ethers/lib/utils'
 import { DataPrep } from '../interface.js'
 
 // includes both exec & prove params

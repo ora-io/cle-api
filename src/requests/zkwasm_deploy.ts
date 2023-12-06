@@ -1,7 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import { Wallet } from 'ethers'
-import { computeAddress } from 'ethers/lib/utils'
+import { Wallet, utils } from 'ethers'
 import url from './url'
 import { handleAxiosError } from './error_handle'
 
@@ -9,7 +8,7 @@ import { handleAxiosError } from './error_handle'
 export async function zkwasm_deploy(chain_id: string, user_privatekey: string, image_md5: string, zkwasmProverUrl: string): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isDeploySuccess = true
 
-  const address = computeAddress(user_privatekey).toLowerCase()
+  const address = utils.computeAddress(user_privatekey).toLowerCase()
   const wallet = new Wallet(user_privatekey)
 
   const message = JSON.stringify({

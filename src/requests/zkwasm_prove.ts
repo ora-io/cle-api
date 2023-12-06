@@ -1,7 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import { Wallet } from 'ethers'
-import { computeAddress } from 'ethers/lib/utils'
+import { Wallet, utils } from 'ethers'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'
 import url from './url'
@@ -16,7 +15,7 @@ export async function zkwasm_prove(
 ): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isSetUpSuccess = true
 
-  const user_address = computeAddress(user_privatekey).toLowerCase()
+  const user_address = utils.computeAddress(user_privatekey).toLowerCase()
 
   const message = ZkWasmUtil.createProvingSignMessage({
     user_address: user_address.toLowerCase(),
