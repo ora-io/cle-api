@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import fs from 'node:fs'
 import { describe, it } from 'vitest'
+import { providers } from 'ethers'
 import * as zkgapi from '../src/index'
 import { loadConfigByNetwork } from '../src/common/utils'
 import { config } from './config'
@@ -46,8 +47,9 @@ describe('test prove', () => {
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
     const generalParams = {
-      jsonRpcUrl,
+      provider,
       blockId: loadConfigByNetwork(yaml, blocknumForStorageTest, true), // for storage
       expectedStateStr: loadConfigByNetwork(yaml, expectedStateStrForTest, true), // for storage
       // blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event

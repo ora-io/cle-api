@@ -1,4 +1,4 @@
-import { providers } from 'ethers'
+import type { providers } from 'ethers'
 import { DataPrep, DataSourcePlugin } from '../interface'
 
 // reuse ethereum dsp for blocks
@@ -26,13 +26,13 @@ export interface EthereumOffchainDSPPrepareParams {
   expectedStateStr: string | null
 }
 export interface EthereumOffchainDSPExecParams {
-  jsonRpcUrl: string
+  provider: providers.JsonRpcProvider
   blockId: string
   offchainData: any
 }
 
 export interface EthereumOffchainDSPProveParams {
-  jsonRpcUrl: string
+  provider: providers.JsonRpcProvider
   blockId: string
   offchainData: any
   expectedStateStr: string
@@ -120,9 +120,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin {
   }
 
   static async toPrepareParamsFromExecParams(execParams: EthereumOffchainDSPExecParams): Promise<EthereumOffchainDSPPrepareParams> {
-    const { jsonRpcUrl, blockId, offchainData } = execParams
-
-    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const { provider, blockId, offchainData } = execParams
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
@@ -141,9 +139,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin {
   }
 
   static async toPrepareParamsFromProveParams(proveParams: EthereumOffchainDSPProveParams): Promise<EthereumOffchainDSPPrepareParams> {
-    const { jsonRpcUrl, blockId, offchainData, expectedStateStr } = proveParams
-
-    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const { provider, blockId, offchainData, expectedStateStr } = proveParams
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
