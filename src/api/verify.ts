@@ -6,9 +6,9 @@ import {
 } from '../requests/zkwasm_taskdetails'
 import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
-import type { ZkGraphExecutable } from '../../dist'
 import { loadConfigByNetwork } from '../common/utils'
 import type { ZkGraphYaml } from '../types/zkgyaml'
+import type { ZkGraphExecutable } from '../types/api'
 // import { VerifyProofParams } from '@hyperoracle/zkwasm-service-helper'
 export interface VerifyProofParams {
   aggregate_proof: Uint8Array
