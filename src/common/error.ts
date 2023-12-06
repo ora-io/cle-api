@@ -33,3 +33,9 @@ export class YamlNotSupported extends Error {
     super(message)
   }
 }
+
+export class TDNoTaskFound extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}

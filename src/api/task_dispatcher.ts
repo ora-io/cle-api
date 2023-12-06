@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import { polling } from '@murongg/utils'
+import { TDNoTaskFound } from '../common/error'
 
 axiosRetry(axios, {
   retries: 5,
@@ -50,7 +51,7 @@ export class TaskDispatch {
     }
     await polling(request, 1000)
     if (!res?.task?.id && res?.task?.status === 'submitted')
-      throw new Error('No corresponding task found for the transaction')
+      throw new TDNoTaskFound('No corresponding task found for the transaction')
 
     return res as QueryTaskResponse
   }
