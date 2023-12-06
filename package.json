@@ -23,10 +23,13 @@
   "sideEffects": false,
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
+
     },
     "./browser": {
+      "types": "./dist/index.browser.d.ts",
       "require": "./dist/index.browser.cjs",
       "import": "./dist/index.browser.mjs"
     }
@@ -39,6 +42,9 @@
       "*": [
         "./dist/*",
         "./dist/index.d.ts"
+      ],
+      "browser": [
+        "./dist/index.browser.d.ts"
       ]
     }
   },

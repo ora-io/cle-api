@@ -94,4 +94,23 @@ export default () => defineConfig([
       dts({ respectExternal: true }),
     ],
   },
+  {
+    input,
+    output: {
+      dir: 'dist',
+      entryFileNames: '[name].browser.d.ts',
+      format: 'esm',
+    },
+    external,
+    treeshake: 'smallest',
+    plugins: [
+      esbuild.default({
+        target: 'node14',
+        define: {
+          __BROWSER__: 'true',
+        },
+      }),
+      dts({ respectExternal: true }),
+    ],
+  },
 ])
