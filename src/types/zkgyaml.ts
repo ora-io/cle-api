@@ -1,7 +1,7 @@
 import fs from 'fs'
 import yaml from 'js-yaml'
 import semver from 'semver'
-import { YamlHealthCheckFailed } from '../common/error'
+import { YamlHealthCheckFailed, YamlInvalidFormat } from '../common/error'
 import { EthereumDataDestination, EthereumDataSource } from './zkgyaml_eth'
 import type { DataDestination, DataSource, DataSourceKind } from './zkgyaml_def'
 import { Mapping } from './zkgyaml_def'
@@ -65,7 +65,8 @@ export class ZkGraphYaml {
     )
   }
 
-  static fromYaml(yaml: ZkGraphYaml) {
+  // TODO: type: should be the return class of yaml.load
+  static fromYaml(yaml: any) {
     // health check before parse
     ZkGraphYaml.healthCheck(yaml)
     if (yaml.specVersion === '0.0.1')
@@ -78,23 +79,22 @@ export class ZkGraphYaml {
       throw new Error(`Unsupported specVersion: ${yaml.specVersion}`)
   }
 
-  static fromYamlContent(yamlContent: string | undefined) {
-    if (!yamlContent)
-      return
-
+  static fromYamlContent(yamlContent: string) {
     try {
       // Parse the YAML content
-      const config = yaml.load(yamlContent) as ZkGraphYaml
+      const config = yaml.load(yamlContent)
       return ZkGraphYaml.fromYaml(config)
     }
-    catch (error) {
-      console.error(error)
+    catch (error: any) {
+      // TODO: is there other cases than "Invalid Yaml"?
+      throw new YamlInvalidFormat(error.message)
     }
   }
 
+  // TODO: remove this func, this should be outside the scope of api.
   static fromYamlPath(yamlPath: fs.PathOrFileDescriptor) {
     if (!__BROWSER__) {
-      let fileContents
+      let fileContents = ''
       try {
         // Read the YAML file contents
         fileContents = fs.readFileSync(yamlPath, 'utf8')
@@ -106,7 +106,7 @@ export class ZkGraphYaml {
     }
   }
 
-  static from_v_0_0_1(_yaml: any): undefined {
+  static from_v_0_0_1(_yaml: any): ZkGraphYaml {
     throw new Error('no 0.0.1 support') // TODO
   }
 
@@ -135,7 +135,7 @@ export class ZkGraphYaml {
     return this.dataSources.filter((ds: DataSource) => ds.kind === kind) as typeof kind extends 'ethereum' ? EthereumDataSource[] : OffchainDataSource[]
   }
 
-  static healthCheck(yaml: { specVersion: string; apiVersion: string; dataSources: DataSource[]; mapping: Mapping; dataDestinations: DataDestination[] }) {
+  static healthCheck(yaml: any) {
     // specVersion check
     if (!yaml.specVersion || typeof yaml.specVersion !== 'string' || yaml.specVersion.trim() === '')
       throw new YamlHealthCheckFailed('specVersion is missing or empty')

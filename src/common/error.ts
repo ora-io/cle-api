@@ -22,6 +22,11 @@ export class PaymentError extends Error {
   }
 }
 
+export class YamlInvalidFormat extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
 export class YamlHealthCheckFailed extends Error {
   constructor(message: string | undefined) {
     super(message)
