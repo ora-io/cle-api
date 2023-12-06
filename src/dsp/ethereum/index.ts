@@ -74,14 +74,14 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
     }
   }
 
-  static execParams = ['jsonRpcUrl', 'blockId']
+  static execParams = ['provider', 'blockId']
 
   // validate params exist // TODO: move to DataSourcePlugin as shared methods?
   static toExecParams(generalParams: Record<string, any>): EthereumDataSourcePluginExecParams {
     return dspParamsNormalize(this.execParams, generalParams) as EthereumDataSourcePluginExecParams
   }
 
-  static proveParams = ['jsonRpcUrl', 'blockId', 'expectedStateStr']
+  static proveParams = ['provider', 'blockId', 'expectedStateStr']
 
   // validate params exist
   static toProveParams(generalParams: Record<string, any>): EthereumDataSourcePluginProveParams {
