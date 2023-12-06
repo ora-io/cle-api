@@ -29,7 +29,7 @@ export class TaskDispatch {
   queryAPI: string
   feeInWei: ethers.BigNumber
   dispatcherContract: ethers.Contract
-  constructor(queryAPI: string, contractAddress: string, feeInWei: ethers.BigNumber, provider: providers.JsonRpcProvider, signer: ethers.Wallet) {
+  constructor(queryAPI: string, contractAddress: string, feeInWei: ethers.BigNumber, provider: providers.JsonRpcProvider, signer: ethers.Wallet | ethers.providers.Provider | string) {
     this.queryAPI = queryAPI
     this.feeInWei = feeInWei
     this.dispatcherContract = new ethers.Contract(contractAddress, ABI, provider).connect(signer)

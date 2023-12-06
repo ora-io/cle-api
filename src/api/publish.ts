@@ -29,7 +29,7 @@ export async function publish(
   provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
-  signer: ethers.Wallet | string,
+  signer: ethers.Wallet | ethers.providers.Provider | string,
   enableLog = true,
 ) {
   const codeHash = await getCodeHash(zkGraphExecutable, zkwasmProviderUrl)
@@ -52,7 +52,7 @@ export async function publishByCodeHash(
   provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
-  signer: ethers.Wallet | string,
+  signer: ethers.Wallet | ethers.providers.Provider | string,
   enableLog = true,
 ) {
   const { zkgraphYaml } = zkGraphExecutable

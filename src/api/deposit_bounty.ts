@@ -17,7 +17,7 @@ import { logLoadingAnimation } from '../common/log_utils'
  */
 export async function deposit(
   provider: providers.JsonRpcProvider,
-  signer: ethers.Wallet | string,
+  signer: ethers.Wallet | ethers.providers.Provider | string,
   deployedContractAddress: string,
   depositAmount: string,
   enableLog = true,
