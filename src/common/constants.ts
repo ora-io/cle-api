@@ -412,9 +412,9 @@ export const addressFactory = {
 }
 export const abiFactory = [
   'function getAllZkg() external view returns (address[] memory)',
-  'function registry(address destAddr, address bountyToken, uint256 bountyReward, bytes32 dspID, string memory _graphURI, uint256 pointX, uint256 pointY) external returns (address graph)',
+  'function registry(address destAddr, address bountyToken, uint256 bountyReward, bytes32 dspID, string memory graphURI, uint256 pointX, uint256 pointY) external returns (address graph)',
   'function getGraphBycreator(address creator) external view returns (address[] memory)',
-  'function getGraphInfoByAddress(address graph) external view returns (address creator, uint256 bountyReward, address verifier, address destAddr, string memory graphURI)',
+  'function getGraphInfoByAddress(address graph) external view returns (address creator, uint256 bountyReward, address verifier, string memory graphURI)',
 ]
 
 export const AggregatorVerifierAddress = {
