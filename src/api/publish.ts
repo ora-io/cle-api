@@ -34,8 +34,8 @@ export async function publish(
   signer: ethers.Wallet | ethers.providers.Provider | string,
   enableLog = true,
 ) {
-  const codeHash = await getCodeHash(zkGraphExecutable, zkwasmProviderUrl)
-  return publishByCodeHash(zkGraphExecutable, codeHash, provider, ipfsHash, bountyRewardPerTrigger, signer, enableLog)
+  const imgCmt = await getImageCommitment(zkGraphExecutable, zkwasmProviderUrl)
+  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer, enableLog)
 }
 
 /**
@@ -48,9 +48,9 @@ export async function publish(
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
-export async function publishByCodeHash(
+export async function publishByImgCmt(
   zkGraphExecutable: ZkGraphExecutable,
-  codeHash: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
+  imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
   provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
@@ -74,8 +74,8 @@ export async function publishByCodeHash(
       bountyRewardPerTrigger,
       dspID,
       ipfsHash,
-      codeHash.pointX,
-      codeHash.pointY,
+      imageCommitment.pointX,
+      imageCommitment.pointY,
     )
     .catch((err: any) => {
       throw err
@@ -117,7 +117,7 @@ function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
  * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
  * @returns
  */
-export async function getCodeHash(
+export async function getImageCommitment(
   zkGraphExecutable: ZkGraphExecutable,
   zkwasmProviderUrl: string,
 ) {
