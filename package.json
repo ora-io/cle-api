@@ -1,7 +1,7 @@
 {
   "name": "@hyperoracle/zkgraph-api",
   "type": "module",
-  "version": "0.1.9-alpha.13",
+  "version": "0.1.9-alpha.14",
   "description": "API for interacting with Hyper Oracle zkGraphs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
