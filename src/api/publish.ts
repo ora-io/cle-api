@@ -11,6 +11,8 @@ import { logLoadingAnimation } from '../common/log_utils'
 import type { ZkGraphExecutable } from '../types/api'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
 import { dspHub } from '../dsp/hub'
+import { loadConfigByNetwork } from '../common/utils'
+import type { ZkGraphYaml } from '../types/zkgyaml'
 
 /**
  * Publish and register zkGraph onchain.
@@ -62,7 +64,8 @@ export async function publishByCodeHash(
 
   const networkName = zkgraphYaml?.dataDestinations[0].network
   const destinationContractAddress = zkgraphYaml?.dataDestinations[0].address
-  const factoryContract = new Contract(addressFactory, abiFactory, provider).connect(signer)
+  const factoryAddress = loadConfigByNetwork(zkgraphYaml as ZkGraphYaml, addressFactory, false)
+  const factoryContract = new Contract(factoryAddress, abiFactory, provider).connect(signer)
 
   const tx = await factoryContract
     .registry(

@@ -405,7 +405,11 @@ export const graph_abi = [
   },
 ]
 
-export const addressFactory = '0x1800581C72e11e5805728C7cF145692Fa2259266'
+export const addressFactory = {
+  mainnet: 'not support yet',
+  sepolia: '0xE484E5B8b71aA7955d1De4D52737BF436eBf9970',
+  goerli: 'not support yet',
+}
 export const abiFactory = [
   'function getAllZkg() external view returns (address[] memory)',
   'function registry(address destAddr, address bountyToken, uint256 bountyReward, bytes32 dspID, string memory _graphURI, uint256 pointX, uint256 pointY) external returns (address graph)',
