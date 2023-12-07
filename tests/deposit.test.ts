@@ -13,7 +13,8 @@ it('test deposit', async () => {
   const deployedContractAddress = '0x870ef9B5DcBB6F71139a5f35D10b78b145853e69'
   const depositAmount = '0.001'
   const userPrivateKey = config.UserPrivateKey
-  const result = await zkgapi.deposit(provider, deployedContractAddress, depositAmount, userPrivateKey, enableLog)
+  const singer = new ethers.Wallet(userPrivateKey, provider)
+  const result = await zkgapi.deposit(provider, singer, deployedContractAddress, depositAmount, enableLog)
 
   console.log(result)
 }, { timeout: 100000 })
