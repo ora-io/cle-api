@@ -10,7 +10,7 @@ import { logLoadingAnimation } from '../common/log_utils'
  * Publish and register zkGraph onchain.
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {object} signer - the acct for sign tx
- * @param {string} deployedContractAddress - the deployed verification contract address
+ * @param {string} graphContractAddress - the deployed verification contract address
  * @param {number} depositAmount - the deposit amount in ETH
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
@@ -18,11 +18,11 @@ import { logLoadingAnimation } from '../common/log_utils'
 export async function deposit(
   provider: providers.JsonRpcProvider,
   signer: ethers.Wallet | ethers.providers.Provider | string,
-  deployedContractAddress: string,
+  graphContractAddress: string,
   depositAmount: string,
   enableLog = true,
 ) {
-  const graphContract = new Contract(deployedContractAddress, graph_abi, provider).connect(signer)
+  const graphContract = new Contract(graphContractAddress, graph_abi, provider).connect(signer)
   const tx = await graphContract
     .deposit(
       ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) },
