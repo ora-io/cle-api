@@ -13,6 +13,7 @@ import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
 import { dspHub } from '../dsp/hub'
 import { loadConfigByNetwork } from '../common/utils'
 import type { ZkGraphYaml } from '../types/zkgyaml'
+import { GraphAlreadyExist } from '../common/error'
 
 /**
  * Publish and register zkGraph onchain.
@@ -78,7 +79,7 @@ export async function publishByImgCmt(
       imageCommitment.pointY,
     )
     .catch((err: any) => {
-      throw err
+      throw new GraphAlreadyExist(err.message)
     })
 
   let loading

@@ -44,3 +44,9 @@ export class TDNoTaskFound extends Error {
     super(message)
   }
 }
+
+export class GraphAlreadyExist extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
