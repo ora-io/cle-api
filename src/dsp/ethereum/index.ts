@@ -1,8 +1,9 @@
+import type { KeyofToArray } from '@murongg/utils/index'
 import type { providers } from 'ethers'
 import { getBlock } from '../../common/ethers_helper'
-import { dspParamsNormalize, trimPrefix } from '../../common/utils'
+import { trimPrefix } from '../../common/utils'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
-import { DataSourcePlugin } from '../interface'
+import { DataSourcePlugin2 } from '../interface'
 import type { EthereumDataPrep } from './blockprep'
 import { fillInputBlocks } from './fill_blocks'
 import { prepareBlocksByYaml } from './prepare_blocks'
@@ -27,21 +28,21 @@ export interface EthereumDataSourcePluginProveParams {
   expectedStateStr: string
 }
 
-export class EthereumDataSourcePlugin extends DataSourcePlugin {
+export class EthereumDataSourcePlugin extends DataSourcePlugin2<EthereumDataSourcePluginExecParams, EthereumDataSourcePluginProveParams> {
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
-  static getLibDSPName() { return 'ethereum' }
+  getLibDSPName() { return 'ethereum' }
 
-  static async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumDataSourcePluginPrepareParams) {
+  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumDataSourcePluginPrepareParams) {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
     const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', zkgraphYaml)
     return dataPrep
   }
 
-  static fillExecInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
+  fillExecInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
     return fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
 
-  static fillProveInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
+  fillProveInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
     this.fillExecInput(input, zkgraphYaml, dataPrep)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
@@ -50,14 +51,14 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
   }
 
   // TODO: copy instead of rename
-  static toProveDataPrep(execDataPrep: EthereumDataPrep, execResult: string) {
+  toProveDataPrep(execDataPrep: EthereumDataPrep, execResult: string) {
     const proveDataPrep = execDataPrep
     proveDataPrep.expectedStateStr = execResult
     return proveDataPrep
   }
 
   // validate params exist
-  static toPrepareParams(generalParams: EthereumDataSourcePluginPrepareParams): EthereumDataSourcePluginPrepareParams {
+  toPrepareParams(generalParams: EthereumDataSourcePluginPrepareParams): EthereumDataSourcePluginPrepareParams {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = generalParams
     return {
       provider,
@@ -67,21 +68,10 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
     }
   }
 
-  static execParams = ['provider', 'blockId']
+  execParams: KeyofToArray<EthereumDataSourcePluginExecParams> = ['provider', 'blockId']
+  proveParams: KeyofToArray<EthereumDataSourcePluginProveParams> = ['provider', 'blockId', 'expectedStateStr']
 
-  // validate params exist // TODO: move to DataSourcePlugin as shared methods?
-  static toExecParams(generalParams: Record<string, any>): EthereumDataSourcePluginExecParams {
-    return dspParamsNormalize(this.execParams, generalParams) as EthereumDataSourcePluginExecParams
-  }
-
-  static proveParams = ['provider', 'blockId', 'expectedStateStr']
-
-  // validate params exist
-  static toProveParams(generalParams: Record<string, any>): EthereumDataSourcePluginProveParams {
-    return dspParamsNormalize(this.proveParams, generalParams) as EthereumDataSourcePluginProveParams
-  }
-
-  static async toPrepareParamsFromExecParams(execParams: EthereumDataSourcePluginExecParams): Promise<EthereumDataSourcePluginPrepareParams> {
+  async toPrepareParamsFromExecParams(execParams: EthereumDataSourcePluginExecParams): Promise<EthereumDataSourcePluginPrepareParams> {
     const { provider, blockId } = execParams
 
     // Get block
@@ -98,7 +88,7 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
     }
   }
 
-  static async toPrepareParamsFromProveParams(proveParams: EthereumDataSourcePluginProveParams): Promise<EthereumDataSourcePluginPrepareParams> {
+  async toPrepareParamsFromProveParams(proveParams: EthereumDataSourcePluginProveParams): Promise<EthereumDataSourcePluginPrepareParams> {
     const { provider, blockId, expectedStateStr } = proveParams
 
     // Get block
