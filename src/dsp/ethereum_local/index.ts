@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { KeyofToArray } from '@murongg/utils'
+import type { Input } from '../../common/input'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
 import { DataSourcePlugin } from '../interface'
 
@@ -7,33 +8,33 @@ import { DataSourcePlugin } from '../interface'
 // import { getBlock } from "../../common/ethers_helper.js";
 // import { trimPrefix } from "../../common/utils.js";
 
-export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<{}, {}, {}> {
+export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<{}, {}, {}, {}> {
   prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: Record<string, any>): Promise<any> {
     throw new Error('Method not implemented.')
   }
 
-  fillExecInput(input: any, zkgraphYaml: any, dataPrep: any) {
-    throw new Error('Method not implemented.')
+  fillExecInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: {}) {
+    return input
   }
 
-  fillProveInput(input: any, zkgraphYaml: any, dataPrep: any) {
-    throw new Error('Method not implemented.')
+  fillProveInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: {}) {
+    return input
   }
 
   toProveDataPrep(execDataPrep: any, execResult: any) {
-    throw new Error('Method not implemented.')
+    return {}
   }
 
   execParams: KeyofToArray<{}> = []
   proveParams: KeyofToArray<{}> = []
-  toPrepareParamsFromExecParams(execParams: any): Promise<{}> {
-    throw new Error('Method not implemented.')
-  }
-
-  toPrepareParamsFromProveParams(proveParams: any): Promise<{}> {
-    throw new Error('Method not implemented.')
-  }
 
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum_local' }
+
+  toPrepareParams(params: {}, type: 'exec'): Promise<{}>
+  toPrepareParams(params: {}, type: 'prove'): Promise<{}>
+  toPrepareParams(params: {}, type: 'exec' | 'prove'): Promise<{}>
+  toPrepareParams(params: unknown, type: unknown): Promise<{}> {
+    throw new Error('Method not implemented.')
+  }
 }

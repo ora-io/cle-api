@@ -7,6 +7,7 @@ import { fillInputBlocks } from '../ethereum/fill_blocks'
 import { prepareBlocksByYaml } from '../ethereum/prepare_blocks'
 
 import { getBlock } from '../../common/ethers_helper'
+import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
 import type { BlockPrep } from '../ethereum/blockprep'
@@ -55,7 +56,7 @@ export class EthereumOffchainDP extends DataPrep {
   }
 }
 
-export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExecParams, EthereumOffchainDSPProveParams, EthereumOffchainDSPPrepareParams> {
+export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExecParams, EthereumOffchainDSPProveParams, EthereumOffchainDSPPrepareParams, EthereumOffchainDPDataPrep> {
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum-offchain.bytes' }
 
@@ -72,7 +73,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     )
   }
 
-  fillExecInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumOffchainDPDataPrep) {
+  fillExecInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumOffchainDPDataPrep) {
     input = fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
     // add offchain data
     input.addVarLenHexString(dataPrep.offchainData)
@@ -99,27 +100,13 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
   execParams: KeyofToArray<EthereumOffchainDSPExecParams> = ['blockId', 'offchainData']
   proveParams: KeyofToArray<EthereumOffchainDSPProveParams> = ['blockId', 'offchainData', 'expectedStateStr']
 
-  async toPrepareParamsFromExecParams(execParams: EthereumOffchainDSPExecParams) {
-    const { provider, blockId, offchainData } = execParams
-
-    // Get block
-    // TODO: optimize: no need to getblock if blockId is block num
-    const rawblock = await getBlock(provider, blockId)
-    const blockNumber = parseInt(rawblock.number)
-    const blockHash = rawblock.hash
-
-    return {
-      provider,
-      latestBlocknumber: blockNumber,
-      latestBlockhash: blockHash,
-      // add offchain data
-      offchainData,
-      expectedStateStr: null,
-    }
-  }
-
-  async toPrepareParamsFromProveParams(proveParams: EthereumOffchainDSPProveParams) {
-    const { provider, blockId, offchainData, expectedStateStr } = proveParams
+  async toPrepareParams(params: EthereumOffchainDSPExecParams, type: 'exec'): Promise<EthereumOffchainDSPPrepareParams>
+  async toPrepareParams(params: EthereumOffchainDSPProveParams, type: 'prove'): Promise<EthereumOffchainDSPPrepareParams>
+  async toPrepareParams(params: EthereumOffchainDSPExecParams | EthereumOffchainDSPProveParams, type: 'exec' | 'prove'): Promise<EthereumOffchainDSPPrepareParams> {
+    let expectedStateStr: null | string = null
+    const { provider, blockId, offchainData } = params
+    if (type === 'prove')
+      expectedStateStr = (params as EthereumOffchainDSPProveParams).expectedStateStr || null
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
