@@ -28,7 +28,7 @@ export interface EthereumDataSourcePluginProveParams {
   expectedStateStr: string
 }
 
-export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourcePluginExecParams, EthereumDataSourcePluginProveParams> {
+export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourcePluginExecParams, EthereumDataSourcePluginProveParams, EthereumDataSourcePluginPrepareParams> {
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum' }
 
@@ -57,21 +57,10 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourc
     return proveDataPrep
   }
 
-  // validate params exist
-  toPrepareParams(generalParams: EthereumDataSourcePluginPrepareParams): EthereumDataSourcePluginPrepareParams {
-    const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = generalParams
-    return {
-      provider,
-      latestBlocknumber,
-      latestBlockhash,
-      expectedStateStr,
-    }
-  }
-
   execParams: KeyofToArray<EthereumDataSourcePluginExecParams> = ['provider', 'blockId']
   proveParams: KeyofToArray<EthereumDataSourcePluginProveParams> = ['provider', 'blockId', 'expectedStateStr']
 
-  async toPrepareParamsFromExecParams(execParams: EthereumDataSourcePluginExecParams): Promise<EthereumDataSourcePluginPrepareParams> {
+  async toPrepareParamsFromExecParams(execParams: EthereumDataSourcePluginExecParams) {
     const { provider, blockId } = execParams
 
     // Get block
@@ -88,7 +77,7 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourc
     }
   }
 
-  async toPrepareParamsFromProveParams(proveParams: EthereumDataSourcePluginProveParams): Promise<EthereumDataSourcePluginPrepareParams> {
+  async toPrepareParamsFromProveParams(proveParams: EthereumDataSourcePluginProveParams) {
     const { provider, blockId, expectedStateStr } = proveParams
 
     // Get block

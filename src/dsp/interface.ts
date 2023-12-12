@@ -8,13 +8,16 @@ import type { ZkGraphYaml } from '../types/zkgyaml'
 
 export class DataPrep {}
 
-export abstract class DataSourcePlugin<EP extends object, PP extends object> {
+export abstract class DataSourcePlugin<EP extends object, PP extends object, PRP extends object> {
   abstract getLibDSPName(): string
-  abstract prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: Record<string, any>): Promise<any>
+  abstract prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: PRP): Promise<any>
   abstract fillExecInput(input: any, zkgraphYaml: any, dataPrep: any): any
   abstract fillProveInput(input: any, zkgraphYaml: any, dataPrep: any): any
   abstract toProveDataPrep(execDataPrep: any, execResult: any): any
-  abstract toPrepareParams(...args: any[]): any
+  toPrepareParams(args: PRP): PRP {
+    return args
+  }
+
   abstract execParams: KeyofToArray<EP>
   toExecParams(params: Record<string, any>) {
     return dspParamsNormalize(this.execParams as string[], params) as EP
@@ -24,6 +27,6 @@ export abstract class DataSourcePlugin<EP extends object, PP extends object> {
   toProveParams(params: Record<string, any>) {
     return dspParamsNormalize(this.proveParams as string[], params) as PP
   }
-  abstract toPrepareParamsFromExecParams(execParams: any): Promise<any>
-  abstract toPrepareParamsFromProveParams(proveParams: any): Promise<any>
+  abstract toPrepareParamsFromExecParams(execParams: EP): Promise<PRP>
+  abstract toPrepareParamsFromProveParams(proveParams: PP): Promise<PRP>
 }

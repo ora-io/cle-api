@@ -60,7 +60,7 @@ export class DSPHub {
     return sigKeys.map((keys: any[]) => keys.join('.')).join('-') as DSPHubPrimaryKey
   }
 
-  setDSP(primaryKey: DSPHubPrimaryKey, foreignKeys: DSPHubForeignKeys, dsp: InstanceType<typeof DataSourcePlugin<any, any>>) {
+  setDSP(primaryKey: DSPHubPrimaryKey, foreignKeys: DSPHubForeignKeys, dsp: InstanceType<typeof DataSourcePlugin<any, any, any>>) {
     this.hub.set(this.toHubKey(primaryKey, foreignKeys), dsp)
   }
 

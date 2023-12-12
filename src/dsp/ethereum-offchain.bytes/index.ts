@@ -55,7 +55,7 @@ export class EthereumOffchainDP extends DataPrep {
   }
 }
 
-export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExecParams, EthereumOffchainDSPProveParams> {
+export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExecParams, EthereumOffchainDSPProveParams, EthereumOffchainDSPPrepareParams> {
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum-offchain.bytes' }
 
@@ -96,22 +96,10 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     return proveDataPrep
   }
 
-  toPrepareParams(generalParams: EthereumOffchainDSPPrepareParams) {
-    const { provider, latestBlocknumber, latestBlockhash, offchainData, expectedStateStr } = generalParams
-    return {
-      provider,
-      latestBlocknumber,
-      latestBlockhash,
-      // add offchain data
-      offchainData,
-      expectedStateStr,
-    }
-  }
-
   execParams: KeyofToArray<EthereumOffchainDSPExecParams> = ['blockId', 'offchainData']
   proveParams: KeyofToArray<EthereumOffchainDSPProveParams> = ['blockId', 'offchainData', 'expectedStateStr']
 
-  async toPrepareParamsFromExecParams(execParams: EthereumOffchainDSPExecParams): Promise<EthereumOffchainDSPPrepareParams> {
+  async toPrepareParamsFromExecParams(execParams: EthereumOffchainDSPExecParams) {
     const { provider, blockId, offchainData } = execParams
 
     // Get block
@@ -130,7 +118,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     }
   }
 
-  async toPrepareParamsFromProveParams(proveParams: EthereumOffchainDSPProveParams): Promise<EthereumOffchainDSPPrepareParams> {
+  async toPrepareParamsFromProveParams(proveParams: EthereumOffchainDSPProveParams) {
     const { provider, blockId, offchainData, expectedStateStr } = proveParams
 
     // Get block

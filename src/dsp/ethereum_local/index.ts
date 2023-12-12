@@ -7,7 +7,7 @@ import { DataSourcePlugin } from '../interface'
 // import { getBlock } from "../../common/ethers_helper.js";
 // import { trimPrefix } from "../../common/utils.js";
 
-export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<{}, {}> {
+export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<{}, {}, {}> {
   prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: Record<string, any>): Promise<any> {
     throw new Error('Method not implemented.')
   }
@@ -24,17 +24,13 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<{}, {}> {
     throw new Error('Method not implemented.')
   }
 
-  toPrepareParams(...args: any[]) {
-    throw new Error('Method not implemented.')
-  }
-
   execParams: KeyofToArray<{}> = []
   proveParams: KeyofToArray<{}> = []
-  toPrepareParamsFromExecParams(execParams: any): Promise<any> {
+  toPrepareParamsFromExecParams(execParams: any): Promise<{}> {
     throw new Error('Method not implemented.')
   }
 
-  toPrepareParamsFromProveParams(proveParams: any): Promise<any> {
+  toPrepareParamsFromProveParams(proveParams: any): Promise<{}> {
     throw new Error('Method not implemented.')
   }
 
