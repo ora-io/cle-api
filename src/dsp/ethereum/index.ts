@@ -10,29 +10,32 @@ import { prepareBlocksByYaml } from './prepare_blocks'
 
 export { EthereumDataPrep } from './blockprep'
 
-export interface EthereumDataSourcePluginPrepareParams {
+export type EthereumDataSourcePluginPrepareParams = EthereumDSPPrepareParams
+export interface EthereumDSPPrepareParams {
   provider: providers.JsonRpcProvider
   latestBlocknumber: number
   latestBlockhash: string
   expectedStateStr: string | null
 }
 
-export interface EthereumDataSourcePluginExecParams {
+export type EthereumDataSourcePluginExecParams = EthereumDSPExecParams
+export interface EthereumDSPExecParams {
   provider: providers.JsonRpcProvider
   blockId: string
 }
 
-export interface EthereumDataSourcePluginProveParams {
+export type EthereumDataSourcePluginProveParams = EthereumDSPProveParams
+export interface EthereumDSPProveParams {
   provider: providers.JsonRpcProvider
   blockId: string
   expectedStateStr: string
 }
 
-export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourcePluginExecParams, EthereumDataSourcePluginProveParams, EthereumDataSourcePluginPrepareParams> {
+export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams> {
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum' }
 
-  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumDataSourcePluginPrepareParams) {
+  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumDSPPrepareParams) {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
     const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', zkgraphYaml)
     return dataPrep
@@ -57,10 +60,10 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourc
     return proveDataPrep
   }
 
-  execParams: KeyofToArray<EthereumDataSourcePluginExecParams> = ['provider', 'blockId']
-  proveParams: KeyofToArray<EthereumDataSourcePluginProveParams> = ['provider', 'blockId', 'expectedStateStr']
+  execParams: KeyofToArray<EthereumDSPExecParams> = ['provider', 'blockId']
+  proveParams: KeyofToArray<EthereumDSPProveParams> = ['provider', 'blockId', 'expectedStateStr']
 
-  async toPrepareParamsFromExecParams(execParams: EthereumDataSourcePluginExecParams) {
+  async toPrepareParamsFromExecParams(execParams: EthereumDSPExecParams) {
     const { provider, blockId } = execParams
 
     // Get block
@@ -77,7 +80,7 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourc
     }
   }
 
-  async toPrepareParamsFromProveParams(proveParams: EthereumDataSourcePluginProveParams) {
+  async toPrepareParamsFromProveParams(proveParams: EthereumDSPProveParams) {
     const { provider, blockId, expectedStateStr } = proveParams
 
     // Get block
