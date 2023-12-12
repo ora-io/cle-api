@@ -1,6 +1,7 @@
+import { ethers } from 'ethers'
 import fs from 'node:fs'
 import { it } from 'vitest'
-import { ethers } from 'ethers'
+import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
 import { config } from './config'
 
@@ -17,15 +18,23 @@ it('test publish', async () => {
   const newBountyRewardPerTrigger = 0
   const wasm = fs.readFileSync('tests/build/zkgraph_full.wasm')
   const wasmUint8Array = new Uint8Array(wasm)
-  const publishTxHash = await zkgapi.publish(
-    { wasmUint8Array, zkgraphYaml },
-    ZkwasmProviderUrl,
-    provider,
-    ipfsHash,
-    newBountyRewardPerTrigger,
-    signer,
-    true,
-  )
-  // eslint-disable-next-line no-console
-  console.log(publishTxHash)
+  try {
+    const publishTxHash = await zkgapi.publish(
+      { wasmUint8Array, zkgraphYaml },
+      ZkwasmProviderUrl,
+      provider,
+      ipfsHash,
+      newBountyRewardPerTrigger,
+      signer,
+      true,
+    )
+    // eslint-disable-next-line no-console
+    console.log(publishTxHash)
+  }
+  catch (error) {
+    if (error instanceof GraphAlreadyExist)
+      console.error('Graph already exist')
+    else
+      throw error
+  }
 }, { timeout: 100000 })
