@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
+import { providers } from 'ethers'
 import fs from 'node:fs'
 import { describe, it } from 'vitest'
-import { providers } from 'ethers'
-import * as zkgapi from '../src/index'
 import { loadConfigByNetwork } from '../src/common/utils'
+import * as zkgapi from '../src/index'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
 
@@ -49,11 +49,11 @@ describe('test exec', () => {
       blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
-    const execParams = dsp.toExecParams(generalParams)
+    const execParams = dsp?.toExecParams(generalParams)
 
     const state = await zkgapi.execute(
       { wasmUint8Array, zkgraphYaml: yaml },
-      execParams,
+      execParams as any,
       local,
       true,
     )
@@ -78,13 +78,13 @@ describe('test exec', () => {
       // blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
-    const execParams = dsp.toExecParams(generalParams)
+    const execParams = dsp?.toExecParams(generalParams)
 
     /**
      * Prepare Data, can construct your own dataPrep based on this.
      * the actual dataPrep here is instance of zkgapi.ETHDSP.EthereumDataPrep
      */
-    const dataPrep = await dsp.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
+    const dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
 
     const state = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, zkgraphYaml: yaml },
@@ -125,11 +125,11 @@ describe('test exec', () => {
      */
 
     // get exec params
-    const execParams = dsp.toExecParams(generalParams)
+    const execParams = dsp?.toExecParams(generalParams)
 
     // Prepare Data, can construct your own dataPrep based on this.
     // the actual dataPrep here is instance of zkgapi.ETHDSP.EthereumDataPrep
-    let dataPrep = await dsp.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
+    let dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
 
     const stateu8a = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, zkgraphYaml: yaml },
@@ -159,7 +159,7 @@ describe('test exec', () => {
      * Prove Input Gen
      */
 
-    dataPrep = dsp.toProveDataPrep(dataPrep, stateStr)
+    dataPrep = dsp?.toProveDataPrep(dataPrep, stateStr)
     const [privateInputStr, publicInputStr] = zkgapi.proveInputGenOnDataPrep(zkGraphExecutable, dataPrep)
 
     console.log(`(Prove) Private Input: ${privateInputStr}`)

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { ZkGraphYaml } from '../src'
+import { EthereumDataSourcePlugin } from '../src/dsp/ethereum'
 import type { DSPHubForeignKeys } from '../src/dsp/hub'
 import { dspHub } from '../src/dsp/hub'
-import { EthereumDataSourcePlugin } from '../src/dsp/ethereum'
-import type { ZkGraphYaml } from '../src'
 
 describe('DSPHub', () => {
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe('DSPHub', () => {
   it('should set and get DSPs correctly', () => {
     const primaryKey = 'ethereum'
     const foreignKeys: DSPHubForeignKeys = { isLocal: false }
-    const dsp = EthereumDataSourcePlugin
+    const dsp = new EthereumDataSourcePlugin()
 
     dspHub.setDSP(primaryKey, foreignKeys, dsp)
 
@@ -34,7 +34,7 @@ describe('DSPHub', () => {
       getSignificantKeys: vi.fn(() => [['ethereum']]),
     }
     const foreignKeys: DSPHubForeignKeys = { isLocal: false }
-    const dsp = EthereumDataSourcePlugin
+    const dsp = new EthereumDataSourcePlugin()
 
     dspHub.setDSP('ethereum', foreignKeys, dsp)
 

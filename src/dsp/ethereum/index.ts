@@ -3,7 +3,7 @@ import type { providers } from 'ethers'
 import { getBlock } from '../../common/ethers_helper'
 import { trimPrefix } from '../../common/utils'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
-import { DataSourcePlugin2 } from '../interface'
+import { DataSourcePlugin } from '../interface'
 import type { EthereumDataPrep } from './blockprep'
 import { fillInputBlocks } from './fill_blocks'
 import { prepareBlocksByYaml } from './prepare_blocks'
@@ -28,7 +28,7 @@ export interface EthereumDataSourcePluginProveParams {
   expectedStateStr: string
 }
 
-export class EthereumDataSourcePlugin extends DataSourcePlugin2<EthereumDataSourcePluginExecParams, EthereumDataSourcePluginProveParams> {
+export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDataSourcePluginExecParams, EthereumDataSourcePluginProveParams> {
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum' }
 

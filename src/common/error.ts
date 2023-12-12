@@ -50,3 +50,9 @@ export class GraphAlreadyExist extends Error {
     super(message)
   }
 }
+
+export class DSPNotFound extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}

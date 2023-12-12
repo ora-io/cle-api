@@ -1,6 +1,7 @@
-import { ZKWASMMock } from '../common/zkwasm_mock'
 import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
+import { ZKWASMMock } from '../common/zkwasm_mock'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
 import type { ZkGraphExecutable } from '../types/api'
@@ -21,9 +22,11 @@ export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: 
   const { zkgraphYaml } = zkGraphExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const prepareParams = await dsp.toPrepareParamsFromExecParams(execParams)
-  const dataPrep /** :DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
+  const prepareParams = await dsp?.toPrepareParamsFromExecParams(execParams)
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
 
   return await executeOnDataPrep(zkGraphExecutable, dataPrep)
 }
@@ -43,7 +46,7 @@ export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, da
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
 
-  input = dsp.fillExecInput(input, zkgraphYaml, dataPrep)
+  input = dsp?.fillExecInput(input, zkgraphYaml, dataPrep)
 
   const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
 
