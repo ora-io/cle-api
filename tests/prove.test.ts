@@ -75,7 +75,7 @@ describe('test prove', () => {
       true)
     console.log(result)
   }, { timeout: 100000 })
-    console.log('issued a prove taslk: ', result)
+  console.log('issued a prove taslk: ', result)
   // it('test mock mode', async () => {
   //   const { yamlPath, wasmPath, blockId, expectedStateStr } = proveModeOptions
 

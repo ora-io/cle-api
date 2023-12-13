@@ -67,18 +67,11 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider: providers.JsonRpcPr
     blockid = ethers.utils.hexValue(blockid)
   // blockid = "0x" + blockid.toString(16);
 
-  let isErigon = true
   try {
-    await ethersProvider.send('eth_protocolVersion', [])
-  }
-  catch (error) {
-    isErigon = false
-  }
-
-  if (isErigon) {
+    // using erigon rpc method first
     return await getRawLogsFromBlockReceipts(ethersProvider, blockid, ignoreFailedTx)
   }
-  else {
+  catch {
     console.warn('The RPC does not support erigon rpc, fetching data may be slow')
     return await getRawLogsFromTxsReceipt(ethersProvider, blockid, ignoreFailedTx)
   }
