@@ -16,7 +16,7 @@ export interface EthereumDSPPrepareParams {
   provider: providers.JsonRpcProvider
   latestBlocknumber: number
   latestBlockhash: string
-  expectedStateStr: string | null
+  expectedStateStr: string
 }
 
 export type EthereumDataSourcePluginExecParams = EthereumDSPExecParams

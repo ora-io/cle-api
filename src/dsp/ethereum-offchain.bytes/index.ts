@@ -25,7 +25,7 @@ export interface EthereumOffchainDSPPrepareParams {
   latestBlocknumber: number
   latestBlockhash: string
   offchainData: any
-  expectedStateStr: string | null
+  expectedStateStr: string
 }
 export interface EthereumOffchainDSPExecParams {
   provider: providers.JsonRpcProvider
