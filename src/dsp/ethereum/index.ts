@@ -1,11 +1,11 @@
 import type { providers } from 'ethers'
-import { DataSourcePlugin } from '../interface'
 import { getBlock } from '../../common/ethers_helper'
 import { dspParamsNormalize, trimPrefix } from '../../common/utils'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
-import { prepareBlocksByYaml } from './prepare_blocks'
-import { fillInputBlocks } from './fill_blocks'
+import { DataSourcePlugin } from '../interface'
 import type { EthereumDataPrep } from './blockprep'
+import { fillInputBlocks } from './fill_blocks'
+import { prepareBlocksByYaml } from './prepare_blocks'
 
 export { EthereumDataPrep } from './blockprep'
 
@@ -14,13 +14,6 @@ export interface EthereumDataSourcePluginPrepareParams {
   latestBlocknumber: number
   latestBlockhash: string
   expectedStateStr: string | null
-}
-
-export interface EthereumDataSourcePluginDataPrep {
-  blockPrepMap: Map<number, any>
-  blocknumberOrder: number[]
-  latestBlockhash: string
-  expectedStateStr: string
 }
 
 export interface EthereumDataSourcePluginExecParams {
@@ -44,11 +37,11 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin {
     return dataPrep
   }
 
-  static fillExecInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataSourcePluginDataPrep) {
+  static fillExecInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
     return fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
 
-  static fillProveInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataSourcePluginDataPrep) {
+  static fillProveInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
     this.fillExecInput(input, zkgraphYaml, dataPrep)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
