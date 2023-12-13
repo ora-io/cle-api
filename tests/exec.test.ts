@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
-import { providers } from 'ethers'
 import fs from 'node:fs'
+import { providers } from 'ethers'
 import { describe, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
 import * as zkgapi from '../src/index'
+import { DSPNotFound } from '../src/common/error'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
 
@@ -69,6 +70,8 @@ describe('test exec', () => {
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    if (!dsp)
+      throw new DSPNotFound('DSP not found')
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -111,6 +114,8 @@ describe('test exec', () => {
     const zkGraphExecutable = { wasmUint8Array, zkgraphYaml: yaml }
     // get dsp
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    if (!dsp)
+      throw new DSPNotFound('DSP not found')
     // get pre-defined test params
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
