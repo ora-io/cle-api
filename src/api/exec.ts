@@ -45,8 +45,10 @@ export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, da
   let input = new Input()
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp?.fillExecInput(input, zkgraphYaml, dataPrep)
+  input = dsp.fillExecInput(input, zkgraphYaml, dataPrep)
 
   const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
 

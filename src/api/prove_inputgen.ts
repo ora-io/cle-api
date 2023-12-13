@@ -41,8 +41,10 @@ export function proveInputGenOnDataPrep(
   let input = new Input()
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp?.fillProveInput(input, zkgraphYaml, dataPrep)
+  input = dsp.fillProveInput(input, zkgraphYaml, dataPrep)
 
   return [input.getPrivateInputStr(), input.getPublicInputStr()]
 }
