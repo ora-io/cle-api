@@ -67,10 +67,10 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecPa
   async toPrepareParams(params: EthereumDSPExecParams, type: 'exec'): Promise<EthereumDSPPrepareParams>
   async toPrepareParams(params: EthereumDSPProveParams, type: 'prove'): Promise<EthereumDSPPrepareParams>
   async toPrepareParams(params: EthereumDSPExecParams | EthereumDSPProveParams, type: 'exec' | 'prove') {
-    let expectedStateStr: null | string = null
+    let expectedStateStr = ''
     const { provider, blockId } = params
     if (type === 'prove')
-      expectedStateStr = (params as EthereumDSPProveParams).expectedStateStr || null
+      expectedStateStr = (params as EthereumDSPProveParams).expectedStateStr || ''
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num

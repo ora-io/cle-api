@@ -94,4 +94,3 @@ export const dspHub = new DSPHub()
 dspHub.setDSP('ethereum', { isLocal: false }, new EthereumDataSourcePlugin())
 dspHub.setDSP('ethereum', { isLocal: true }, new EthereumLocalDataSourcePlugin())
 dspHub.setDSP('ethereum-offchain.bytes', { isLocal: false }, new EthereumOffchainDSP())
-

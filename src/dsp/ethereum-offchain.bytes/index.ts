@@ -103,10 +103,10 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
   async toPrepareParams(params: EthereumOffchainDSPExecParams, type: 'exec'): Promise<EthereumOffchainDSPPrepareParams>
   async toPrepareParams(params: EthereumOffchainDSPProveParams, type: 'prove'): Promise<EthereumOffchainDSPPrepareParams>
   async toPrepareParams(params: EthereumOffchainDSPExecParams | EthereumOffchainDSPProveParams, type: 'exec' | 'prove'): Promise<EthereumOffchainDSPPrepareParams> {
-    let expectedStateStr: null | string = null
+    let expectedStateStr = ''
     const { provider, blockId, offchainData } = params
     if (type === 'prove')
-      expectedStateStr = (params as EthereumOffchainDSPProveParams).expectedStateStr || null
+      expectedStateStr = (params as EthereumOffchainDSPProveParams).expectedStateStr || ''
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
