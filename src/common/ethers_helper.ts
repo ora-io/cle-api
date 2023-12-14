@@ -2,7 +2,7 @@ import { Wallet, ethers, providers, utils } from 'ethers'
 
 import { RLP } from '@ethereumjs/rlp'
 
-import { isMaybeNumber, toNumber } from '@murongg/utils'
+import { isMaybeNumber, retry, toNumber } from '@murongg/utils'
 
 async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -99,19 +99,26 @@ export async function getRawReceipts(ethersProvider: providers.JsonRpcProvider, 
 }
 
 export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
-  const fullBlock = await ethersProvider.send('eth_getBlockByNumber', [
-    ethers.utils.hexValue(blockNumber),
-    false,
-  ])
-  return fullBlock
+  const fn = async () => {
+    const fullBlock = await ethersProvider.send('eth_getBlockByNumber', [
+      ethers.utils.hexValue(blockNumber),
+      false,
+    ])
+    return fullBlock
+  }
+
+  return await retry(fn, 3)
 }
 
 export async function getBlockByHash(ethersProvider: providers.JsonRpcProvider, blockHash: string) {
-  const fullBlock = await ethersProvider.send('eth_getBlockByHash', [
-    blockHash,
-    false,
-  ])
-  return fullBlock
+  const fn = async () => {
+    const fullBlock = await ethersProvider.send('eth_getBlockByHash', [
+      blockHash,
+      false,
+    ])
+    return fullBlock
+  }
+  return await retry(fn, 3)
 }
 
 export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string) {
