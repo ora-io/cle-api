@@ -81,8 +81,8 @@ export async function publishByImgCmt(
       imageCommitment.pointX,
       imageCommitment.pointY,
     )
-    .catch((err: any) => {
-      throw new GraphAlreadyExist(err.message)
+    .catch((_err: any) => {
+      throw new GraphAlreadyExist('Duplicate zkGraph detected. Only publishing distinct zkGraphs is allowed.')
     })
 
   let loading
