@@ -11,7 +11,6 @@ import { prepareBlocksByYaml } from './prepare_blocks'
 
 export { EthereumDataPrep } from './blockprep'
 
-export type EthereumDataSourcePluginPrepareParams = EthereumDSPPrepareParams
 export interface EthereumDSPPrepareParams {
   provider: providers.JsonRpcProvider
   latestBlocknumber: number
@@ -19,13 +18,11 @@ export interface EthereumDSPPrepareParams {
   expectedStateStr: string
 }
 
-export type EthereumDataSourcePluginExecParams = EthereumDSPExecParams
 export interface EthereumDSPExecParams {
   provider: providers.JsonRpcProvider
   blockId: string
 }
 
-export type EthereumDataSourcePluginProveParams = EthereumDSPProveParams
 export interface EthereumDSPProveParams {
   provider: providers.JsonRpcProvider
   blockId: string

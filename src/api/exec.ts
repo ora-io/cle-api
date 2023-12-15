@@ -25,7 +25,7 @@ export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: 
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const prepareParams = await dsp?.toPrepareParamsFromExecParams(execParams)
+  const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
 
   return await executeOnDataPrep(zkGraphExecutable, dataPrep)

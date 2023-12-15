@@ -87,7 +87,7 @@ describe('test exec', () => {
      * Prepare Data, can construct your own dataPrep based on this.
      * the actual dataPrep here is instance of zkgapi.ETHDSP.EthereumDataPrep
      */
-    const dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
+    const dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParams(execParams, 'exec'))
 
     const state = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, zkgraphYaml: yaml },
@@ -134,7 +134,7 @@ describe('test exec', () => {
 
     // Prepare Data, can construct your own dataPrep based on this.
     // the actual dataPrep here is instance of zkgapi.ETHDSP.EthereumDataPrep
-    let dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
+    let dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParams(execParams, 'exec'))
 
     const stateu8a = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, zkgraphYaml: yaml },

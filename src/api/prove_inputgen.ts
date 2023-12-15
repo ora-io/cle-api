@@ -25,7 +25,7 @@ export async function proveInputGen(
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const prepareParams = await dsp?.toPrepareParamsFromProveParams(proveParams)
+  const prepareParams = await dsp?.toPrepareParams(proveParams, 'prove')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
 
   return proveInputGenOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
