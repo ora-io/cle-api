@@ -1,4 +1,3 @@
-import type { ValueReset } from '@murongg/utils'
 import type { ZkGraphYaml } from '../types/zkgyaml'
 import { EthereumDataSourcePlugin } from './ethereum'
 import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
@@ -37,7 +36,7 @@ export type DSPTypes = InstanceType<
 >
 
 export class DSPHub {
-  hub = new Map<string, DSPTypes>()
+  hub = new Map<string, InstanceType<typeof DataSourcePlugin>>()
 
   /**
    * @param {string} primaryKey yaml.dataSources[i].kind
@@ -64,11 +63,7 @@ export class DSPHub {
     this.hub.set(this.toHubKey(primaryKey, foreignKeys), dsp)
   }
 
-  getDSP(primaryKey: 'ethereum', foreignKeys: ValueReset<DSPHubForeignKeys, 'isLocal', false>): InstanceType<typeof EthereumDataSourcePlugin> | undefined
-  getDSP(primaryKey: 'ethereum', foreignKeys: ValueReset<DSPHubForeignKeys, 'isLocal', true>): InstanceType<typeof EthereumLocalDataSourcePlugin> | undefined
-  getDSP(primaryKey: 'ethereum-offchain.bytes', foreignKeys: ValueReset<DSPHubForeignKeys, 'isLocal', false>): InstanceType<typeof EthereumOffchainDSP> | undefined
-  getDSP(primaryKey: DSPHubPrimaryKey, foreignKeys: DSPHubForeignKeys): InstanceType<typeof DataSourcePlugin> | undefined
-  getDSP(primaryKey: DSPHubPrimaryKey, foreignKeys: DSPHubForeignKeys): DSPTypes | undefined {
+  getDSP(primaryKey: DSPHubPrimaryKey, foreignKeys: DSPHubForeignKeys): InstanceType<typeof DataSourcePlugin> | undefined {
     const key = this.toHubKey(primaryKey, foreignKeys)
     if (!this.hub.has(key))
       throw new Error(`Data Source Plugin Hub Key "${key}" doesn't exist.`)
