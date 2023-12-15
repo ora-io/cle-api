@@ -78,7 +78,6 @@
     "web3-eth-contract": "^1.8.2"
   },
   "devDependencies": {
-    "@antfu/ni": "^0.21.10",
     "@murongg/eslint-config": "^0.2.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",

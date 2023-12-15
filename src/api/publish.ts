@@ -1,19 +1,19 @@
 /* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import { Contract, ethers, utils } from 'ethers'
 import type { providers } from 'ethers'
+import { Contract, ethers, utils } from 'ethers'
 import {
   AddressZero,
   abiFactory,
   addressFactory,
 } from '../common/constants'
+import { DSPNotFound, GraphAlreadyExist } from '../common/error'
 import { logLoadingAnimation } from '../common/log_utils'
-import type { ZkGraphExecutable } from '../types/api'
-import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import { dspHub } from '../dsp/hub'
 import { loadConfigByNetwork } from '../common/utils'
+import { dspHub } from '../dsp/hub'
+import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
+import type { ZkGraphExecutable } from '../types/api'
 import type { ZkGraphYaml } from '../types/zkgyaml'
-import { GraphAlreadyExist } from '../common/error'
 
 /**
  * Publish and register zkGraph onchain.
@@ -61,6 +61,9 @@ export async function publishByImgCmt(
   const { zkgraphYaml } = zkGraphExecutable
 
   const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal: false })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
+
   const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
 
   const networkName = zkgraphYaml?.dataDestinations[0].network

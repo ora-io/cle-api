@@ -1,9 +1,10 @@
 /* eslint-disable no-console */
 import fs from 'node:fs'
-import { describe, it } from 'vitest'
 import { providers } from 'ethers'
-import * as zkgapi from '../src/index'
+import { describe, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
+import * as zkgapi from '../src/index'
+import { DSPNotFound } from '../src/common/error'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
 
@@ -49,11 +50,11 @@ describe('test exec', () => {
       blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
-    const execParams = dsp.toExecParams(generalParams)
+    const execParams = dsp?.toExecParams(generalParams)
 
     const state = await zkgapi.execute(
       { wasmUint8Array, zkgraphYaml: yaml },
-      execParams,
+      execParams as any,
       local,
       true,
     )
@@ -69,6 +70,8 @@ describe('test exec', () => {
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    if (!dsp)
+      throw new DSPNotFound('DSP not found')
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -78,13 +81,13 @@ describe('test exec', () => {
       // blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
-    const execParams = dsp.toExecParams(generalParams)
+    const execParams = dsp?.toExecParams(generalParams)
 
     /**
      * Prepare Data, can construct your own dataPrep based on this.
      * the actual dataPrep here is instance of zkgapi.ETHDSP.EthereumDataPrep
      */
-    const dataPrep = await dsp.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
+    const dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParams(execParams, 'exec'))
 
     const state = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, zkgraphYaml: yaml },
@@ -111,6 +114,8 @@ describe('test exec', () => {
     const zkGraphExecutable = { wasmUint8Array, zkgraphYaml: yaml }
     // get dsp
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    if (!dsp)
+      throw new DSPNotFound('DSP not found')
     // get pre-defined test params
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -125,11 +130,11 @@ describe('test exec', () => {
      */
 
     // get exec params
-    const execParams = dsp.toExecParams(generalParams)
+    const execParams = dsp?.toExecParams(generalParams)
 
     // Prepare Data, can construct your own dataPrep based on this.
     // the actual dataPrep here is instance of zkgapi.ETHDSP.EthereumDataPrep
-    let dataPrep = await dsp.prepareData(yaml, await dsp.toPrepareParamsFromExecParams(execParams))
+    let dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParams(execParams, 'exec'))
 
     const stateu8a = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, zkgraphYaml: yaml },
@@ -159,7 +164,7 @@ describe('test exec', () => {
      * Prove Input Gen
      */
 
-    dataPrep = dsp.toProveDataPrep(dataPrep, stateStr)
+    dataPrep = dsp?.toProveDataPrep(dataPrep, stateStr)
     const [privateInputStr, publicInputStr] = zkgapi.proveInputGenOnDataPrep(zkGraphExecutable, dataPrep)
 
     console.log(`(Prove) Private Input: ${privateInputStr}`)

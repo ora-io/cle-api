@@ -1,4 +1,5 @@
 import type { NullableObjectWithKeys } from '@murongg/utils'
+import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
@@ -21,9 +22,11 @@ export async function proveInputGen(
   const { zkgraphYaml } = zkGraphExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const prepareParams = await dsp.toPrepareParamsFromProveParams(proveParams)
-  const dataPrep /** :DataPrep */ = await dsp.prepareData(zkgraphYaml, prepareParams)
+  const prepareParams = await dsp?.toPrepareParams(proveParams, 'prove')
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
 
   return proveInputGenOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
 }
@@ -38,6 +41,8 @@ export function proveInputGenOnDataPrep(
   let input = new Input()
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   input = dsp.fillProveInput(input, zkgraphYaml, dataPrep)
 
