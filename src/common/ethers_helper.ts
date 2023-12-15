@@ -2,7 +2,8 @@ import { Wallet, ethers, providers, utils } from 'ethers'
 
 import { RLP } from '@ethereumjs/rlp'
 
-import { isMaybeNumber, toNumber } from '@murongg/utils'
+import { isMaybeNumber, retry, toNumber } from '@murongg/utils'
+import { BlockNotFound } from './error'
 
 async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -98,20 +99,28 @@ export async function getRawReceipts(ethersProvider: providers.JsonRpcProvider, 
     return await getRawReceiptsWithoutDebugRPC(ethersProvider, blockid as string, false)
 }
 
+export async function getBlockBasic(provider: providers.JsonRpcProvider, block: string | number, type: 'hash' | 'number') {
+  const fn = async () => {
+    const fullBlock = await provider.send(type === 'hash' ? 'eth_getBlockByHash' : 'eth_getBlockByNumber', [
+      type === 'hash' ? block : ethers.utils.hexValue(block),
+      false,
+    ])
+    return fullBlock
+  }
+  const result = await retry(fn, 3)
+  if (result === null)
+    throw new BlockNotFound(`Not found block ${block} in this provider: ${provider.connection.url}`)
+
+  else
+    return result
+}
+
 export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
-  const fullBlock = await ethersProvider.send('eth_getBlockByNumber', [
-    ethers.utils.hexValue(blockNumber),
-    false,
-  ])
-  return fullBlock
+  return await getBlockBasic(ethersProvider, blockNumber, 'number')
 }
 
 export async function getBlockByHash(ethersProvider: providers.JsonRpcProvider, blockHash: string) {
-  const fullBlock = await ethersProvider.send('eth_getBlockByHash', [
-    blockHash,
-    false,
-  ])
-  return fullBlock
+  return await getBlockBasic(ethersProvider, blockHash, 'hash')
 }
 
 export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string) {

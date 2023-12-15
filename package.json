@@ -1,7 +1,7 @@
 {
   "name": "@hyperoracle/zkgraph-api",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "API for interacting with Hyper Oracle zkGraphs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
@@ -68,7 +68,7 @@
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
     "@hyperoracle/zkwasm-service-helper": "1.0.1",
-    "@murongg/utils": "^0.1.10",
+    "@murongg/utils": "^0.1.18",
     "axios": "^1.6.2",
     "axios-retry": "^3.9.1",
     "bn.js": "^5.2.1",
