@@ -62,3 +62,9 @@ export class BlockNotFound extends Error {
     super(message)
   }
 }
+
+export class OldBlockNumber extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
