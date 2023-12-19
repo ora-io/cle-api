@@ -4,7 +4,6 @@ import type { Nullable, NullableObjectWithKeys } from '@murongg/utils'
 import { toHexStringBytes32Reverse } from '../common/utils'
 import { zkwasm_prove } from '../requests/zkwasm_prove'
 import {
-  taskPrettyPrint,
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { ZkGraphExecutable } from '../types/api'
@@ -61,36 +60,18 @@ export async function prove(
   if (enableLog)
     console.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
-  // TODO: move log to cli
-
   if (isSetUpSuccess) {
-    //   console.log(`[+] IMAGE MD5: ${response.data.result.md5}`, "\n");
-
     const taskId = response.data.result.id
     result.taskId = taskId
     result.errorMessage = errorMessage
-    // if (enableLog) {
-    //   console.log(`[+] PROVE TASK STARTED. TASK ID: ${taskId}`, "\n");
-
-    //   console.log(
-    //     "[*] Please wait for proof generation... (estimated: 1-5 min)",
-    //     "\n"
-    //   );
-    // }
   }
-  else {
-    // if (enableLog) {
-    //   console.log(`[-] PROVE CANNOT BE STARTED. MIGHT NEED TO SETUP`, "\n");
-    // }
-  }
-
   return result
 }
 
 export async function waitProve(
   zkwasmProverUrl: string,
   taskId: string,
-  enableLog = true,
+  _enableLog = true,
 ) {
   const result: {
     instances: Nullable<string>
@@ -100,6 +81,7 @@ export async function waitProve(
     md5: Nullable<string>
     taskId: Nullable<string>
     status: Nullable<string>
+    taskDetails: Nullable<any>
   } = {
     instances: null,
     batch_instances: null,
@@ -108,6 +90,7 @@ export async function waitProve(
     md5: null,
     taskId: null,
     status: '',
+    taskDetails: null,
   }
 
   const taskDetails = await waitTaskStatus(
@@ -127,11 +110,6 @@ export async function waitProve(
     )
     const proof = toHexStringBytes32Reverse(taskDetails.proof)
     const aux = toHexStringBytes32Reverse(taskDetails.aux)
-    if (enableLog) {
-      taskPrettyPrint(taskDetails, '[*] ')
-
-      console.log()
-    }
     result.instances = instances
     result.batch_instances = batch_instances
     result.proof = proof
@@ -143,5 +121,6 @@ export async function waitProve(
     result.taskId = taskId
   }
 
+  result.taskDetails = taskDetails
   return result
 }
