@@ -157,12 +157,13 @@ export class EthereumDataSource extends DataSource {
     return [this.storageSectionCache.addressList, this.storageSectionCache.slotsList] as [string[], string[][]]
   }
 
-  static healthCheck(ds: { event: any; storage: any }) {
+  static healthCheck(ds: { event: any; storage: any; transaction: any }) {
     const eventCount = ds.event ? 1 : 0
     const storageCount = ds.storage ? 1 : 0
+    const transactionCount = ds.transaction ? 1 : 0
 
-    if (eventCount + storageCount !== 1)
-      throw new YamlNotSupported('currently requires only one \'event\' or \'storage\' field')
+    if (eventCount + storageCount + transactionCount !== 1)
+      throw new YamlNotSupported('currently requires only either \'event\' or \'storage\' or \'transaction\' field')
   }
 }
 
