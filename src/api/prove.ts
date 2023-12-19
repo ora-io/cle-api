@@ -2,7 +2,6 @@
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import type { Nullable, NullableObjectWithKeys } from '@murongg/utils'
 import { toHexStringBytes32Reverse } from '../common/utils'
-import { logLoadingAnimation } from '../common/log_utils'
 import { zkwasm_prove } from '../requests/zkwasm_prove'
 import {
   taskPrettyPrint,
@@ -100,6 +99,7 @@ export async function waitProve(
     aux: Nullable<string>
     md5: Nullable<string>
     taskId: Nullable<string>
+    status: Nullable<string>
   } = {
     instances: null,
     batch_instances: null,
@@ -107,36 +107,20 @@ export async function waitProve(
     aux: null,
     md5: null,
     taskId: null,
+    status: '',
   }
 
-  let loading
-
-  if (enableLog)
-    loading = logLoadingAnimation()
-
-  let taskDetails
-  try {
-    taskDetails = await waitTaskStatus(
-      zkwasmProverUrl,
-      taskId,
-      ['Done', 'Fail', 'DryRunFailed'],
-      3000,
-      0,
-    ).catch((err) => {
-      throw err
-    }) // TODO: timeout
-  }
-  catch (error) {
-    loading?.stopAndClear()
-    throw error
-  }
+  const taskDetails = await waitTaskStatus(
+    zkwasmProverUrl,
+    taskId,
+    ['Done', 'Fail', 'DryRunFailed'],
+    3000,
+    0,
+  ).catch((err) => {
+    throw err
+  }) // TODO: timeout
 
   if (taskDetails.status === 'Done') {
-    if (enableLog) {
-      loading?.stopAndClear()
-      console.log('[+] PROVE SUCCESS!', '\n')
-    }
-
     const instances = toHexStringBytes32Reverse(taskDetails.instances)
     const batch_instances = toHexStringBytes32Reverse(
       taskDetails.batch_instances,
@@ -153,15 +137,10 @@ export async function waitProve(
     result.proof = proof
     result.aux = aux
     result.taskId = taskId
+    result.status = taskDetails.status
   }
   else {
     result.taskId = taskId
-
-    if (enableLog) {
-      loading?.stopAndClear()
-
-      console.log('[-] PROVE OR DRYRUN FAILED.', '\n')
-    }
   }
 
   return result
