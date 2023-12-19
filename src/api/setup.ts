@@ -1,10 +1,8 @@
 /* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import type { NullableObjectWithKeys } from '@murongg/utils'
-import { logLoadingAnimation } from '../common/log_utils'
 import { zkwasm_setup } from '../requests/zkwasm_setup'
 import {
-  taskPrettyPrint,
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import { createFileFromUint8Array } from '../common/api_helper'
@@ -111,44 +109,20 @@ export async function setup(
     })
 }
 
-export async function waitSetup(ZkwasmProviderUrl: string, taskId: string, enableLog: boolean) {
-  let loading
+export async function waitSetup(ZkwasmProviderUrl: string, taskId: string, _enableLog: boolean) {
+  const result: { taskId: string | null; success: boolean; taskDetails: any } = { taskId: null, success: false, taskDetails: null }
 
-  const result: { taskId: string | null; success: boolean } = { taskId: null, success: false }
-  let taskDetails
-  let setupStatus
-
-  if (enableLog) {
-    console.log(
-      '[*] Please wait for image set up... (estimated: 1-5 min)',
-      '\n',
-    )
-    loading = logLoadingAnimation()
-
-    taskDetails = await waitTaskStatus(
-      ZkwasmProviderUrl,
-      taskId,
-      ['Done', 'Fail'],
-      3000,
-      0,
-    ) // TODO: timeout
-    setupStatus = taskDetails.status
-
-    if (enableLog)
-      loading.stopAndClear()
-  }
-
-  if (enableLog) {
-    taskPrettyPrint(taskDetails, '[*] ')
-
-    const taskStatus = setupStatus === 'Done' ? 'SUCCESS' : 'FAILED'
-    console.log(
-      `[${taskStatus === 'SUCCESS' ? '+' : '-'}] SET UP ${taskStatus}`,
-      '\n',
-    )
-  }
+  const taskDetails = await waitTaskStatus(
+    ZkwasmProviderUrl,
+    taskId,
+    ['Done', 'Fail'],
+    3000,
+    0,
+  ) // TODO: timeout
+  const setupStatus = taskDetails.status
 
   result.success = setupStatus === 'Done'
   result.taskId = taskId
+  result.taskDetails = taskDetails
   return result
 }
