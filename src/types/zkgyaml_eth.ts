@@ -28,6 +28,15 @@ class StorageItem {
     // this.address = address.toLocaleLowerCase()
   }
 }
+class TransactionItem {
+  constructor(
+    public from: string,
+    public to: string,
+  ) {
+    this.from = from.toLocaleLowerCase()
+    this.to = to.toLocaleLowerCase()
+  }
+}
 class EventSectionCache {
   constructor(
     public addressList: string[],
@@ -51,6 +60,7 @@ export class EthereumDataSource extends DataSource {
   // storage: StorageSection | null
   event: EventItem[] | null
   storage: StorageItem[] | null
+  transaction: TransactionItem[] | null
   account: any[] | null
   block: any
 
@@ -60,8 +70,9 @@ export class EthereumDataSource extends DataSource {
   constructor(
     kind: DataSourceKind,
     network: string,
-    event: any[] | null,
-    storage: any[] | null,
+    event: EventItem[] | null,
+    storage: StorageItem[] | null,
+    transaction: TransactionItem[] | null,
     account: any[] | null,
     block: any,
   ) {
@@ -69,11 +80,12 @@ export class EthereumDataSource extends DataSource {
     this.network = network
     this.event = event
     this.storage = storage
+    this.transaction = transaction
     this.account = account
     this.block = block
   }
 
-  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventItem[]; storage: StorageItem[] }) {
+  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventItem[]; storage: StorageItem[]; transaction: TransactionItem[] }) {
     return new EthereumDataSource(
       yamlEthDS.kind,
       yamlEthDS.network,
@@ -81,6 +93,7 @@ export class EthereumDataSource extends DataSource {
       // (yamlEthDS.storage != null) ? StorageSection.from_v_0_0_2(yamlEthDS.storage) : null,
       yamlEthDS.event,
       yamlEthDS.storage,
+      yamlEthDS.transaction,
       null, // TODO: account section
       null, // TODO: block section
     )
