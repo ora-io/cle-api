@@ -1,9 +1,10 @@
-import { ethers } from 'ethers'
 import fs from 'node:fs'
+import { ethers } from 'ethers'
 import { it } from 'vitest'
 import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
 import { config } from './config'
+import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
@@ -13,7 +14,7 @@ it('test publish', async () => {
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
-  const zkgraphYaml = zkgapi.ZkGraphYaml.fromYamlPath('tests/testsrc/zkgraph-dirty.yaml') as zkgapi.ZkGraphYaml
+  const zkgraphYaml = loadYamlFromPath('tests/testsrc/zkgraph-dirty.yaml') as zkgapi.ZkGraphYaml
   const ipfsHash = '111'
   const newBountyRewardPerTrigger = 0
   const wasm = fs.readFileSync('tests/build/zkgraph_full.wasm')
