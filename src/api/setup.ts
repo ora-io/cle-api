@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
+import type fs from 'fs'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import type { NullableObjectWithKeys } from '@murongg/utils'
 import { zkwasm_setup } from '../requests/zkwasm_setup'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import { createFileFromUint8Array } from '../common/api_helper'
 import { ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
 import type { ZkGraphExecutable } from '../types/api'
@@ -23,14 +23,14 @@ import type { ZkGraphExecutable } from '../types/api'
  */
 export async function setup(
   wasmName: string,
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'>,
+  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'> & { image: File | fs.ReadStream },
   circuitSize: number,
   userPrivateKey: string,
   ZkwasmProviderUrl: string,
   isLocal = false,
   enableLog = true,
 ) {
-  const { wasmUint8Array } = zkGraphExecutable
+  const { wasmUint8Array, image } = zkGraphExecutable
   let cirSz
   if (circuitSize >= 18 && circuitSize <= 30) {
     cirSz = circuitSize
@@ -52,7 +52,6 @@ export async function setup(
     throw new Error('wasmUint8Array is not defined')
 
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const image = createFileFromUint8Array(wasmUint8Array, wasmName)
   const description_url_encoded = ''
   const avator_url = ''
   const circuit_size = cirSz
