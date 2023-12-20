@@ -1,3 +1,4 @@
+import fs from 'fs'
 import FormData from 'form-data'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
@@ -15,9 +16,6 @@ export async function pinata_upload(
   pinataJWT: string,
 ): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isUploadSuccess = true
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const fs = require('fs')
 
   // TODO: upload src/ rather than mapping only
   const mappingFile = fs.createReadStream(mappingPath)
