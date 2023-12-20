@@ -1,7 +1,4 @@
 import assert from 'assert'
-import os from 'os'
-import path from 'path'
-import fs from 'fs'
 import { logReceiptAndEvents } from './log_utils'
 import { fromHexString, trimPrefix } from './utils'
 import { TxReceipt } from './tx_receipt'
@@ -121,24 +118,3 @@ export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], ra
 
   return [rawReceipts, matchedEventOffsets]
 }
-
-export function createFileFromUint8Array(array: string, fileName: string): File | fs.ReadStream
-export function createFileFromUint8Array(array: Blob, fileName: string): File | fs.ReadStream
-export function createFileFromUint8Array(array: NodeJS.ArrayBufferView, fileName: string): fs.ReadStream
-export function createFileFromUint8Array(array: string | NodeJS.ArrayBufferView | Blob, fileName: string) {
-  // Running in a browser environment
-  if (__BROWSER__) {
-    return new File([array], fileName, {
-      type: 'application/wasm',
-      lastModified: Date.now(),
-    })
-  }
-  // Check if running in a Node.js environment
-  if (!__BROWSER__) {
-    const tempDir = os.tmpdir()
-    const filePath = path.join(tempDir, fileName)
-    fs.writeFileSync(filePath, array as any)
-    return fs.createReadStream(filePath)
-  }
-}
-
