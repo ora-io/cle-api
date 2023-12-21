@@ -1,4 +1,3 @@
-import assert from 'assert'
 import { logReceiptAndEvents } from './log_utils'
 import { fromHexString, trimPrefix } from './utils'
 import { TxReceipt } from './tx_receipt'
@@ -46,8 +45,8 @@ export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList
   let accumulateReceiptLength = 0
   let rawreceipts = ''
 
-  if (!__BROWSER__)
-    assert(rawreceiptList.length === eventList.length)
+  if (rawreceiptList.length === eventList.length)
+    throw new Error('rawreceiptList and eventList not should have same length.')
 
   for (const rcpid in rawreceiptList) {
     const es = eventList[rcpid]
