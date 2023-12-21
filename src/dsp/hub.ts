@@ -1,6 +1,6 @@
 import type { ZkGraphYaml } from '../types/zkgyaml'
-import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
 import { EthereumDataSourcePlugin } from './ethereum'
+import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
 import { EthereumLocalDataSourcePlugin } from './ethereum_local'
 import type { DataSourcePlugin } from './interface'
 
@@ -28,7 +28,7 @@ export interface DSPHubForeignKeys {
 }
 
 export class DSPHub {
-  hub = new Map()
+  hub = new Map<string, InstanceType<typeof DataSourcePlugin>>()
 
   /**
    * @param {string} primaryKey yaml.dataSources[i].kind
@@ -51,11 +51,11 @@ export class DSPHub {
     return sigKeys.map((keys: any[]) => keys.join('.')).join('-')
   }
 
-  setDSP(primaryKey: string, foreignKeys: DSPHubForeignKeys, dsp: InstanceType<typeof DataSourcePlugin>) {
+  setDSP(primaryKey: string, foreignKeys: DSPHubForeignKeys, dsp: InstanceType<typeof DataSourcePlugin<any, any, any, any>>) {
     this.hub.set(this.toHubKey(primaryKey, foreignKeys), dsp)
   }
 
-  getDSP(primaryKey: any, foreignKeys: any) {
+  getDSP(primaryKey: string, foreignKeys: DSPHubForeignKeys): InstanceType<typeof DataSourcePlugin> | undefined {
     const key = this.toHubKey(primaryKey, foreignKeys)
     if (!this.hub.has(key))
       throw new Error(`Data Source Plugin Hub Key "${key}" doesn't exist.`)
@@ -65,7 +65,7 @@ export class DSPHub {
 
   getDSPByYaml(zkgraphYaml: ZkGraphYaml, foreignKeys: DSPHubForeignKeys) {
     const sigKeys = zkgraphYaml.getSignificantKeys(true)
-    const primaryKey = this.toPrimaryKey(sigKeys)
+    const primaryKey = this.toPrimaryKey(sigKeys) as any
     return this.getDSP(primaryKey, foreignKeys)
   }
 }
@@ -78,6 +78,6 @@ export const dspHub = new DSPHub()
 /**
  * Register DSPs
  */
-dspHub.setDSP('ethereum', { isLocal: false }, EthereumDataSourcePlugin)
-dspHub.setDSP('ethereum', { isLocal: true }, EthereumLocalDataSourcePlugin)
-dspHub.setDSP('ethereum-offchain.bytes', { isLocal: false }, EthereumOffchainDSP)
+dspHub.setDSP('ethereum', { isLocal: false }, new EthereumDataSourcePlugin())
+dspHub.setDSP('ethereum', { isLocal: true }, new EthereumLocalDataSourcePlugin())
+dspHub.setDSP('ethereum-offchain.bytes', { isLocal: false }, new EthereumOffchainDSP())

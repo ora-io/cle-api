@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import type { ZkGraphYaml } from '../../../dist/index'
 import { filterEvents } from '../../common/api_helper'
 import { toHexString } from '../../common/utils'
+import type { ZkGraphYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
 import type { BlockPrep } from './blockprep'
 

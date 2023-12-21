@@ -3,7 +3,7 @@ import { Wallet, ethers, providers, utils } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
 
 import { isMaybeNumber, retry, toNumber } from '@murongg/utils'
-import { BlockNotFound } from './error'
+import { BlockNotFound, OldBlockNumber } from './error'
 
 async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -157,5 +157,16 @@ export async function getBalance(privateKey: string, networkName: providers.Netw
 }
 
 export async function getProof(ethersProvider: providers.JsonRpcProvider, address: string, keys: any[], blockid: string) {
-  return await ethersProvider.send('eth_getProof', [address, keys, blockid])
+  try {
+    return await ethersProvider.send('eth_getProof', [address, keys, blockid])
+  }
+  catch (error: any) {
+    if (error?.body?.includes('requested block is too old')) {
+      const body = JSON.parse(error.body)
+      throw new OldBlockNumber(body.error.message)
+    }
+    else {
+      throw error
+    }
+  }
 }

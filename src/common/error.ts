@@ -51,7 +51,19 @@ export class GraphAlreadyExist extends Error {
   }
 }
 
+export class DSPNotFound extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
 export class BlockNotFound extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class OldBlockNumber extends Error {
   constructor(message: string | undefined) {
     super(message)
   }

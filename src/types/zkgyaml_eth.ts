@@ -15,16 +15,20 @@ function isEthereumAddress(address: string) {
 
 class EventSection {
   constructor(
-    public addressList: any[],
-    public esigsList: any[],
-  ) {}
+    public addressList: string[],
+    public esigsList: string[][],
+  ) {
+    this.addressList = addressList.map(item => item.toLocaleLowerCase())
+  }
 }
 
 class StorageSection {
   constructor(
-    public addressList: any[],
-    public slotsList: any[],
-  ) {}
+    public addressList: string[],
+    public slotsList: string[][],
+  ) {
+    this.addressList = addressList.map(item => item.toLocaleLowerCase())
+  }
 }
 
 export class EthereumDataSource extends DataSource {
@@ -87,39 +91,43 @@ export class EthereumDataSource extends DataSource {
           return eventHash
         })
 
-        return [source_address, source_esigs]
+        return [source_address, source_esigs] as [string, string[]]
       }
 
-      const eventDSAddrList: any[] = []
-      const eventDSEsigsList: any[] = []
+      const eventDSAddrList: string[] = []
+      const eventDSEsigsList: string[][] = []
       if (this.event)
         this.event.forEach((event: any) => { const [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se) })
 
       this.eventSectionCache = new EventSection(eventDSAddrList, eventDSEsigsList)
     }
-    return [this.eventSectionCache.addressList, this.eventSectionCache.esigsList]
+    return [this.eventSectionCache.addressList, this.eventSectionCache.esigsList] as [string[], string[][]]
   }
 
   getStorageLists(useCache = true) {
     // return if there's cache, cause it's always the same
     if (!useCache || this.storageSectionCache == null) {
-      const loadFromStorageSource = (storage: { address: any; slots: any[] }) => {
-        const source_address = storage.address
+      const loadFromStorageSource = (storage: { address: string; slots: ethers.utils.BytesLike[] }) => {
+        const source_address = storage.address.toLocaleLowerCase()
         const source_slots = storage.slots.map((sl: ethers.utils.BytesLike) => {
           return ethers.utils.hexZeroPad(sl, 32)
         })
 
-        return [source_address, source_slots]
+        return [source_address, source_slots] as [string, string[]]
       }
 
-      const stateDSAddrList: any[] = []
-      const stateDSSlotsList: any[] = []
-      if (this.storage)
-        this.storage.forEach((storage: any) => { const [sa, sl] = loadFromStorageSource(storage); stateDSAddrList.push(sa); stateDSSlotsList.push(sl) })
-
+      const stateDSAddrList: string[] = []
+      const stateDSSlotsList: string[][] = []
+      if (this.storage) {
+        this.storage.forEach((storage: any) => {
+          const [sa, sl] = loadFromStorageSource(storage)
+          stateDSAddrList.push(sa)
+          stateDSSlotsList.push(sl)
+        })
+      }
       this.storageSectionCache = new StorageSection(stateDSAddrList, stateDSSlotsList)
     }
-    return [this.storageSectionCache.addressList, this.storageSectionCache.slotsList]
+    return [this.storageSectionCache.addressList, this.storageSectionCache.slotsList] as [string[], string[][]]
   }
 
   static healthCheck(ds: { event: any; storage: any }) {

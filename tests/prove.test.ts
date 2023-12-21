@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import fs from 'node:fs'
-import { describe, it } from 'vitest'
 import { providers } from 'ethers'
-import * as zkgapi from '../src/index'
+import { describe, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
+import * as zkgapi from '../src/index'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
 
@@ -55,11 +55,11 @@ describe('test prove', () => {
       // blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
     }
 
-    const proveParams = dsp.toProveParams(generalParams)
+    const proveParams = dsp?.toProveParams(generalParams)
 
     const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
       { wasmUint8Array: null, zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
-      proveParams,
+      proveParams as any,
       false,
       true,
     )
@@ -75,7 +75,7 @@ describe('test prove', () => {
       true)
     console.log(result)
   }, { timeout: 100000 })
-  console.log('issued a prove taslk: ', result)
+  // console.log('issued a prove taslk: ', result)
   // it('test mock mode', async () => {
   //   const { yamlPath, wasmPath, blockId, expectedStateStr } = proveModeOptions
 
