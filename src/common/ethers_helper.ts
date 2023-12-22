@@ -115,6 +115,10 @@ export async function getBlockBasic(provider: providers.JsonRpcProvider, block: 
     return result
 }
 
+export async function getBlockWithTxs(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
+  return await ethersProvider.getBlockWithTransactions(blockNumber)
+}
+
 export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
   return await getBlockBasic(ethersProvider, blockNumber, 'number')
 }
@@ -169,4 +173,26 @@ export async function getProof(ethersProvider: providers.JsonRpcProvider, addres
       throw error
     }
   }
+}
+
+export function getRawTransaction(tx: providers.TransactionResponse): string {
+  function addKey(accum: any, key: keyof providers.TransactionResponse) {
+    if (tx[key] !== undefined && tx[key] !== null)
+      accum[key] = tx[key]
+
+    return accum
+  }
+
+  const txFields: (keyof providers.TransactionResponse)[] = ['accessList', 'chainId', 'data', 'gasPrice', 'gasLimit', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce', 'to', 'type', 'value']
+  const sigFields: (keyof providers.TransactionResponse)[] = ['v', 'r', 's']
+
+  if (tx?.type === 2)
+    delete tx.gasPrice
+
+  const raw = utils.serializeTransaction(txFields.reduce(addKey, { }), sigFields.reduce(addKey, { }))
+
+  if (utils.keccak256(raw) !== tx.hash)
+    throw new Error('serializing failed!')
+
+  return raw
 }

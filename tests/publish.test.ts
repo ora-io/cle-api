@@ -1,5 +1,5 @@
-import { ethers } from 'ethers'
 import fs from 'node:fs'
+import { ethers } from 'ethers'
 import { it } from 'vitest'
 import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'

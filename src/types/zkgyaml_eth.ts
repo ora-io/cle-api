@@ -33,8 +33,8 @@ class TransactionItem {
     public from: string,
     public to: string,
   ) {
-    this.from = from.toLocaleLowerCase()
-    this.to = to.toLocaleLowerCase()
+    this.from = from.toLowerCase()
+    this.to = to.toLowerCase()
   }
 }
 class EventSectionCache {
