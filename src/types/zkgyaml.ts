@@ -50,7 +50,8 @@ export class ZkGraphYaml {
     const dataSources: any[] = []
     yaml.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
     const dataDestinations: DataDestination[] = []
-    yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
+    if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestination.length !== 0)
+      yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
 
     return new ZkGraphYaml(
       yaml.specVersion,
@@ -172,14 +173,16 @@ export class ZkGraphYaml {
     if (!yaml.mapping.language || !yaml.mapping.file || !yaml.mapping.handler)
       throw new YamlHealthCheckFailed('Some required fields are empty in mapping')
 
-    yaml.dataDestinations.forEach((dataDest: { kind: any }) => {
-      // every object in datasources MUST have kind
-      if (!dataDest.kind)
-        throw new YamlHealthCheckFailed('dataDestination is missing \'kind\' field')
+    if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestinations.length !== 0) {
+      yaml.dataDestinations.forEach((dataDest: { kind: any }) => {
+        // every object in datasources MUST have kind
+        if (!dataDest.kind)
+          throw new YamlHealthCheckFailed('dataDestination is missing \'kind\' field')
 
-      // check data destinations
-      dataDestinationClassMap.get(dataDest.kind).healthCheck(dataDest)
-    })
+        // check data destinations
+        dataDestinationClassMap.get(dataDest.kind).healthCheck(dataDest)
+      })
+    }
 
     // 12. the network must be same as the source network
     // TODO: right now we don't check the block hash, so skip the same network check
