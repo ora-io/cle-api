@@ -162,6 +162,9 @@ export class EthereumDataSource extends DataSource {
     const storageCount = ds.storage ? 1 : 0
     const transactionCount = ds.transaction ? 1 : 0
 
+    if (ds.transaction)
+      console.warn('Ethereum transaction section is still EXPERIMENTAL, use at your own risks.')
+
     if (eventCount + storageCount + transactionCount !== 1)
       throw new YamlNotSupported('currently requires only either \'event\' or \'storage\' or \'transaction\' field')
   }

@@ -5,3 +5,4 @@ export async function getLatestBlocknumber(rpcUrl: string) {
   const block = await provider.getBlock('latest')
   return block.number
 }
+
