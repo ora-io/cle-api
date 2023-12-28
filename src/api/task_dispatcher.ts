@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import { polling } from '@murongg/utils'
-import { TDNoTaskFound } from '../common/error'
+import { InsufficientBalance, TDNoTaskFound } from '../common/error'
 
 axiosRetry(axios, {
   retries: 5,
@@ -63,6 +63,10 @@ export class TaskDispatch {
      * @returns {Promise<ethers.ContractTransaction>}
      */
   async setup(imageId: string, circuitSize: number) {
+    const balance = await this.dispatcherContract.signer.getBalance()
+    if (balance.lt(this.feeInWei))
+      throw new InsufficientBalance('Insufficient balance in the connect wallet.')
+
     const tx = await this.dispatcherContract.setup(imageId, circuitSize, {
       value: this.feeInWei,
     })
@@ -77,6 +81,10 @@ export class TaskDispatch {
      * @returns {Promise<ethers.ContractTransaction>}
      */
   async prove(imageId: string, privateInput: string, publicInput: string) {
+    const balance = await this.dispatcherContract.signer.getBalance()
+    if (balance.lt(this.feeInWei))
+      throw new InsufficientBalance('Insufficient balance in the connect wallet.')
+
     const tx = await this.dispatcherContract.prove(imageId, privateInput, publicInput, {
       value: this.feeInWei,
     })

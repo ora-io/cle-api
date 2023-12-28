@@ -68,3 +68,9 @@ export class OldBlockNumber extends Error {
     super(message)
   }
 }
+
+export class InsufficientBalance extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
