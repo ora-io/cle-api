@@ -13,7 +13,7 @@ describe('test exec', () => {
     const image = createFileFromUint8Array(wasm, 'poc.wasm')
     const result = await zkgapi.setup(
       'poc.wasm',
-      { wasmUint8Array, zkgraphYaml: null, image },
+      { wasmUint8Array, image },
       22,
       config.UserPrivateKey,
       // "https://zkwasm-explorer.delphinuslab.com:8090",

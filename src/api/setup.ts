@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import type fs from 'fs'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { NullableObjectWithKeys } from '@murongg/utils'
 import { zkwasm_setup } from '../requests/zkwasm_setup'
 import {
   waitTaskStatus,
@@ -23,7 +22,7 @@ import type { ZkGraphExecutable } from '../types/api'
  */
 export async function setup(
   wasmName: string,
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'> & { image: File | fs.ReadStream },
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'> & { image: File | fs.ReadStream },
   circuitSize: number,
   userPrivateKey: string,
   ZkwasmProviderUrl: string,

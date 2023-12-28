@@ -1,4 +1,3 @@
-import type { NullableObjectWithKeys } from '@murongg/utils'
 import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'
@@ -14,7 +13,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {[string, string]} - private input string, public input string
  */
 export async function proveInputGen(
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'wasmUint8Array'>,
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
   proveParams: Record<string, any>,
   isLocal = false,
   _enableLog = true,
@@ -32,7 +31,7 @@ export async function proveInputGen(
 }
 
 export function proveInputGenOnDataPrep(
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'wasmUint8Array'>,
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
   dataPrep: DataPrep,
   isLocal = false,
 ): [string, string] {

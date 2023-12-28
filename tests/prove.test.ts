@@ -59,7 +59,7 @@ describe('test prove', () => {
     const proveParams = dsp?.toProveParams(generalParams)
 
     const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-      { wasmUint8Array: null, zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
+      { zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
       false,
       true,
@@ -68,7 +68,7 @@ describe('test prove', () => {
     // console.log([privateInputStr, publicInputStr])
 
     const result = await zkgapi.prove(
-      { wasmUint8Array, zkgraphYaml: null }, // doesn't care about zkgraphYaml
+      { wasmUint8Array }, // doesn't care about zkgraphYaml
       privateInputStr,
       publicInputStr,
       zkwasmUrl,

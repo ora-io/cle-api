@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { Nullable, NullableObjectWithKeys } from '@murongg/utils'
+import type { Nullable } from '@murongg/utils'
 import { toHexStringBytes32Reverse } from '../common/utils'
 import { zkwasm_prove } from '../requests/zkwasm_prove'
 import {
@@ -19,7 +19,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {object} - proof task details in json
  */
 export async function prove(
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'>,
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'>,
   privateInputStr: string,
   publicInputStr: string,
   zkwasmProverUrl: string,
