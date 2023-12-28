@@ -1,5 +1,8 @@
 import asc from 'assemblyscript/dist/asc'
-import { hasOwnProperty } from '@murongg/utils'
+import { hasOwnProperty, randomStr } from '@murongg/utils'
+import type { ZkGraphExecutable } from '../types/api'
+import { dspHub } from '../dsp/hub'
+import { DSPNotFound } from '../common/error'
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
 import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/zkgraph-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
@@ -25,7 +28,7 @@ function getAbortTsFilepath(innerTsFilePath: string) {
 }
 
 const getCompilerOptions = () => {
-  const options = []
+  const options: string[] = []
   options.push('--optimize')
   options.push('--noAssert')
   options.push('--exportRuntime')
@@ -42,7 +45,27 @@ export interface CompileResult extends asc.APIResult {
   outputs: Record<string, string | Uint8Array>
 }
 
-export async function compile(tsModule: string, libDSPName: string, mappingFileName: string, handleFuncName: string, sources: Record<string, string>): Promise<CompileResult> {
+export interface CompileOptions {
+  isLocal?: boolean
+}
+
+export async function compile(
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
+  sources: Record<string, string>,
+  options: CompileOptions = {},
+): Promise<CompileResult> {
+  const { zkgraphYaml } = zkGraphExecutable
+  const { isLocal = false } = options
+
+  const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  if (!dsp)
+    throw new DSPNotFound('Can\'t find DSP for this data source kind.')
+
+  const libDSPName = dsp.getLibDSPName()
+  const mappingFileName = zkgraphYaml.mapping.file
+  const handleFuncName = zkgraphYaml.mapping.handler
+
+  const tsModule = `entry_${randomStr()}.ts`
   const textModule = 'inner_pre_pre.wat'
   const wasmModule = 'inner_pre_pre.wasm'
   const abortPath = getAbortTsFilepath(tsModule)
@@ -59,7 +82,7 @@ export async function compile(tsModule: string, libDSPName: string, mappingFileN
     writeFile: (name, contents) => { outputs[name] = contents },
     listFiles: () => [],
   }
-  const options = [
+  const compileOptions = [
     tsModule,
     '--path', 'node_modules',
     '--use', `abort=${abortPath}`,
@@ -67,7 +90,7 @@ export async function compile(tsModule: string, libDSPName: string, mappingFileN
     '--outFile', wasmModule,
     ...getCompilerOptions(),
   ]
-  const ascResult = await asc.main(options, config)
+  const ascResult = await asc.main(compileOptions, config)
   return {
     outputs,
     ...ascResult,
