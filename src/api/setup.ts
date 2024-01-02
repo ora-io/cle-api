@@ -21,7 +21,6 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
 export async function setup(
-  wasmName: string,
   zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'> & { image: File | fs.ReadStream },
   circuitSize: number,
   userPrivateKey: string,
@@ -37,14 +36,6 @@ export async function setup(
   else {
     // if too ridiculous, set to default
     cirSz = isLocal ? 20 : 22
-    if (enableLog) {
-      console.warn(
-        '[-] Warning: circuit size [',
-        cirSz,
-        '] was impractical, reset to default:',
-        cirSz,
-      )
-    }
   }
 
   if (!wasmUint8Array)
@@ -55,9 +46,6 @@ export async function setup(
   const avator_url = ''
   const circuit_size = cirSz
 
-  if (enableLog)
-    console.log(`[+] IMAGE MD5: ${md5}`, '\n')
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let taskDetails
   let taskId
@@ -66,7 +54,7 @@ export async function setup(
 
   await zkwasm_setup(
     ZkwasmProviderUrl,
-    wasmName, // only use in zkwasm, can diff from local files
+    'poc.wasm', // only use in zkwasm, can diff from local files
     md5,
     image,
     userPrivateKey,
