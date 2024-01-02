@@ -74,3 +74,9 @@ export class UploadFileNotExist extends Error {
     super(message)
   }
 }
+
+export class CircuitSizeOutOfRange extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}

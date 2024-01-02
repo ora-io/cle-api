@@ -5,7 +5,7 @@ import { zkwasm_setup } from '../requests/zkwasm_setup'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import { ImageAlreadyExists } from '../common/error'
+import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
 import type { ZkGraphExecutable } from '../types/api'
 
@@ -25,18 +25,14 @@ export async function setup(
   circuitSize: number,
   userPrivateKey: string,
   ZkwasmProviderUrl: string,
-  isLocal = false,
   enableLog = true,
 ) {
   const { wasmUint8Array, image } = zkGraphExecutable
   let cirSz
-  if (circuitSize >= 18 && circuitSize <= 30) {
+  if (circuitSize >= 18 && circuitSize <= 24)
     cirSz = circuitSize
-  }
-  else {
-    // if too ridiculous, set to default
-    cirSz = isLocal ? 20 : 22
-  }
+  else
+    throw new CircuitSizeOutOfRange('Circuit size out of range. Please set it between 18 and 24.')
 
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is not defined')
