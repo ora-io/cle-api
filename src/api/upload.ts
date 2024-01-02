@@ -16,7 +16,7 @@ export const UploadMustBeExistFiles = ['zkgraph.yaml', 'zkgraph.wasm']
  * @returns {Promise<{ response: any, isUploadSuccess: boolean, errorMessage: string }>} - An object containing the response, upload success status, and error message (if any).
  */
 export async function upload(
-  files: Record<string, File | fs.ReadStream>,
+  files: Record<string, any>,
   directoryTag: {
     graphName: string
     userAddress: string

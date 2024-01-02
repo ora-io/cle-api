@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import type fs from 'fs'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import { zkwasm_setup } from '../requests/zkwasm_setup'
 import {
@@ -21,7 +20,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
 export async function setup(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'> & { image: File | fs.ReadStream },
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'> & { image: any },
   circuitSize: number,
   userPrivateKey: string,
   ZkwasmProviderUrl: string,
