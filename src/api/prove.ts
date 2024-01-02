@@ -71,7 +71,6 @@ export async function prove(
 export async function waitProve(
   zkwasmProverUrl: string,
   taskId: string,
-  _enableLog = true,
 ) {
   const result: {
     instances: Nullable<string>

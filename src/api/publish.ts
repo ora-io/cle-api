@@ -54,7 +54,6 @@ export async function publishByImgCmt(
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
-  _enableLog = true,
 ) {
   const { zkgraphYaml } = zkGraphExecutable
 

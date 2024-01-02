@@ -16,7 +16,6 @@ export async function proveInputGen(
   zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
   proveParams: Record<string, any>,
   isLocal = false,
-  _enableLog = true,
 ) {
   const { zkgraphYaml } = zkGraphExecutable
 

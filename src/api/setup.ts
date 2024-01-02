@@ -90,7 +90,7 @@ export async function setup(
     })
 }
 
-export async function waitSetup(ZkwasmProviderUrl: string, taskId: string, _enableLog: boolean) {
+export async function waitSetup(ZkwasmProviderUrl: string, taskId: string) {
   const result: { taskId: string | null; success: boolean; taskDetails: any } = { taskId: null, success: false, taskDetails: null }
 
   const taskDetails = await waitTaskStatus(

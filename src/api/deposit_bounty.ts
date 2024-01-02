@@ -18,7 +18,6 @@ export async function deposit(
   signer: ethers.Wallet | ethers.providers.Provider | string,
   graphContractAddress: string,
   depositAmount: string,
-  _enableLog = true,
 ) {
   const graphContract = new Contract(graphContractAddress, graph_abi, provider).connect(signer)
   const tx = await graphContract
