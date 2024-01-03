@@ -101,7 +101,8 @@ export class BlockPrep {
   }
 
   hasAccount(address: string) {
-    return this.accounts.has(address)
+    const addressLowercase = address.toLowerCase()
+    return this.accounts.has(addressLowercase)
   }
 
   addFromGetProofResult(ethproof: { address: any; accountProof: any; storageProof: any }, accountRLP: string | null = null) {
