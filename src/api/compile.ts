@@ -1,4 +1,4 @@
-import asc from 'assemblyscript/dist/asc'
+import type asc from 'assemblyscript/dist/asc'
 import { hasOwnProperty, randomStr } from '@murongg/utils'
 import type { ZkGraphExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
@@ -69,6 +69,7 @@ export async function compile(
   const textModule = 'inner_pre_pre.wat'
   const wasmModule = 'inner_pre_pre.wasm'
   const abortPath = getAbortTsFilepath(tsModule)
+  const asc = await import('assemblyscript/dist/asc.js')
   const stdout = asc.createMemoryStream()
   const outputs: Record<string, string | Uint8Array> = {}
   sources = {

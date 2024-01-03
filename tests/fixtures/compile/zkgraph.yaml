@@ -15,8 +15,3 @@ mapping:
   language: wasm/assemblyscript
   file: ./mapping.ts
   handler: handleBlocks
-
-dataDestinations:
-  - kind: ethereum
-    network: sepolia
-    address: "0x0000000000000000000000000000000000000001"
