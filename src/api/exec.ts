@@ -14,11 +14,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
-export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: Record<string, any>, isLocal = false, _enableLog = true) {
-  // TODO: mv this log to cli
-  // if (enableLog){
-  //     console.log(`[*] Run zkgraph on block ${blockid}\n`);
-  // }
+export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: Record<string, any>, isLocal = false) {
   const { zkgraphYaml } = zkGraphExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
@@ -39,7 +35,7 @@ export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: 
  * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, dataPrep: DataPrep, isLocal = false, _enableLog = true) {
+export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, dataPrep: DataPrep, isLocal = false) {
   const { zkgraphYaml } = zkGraphExecutable
 
   let input = new Input()

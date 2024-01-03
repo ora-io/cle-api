@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import type { providers } from 'ethers'
 import { Contract, ethers, utils } from 'ethers'
@@ -8,7 +7,6 @@ import {
   addressFactory,
 } from '../common/constants'
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
-import { logLoadingAnimation } from '../common/log_utils'
 import { loadConfigByNetwork } from '../common/utils'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
@@ -33,10 +31,9 @@ export async function publish(
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
-  enableLog = true,
 ) {
   const imgCmt = await getImageCommitment(zkGraphExecutable, zkwasmProviderUrl)
-  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer, enableLog)
+  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer)
 }
 
 /**
@@ -56,7 +53,6 @@ export async function publishByImgCmt(
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
-  enableLog = true,
 ) {
   const { zkgraphYaml } = zkGraphExecutable
 
@@ -85,26 +81,18 @@ export async function publishByImgCmt(
       throw new GraphAlreadyExist('Duplicate zkGraph detected. Only publishing distinct zkGraphs is allowed.')
     })
 
-  let loading
-  if (enableLog === true) {
-    console.log('[*] Please wait for publish tx... (estimated: 30 sec)', '\n')
-    loading = logLoadingAnimation()
-  }
-
   const txReceipt = await tx.wait(1).catch((err: any) => {
     throw err
   })
 
-  if (enableLog === true) {
-    loading?.stopAndClear()
-    console.log('[+] ZKGRAPH PUBLISHED SUCCESSFULLY!', '\n')
-    console.log(
-      `[*] Transaction confirmed in block ${txReceipt.blockNumber} on ${networkName}`,
-    )
-    console.log(`[*] Transaction hash: ${txReceipt.transactionHash}`, '\n')
+  return {
+    networkName,
+    ...txReceipt,
+  } as {
+    networkName: string
+    blockNumber: number
+    transactionHash: string
   }
-
-  return txReceipt.transactionHash
 }
 
 function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {

@@ -3,6 +3,7 @@ import { describe, it } from 'vitest'
 import { ethers } from 'ethers'
 import * as zkgapi from '../src/index'
 import { config } from './config'
+import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
@@ -22,7 +23,7 @@ describe('test utils', () => {
 
 function test_healthcheck(yamlPath: string) {
   try {
-    const yaml1 = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as any
+    const yaml1 = loadYamlFromPath(yamlPath) as any
     zkgapi.ZkGraphYaml.healthCheck(yaml1)
     console.log('valid:', yamlPath)
   }

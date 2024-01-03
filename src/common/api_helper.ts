@@ -1,7 +1,3 @@
-import assert from 'assert'
-import os from 'os'
-import path from 'path'
-import fs from 'fs'
 import { logReceiptAndEvents } from './log_utils'
 import { fromHexString, trimPrefix } from './utils'
 import { TxReceipt } from './tx_receipt'
@@ -49,8 +45,8 @@ export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList
   let accumulateReceiptLength = 0
   let rawreceipts = ''
 
-  if (!__BROWSER__)
-    assert(rawreceiptList.length === eventList.length)
+  if (rawreceiptList.length === eventList.length)
+    throw new Error('rawreceiptList and eventList not should have same length.')
 
   for (const rcpid in rawreceiptList) {
     const es = eventList[rcpid]
@@ -121,24 +117,3 @@ export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], ra
 
   return [rawReceipts, matchedEventOffsets]
 }
-
-export function createFileFromUint8Array(array: string, fileName: string): File | fs.ReadStream
-export function createFileFromUint8Array(array: Blob, fileName: string): File | fs.ReadStream
-export function createFileFromUint8Array(array: NodeJS.ArrayBufferView, fileName: string): fs.ReadStream
-export function createFileFromUint8Array(array: string | NodeJS.ArrayBufferView | Blob, fileName: string) {
-  // Running in a browser environment
-  if (__BROWSER__) {
-    return new File([array], fileName, {
-      type: 'application/wasm',
-      lastModified: Date.now(),
-    })
-  }
-  // Check if running in a Node.js environment
-  if (!__BROWSER__) {
-    const tempDir = os.tmpdir()
-    const filePath = path.join(tempDir, fileName)
-    fs.writeFileSync(filePath, array as any)
-    return fs.createReadStream(filePath)
-  }
-}
-

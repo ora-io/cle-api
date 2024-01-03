@@ -1,6 +1,7 @@
 import { describe } from 'node:test'
 import { expect, it } from 'vitest'
 import * as zkgapi from '../src/index'
+import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
@@ -13,7 +14,7 @@ const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
 const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
 
 describe('test verify', () => {
-  const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
+  const yaml = loadYamlFromPath(yamlPath)
 
   it('test verify ZKGraphExecutable', async () => {
     const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)

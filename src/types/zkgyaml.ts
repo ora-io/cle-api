@@ -1,4 +1,3 @@
-import fs from 'fs'
 import yaml from 'js-yaml'
 import semver from 'semver'
 import { YamlHealthCheckFailed, YamlInvalidFormat } from '../common/error'
@@ -89,21 +88,6 @@ export class ZkGraphYaml {
     catch (error: any) {
       // TODO: is there other cases than "Invalid Yaml"?
       throw new YamlInvalidFormat(error.message)
-    }
-  }
-
-  // TODO: remove this func, this should be outside the scope of api.
-  static fromYamlPath(yamlPath: fs.PathOrFileDescriptor) {
-    if (!__BROWSER__) {
-      let fileContents = ''
-      try {
-        // Read the YAML file contents
-        fileContents = fs.readFileSync(yamlPath, 'utf8')
-      }
-      catch (error) {
-        console.error(error)
-      }
-      return ZkGraphYaml.fromYamlContent(fileContents)
     }
   }
 
