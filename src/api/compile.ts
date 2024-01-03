@@ -1,4 +1,3 @@
-import type asc from 'assemblyscript/dist/asc'
 import { hasOwnProperty, randomStr } from '@murongg/utils'
 import type { ZkGraphExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
@@ -41,8 +40,16 @@ const getCompilerOptions = () => {
   return options
 }
 
-export interface CompileResult extends asc.APIResult {
+export interface CompileResult {
   outputs: Record<string, string | Uint8Array>
+  /** Encountered error, if any. */
+  error: Error | null
+  /** Standard output stream. */
+  stdout: any
+  /** Standard error stream.  */
+  stderr: any
+  /** Statistics. */
+  stats: any
 }
 
 export interface CompileOptions {
@@ -76,11 +83,11 @@ export async function compile(
     ...sources,
     [tsModule]: codegen(libDSPName, mappingFileName, handleFuncName),
   }
-  const config: asc.APIOptions = {
+  const config = {
     stdout,
     stderr: stdout,
-    readFile: name => hasOwnProperty(sources, name) ? sources[name] : null,
-    writeFile: (name, contents) => { outputs[name] = contents },
+    readFile: (name: string) => hasOwnProperty(sources, name) ? sources[name] : null,
+    writeFile: (name: string, contents: any) => { outputs[name] = contents },
     listFiles: () => [],
   }
   const compileOptions = [
