@@ -1,9 +1,11 @@
 import type { providers } from 'ethers'
 import { ethers } from 'ethers'
+import { RLP } from '@ethereumjs/rlp'
 import {
   getProof,
   getRawReceipts,
 } from '../../common/ethers_helper'
+import { safeHex, uint8ArrayToHex } from '../../common/utils'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
@@ -55,8 +57,23 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
       stateDSSlotsList[i],
       ethers.utils.hexValue(blockNumber),
     )
-    // record
-    block.addFromGetProofResult(ethproof, '0xaaaaaa')
+
+    if (ethproof.balance === '0x0')
+      ethproof.balance = ''
+
+    if (ethproof.nonce === '0x0')
+      ethproof.nonce = ''
+
+    const nestedList = [
+      Buffer.from(safeHex(ethproof.nonce), 'hex'),
+      Buffer.from(safeHex(ethproof.balance), 'hex'),
+      Buffer.from(safeHex(ethproof.storageHash), 'hex'),
+      Buffer.from(safeHex(ethproof.codeHash), 'hex'),
+    ]
+
+    const accountRLP = uint8ArrayToHex(RLP.encode(nestedList))
+
+    block.addFromGetProofResult(ethproof, accountRLP)
   }
 
   /**
