@@ -51,7 +51,7 @@ export class ZkGraphYaml {
     const dataSources: any[] = []
     yaml.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
     const dataDestinations: DataDestination[] = []
-    if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestination.length !== 0)
+    if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestinations.length !== 0)
       yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
 
     return new ZkGraphYaml(
