@@ -31,10 +31,9 @@ export async function publish(
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
-  enableLog = true,
 ) {
   const imgCmt = await getImageCommitment(zkGraphExecutable, zkwasmProviderUrl)
-  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer, enableLog)
+  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer)
 }
 
 /**
