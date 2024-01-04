@@ -48,6 +48,7 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
     const [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
     input.addInt(stateDSAddrList.length, false) // account count
 
+    // TODO: move this to cli
     console.log('[*] Defined Data Sources - Storage:')
     for (let i = 0; i < stateDSAddrList.length; i++) {
       // TODO move log to cli
@@ -133,12 +134,20 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
   }
 
   if (ds.transaction) {
+    // TODO: move this to cli
+    console.log('[*] Defined Data Sources - Transaction.')
+
     const filteredTransactions = blockPrep.transactions.filter((transaction) => {
       const matchingTransactionItem = ds.transaction?.find((item) => {
         return (item.from === transaction.from || item.from === '*') && (item.to === transaction.to || item.to === '*')
       })
       return matchingTransactionItem
     })
+
+    // TODO: move this to cli
+    console.log(`[*] ${filteredTransactions.length} transaction matched.`)
+    for (let i = 0; i < filteredTransactions.length; i++)
+      console.log(`    (${i}) Hash:`, filteredTransactions[i].hash)
 
     input.addInt(filteredTransactions.length, false) // tx count
     for (const tx of filteredTransactions) {
