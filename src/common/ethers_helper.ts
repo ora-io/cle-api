@@ -175,6 +175,7 @@ export async function getProof(ethersProvider: providers.JsonRpcProvider, addres
   }
 }
 
+
 export function getRawTransaction(tx: providers.TransactionResponse): string {
   function addKey(accum: any, key: keyof providers.TransactionResponse) {
     if (tx[key] !== undefined && tx[key] !== null)
@@ -196,3 +197,14 @@ export function getRawTransaction(tx: providers.TransactionResponse): string {
 
   return raw
 }
+
+export function buildCreate2Address(creatorAddress: string, saltHex: string, byteCode: string): string {
+  return `0x${ethers.utils
+    .keccak256(
+      `0x${['ff', creatorAddress, saltHex, ethers.utils.keccak256(byteCode)]
+        .map(x => x.replace(/0x/, ''))
+        .join('')}`,
+    )
+    .slice(-40)}`.toLowerCase()
+}
+

@@ -69,6 +69,11 @@ export class OldBlockNumber extends Error {
   }
 }
 
+export class InsufficientBalance extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
 export class UploadFileNotExist extends Error {
   constructor(message: string | undefined) {
     super(message)
