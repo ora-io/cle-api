@@ -74,3 +74,14 @@ export class InsufficientBalance extends Error {
     super(message)
   }
 }
+export class UploadFileNotExist extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class CircuitSizeOutOfRange extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}

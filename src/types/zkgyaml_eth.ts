@@ -12,8 +12,32 @@ function isEthereumAddress(address: string) {
     return false
   }
 }
-
-class EventSection {
+class EventItem {
+  constructor(
+    public address: string,
+    public events: string[],
+  ) {
+    // this.address = address.toLocaleLowerCase()
+  }
+}
+class StorageItem {
+  constructor(
+    public address: string,
+    public slots: string[], // ethers.utils.BytesLike[]
+  ) {
+    // this.address = address.toLocaleLowerCase()
+  }
+}
+class TransactionItem {
+  constructor(
+    public from: string,
+    public to: string,
+  ) {
+    this.from = from.toLowerCase()
+    this.to = to.toLowerCase()
+  }
+}
+class EventSectionCache {
   constructor(
     public addressList: string[],
     public esigsList: string[][],
@@ -21,8 +45,7 @@ class EventSection {
     this.addressList = addressList.map(item => item.toLocaleLowerCase())
   }
 }
-
-class StorageSection {
+class StorageSectionCache {
   constructor(
     public addressList: string[],
     public slotsList: string[][],
@@ -35,19 +58,21 @@ export class EthereumDataSource extends DataSource {
   network: string
   // event: EventSection | null
   // storage: StorageSection | null
-  event: any[] | null
-  storage: any[] | null
+  event: EventItem[] | null
+  storage: StorageItem[] | null
+  transaction: TransactionItem[] | null
   account: any[] | null
   block: any
 
-  eventSectionCache: EventSection | null = null
-  storageSectionCache: StorageSection | null = null
+  eventSectionCache: EventSectionCache | null = null
+  storageSectionCache: StorageSectionCache | null = null
 
   constructor(
     kind: DataSourceKind,
     network: string,
-    event: any[] | null,
-    storage: any[] | null,
+    event: EventItem[] | null,
+    storage: StorageItem[] | null,
+    transaction: TransactionItem[] | null,
     account: any[] | null,
     block: any,
   ) {
@@ -55,11 +80,12 @@ export class EthereumDataSource extends DataSource {
     this.network = network
     this.event = event
     this.storage = storage
+    this.transaction = transaction
     this.account = account
     this.block = block
   }
 
-  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventSection[]; storage: StorageSection[] }) {
+  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventItem[]; storage: StorageItem[]; transaction: TransactionItem[] }) {
     return new EthereumDataSource(
       yamlEthDS.kind,
       yamlEthDS.network,
@@ -67,6 +93,7 @@ export class EthereumDataSource extends DataSource {
       // (yamlEthDS.storage != null) ? StorageSection.from_v_0_0_2(yamlEthDS.storage) : null,
       yamlEthDS.event,
       yamlEthDS.storage,
+      yamlEthDS.transaction,
       null, // TODO: account section
       null, // TODO: block section
     )
@@ -84,9 +111,9 @@ export class EthereumDataSource extends DataSource {
   getEventLists(useCache = true) {
     // return if there's cache, cause it's always the same
     if (!useCache || this.eventSectionCache == null) {
-      const loadFromEventSource = (event: { address: any; events: any[] }) => {
-        const source_address = event.address
-        const source_esigs = event.events.map((ed: string) => {
+      const loadFromEventSource = (eventItem: EventItem) => {
+        const source_address = eventItem.address
+        const source_esigs = eventItem.events.map((ed: string) => {
           const eventHash = ed.startsWith('0x') ? ed : ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ed))
           return eventHash
         })
@@ -99,7 +126,7 @@ export class EthereumDataSource extends DataSource {
       if (this.event)
         this.event.forEach((event: any) => { const [sa, se] = loadFromEventSource(event); eventDSAddrList.push(sa); eventDSEsigsList.push(se) })
 
-      this.eventSectionCache = new EventSection(eventDSAddrList, eventDSEsigsList)
+      this.eventSectionCache = new EventSectionCache(eventDSAddrList, eventDSEsigsList)
     }
     return [this.eventSectionCache.addressList, this.eventSectionCache.esigsList] as [string[], string[][]]
   }
@@ -107,7 +134,7 @@ export class EthereumDataSource extends DataSource {
   getStorageLists(useCache = true) {
     // return if there's cache, cause it's always the same
     if (!useCache || this.storageSectionCache == null) {
-      const loadFromStorageSource = (storage: { address: string; slots: ethers.utils.BytesLike[] }) => {
+      const loadFromStorageSource = (storage: StorageItem) => {
         const source_address = storage.address.toLocaleLowerCase()
         const source_slots = storage.slots.map((sl: ethers.utils.BytesLike) => {
           return ethers.utils.hexZeroPad(sl, 32)
@@ -125,17 +152,21 @@ export class EthereumDataSource extends DataSource {
           stateDSSlotsList.push(sl)
         })
       }
-      this.storageSectionCache = new StorageSection(stateDSAddrList, stateDSSlotsList)
+      this.storageSectionCache = new StorageSectionCache(stateDSAddrList, stateDSSlotsList)
     }
     return [this.storageSectionCache.addressList, this.storageSectionCache.slotsList] as [string[], string[][]]
   }
 
-  static healthCheck(ds: { event: any; storage: any }) {
+  static healthCheck(ds: { event: any; storage: any; transaction: any }) {
     const eventCount = ds.event ? 1 : 0
     const storageCount = ds.storage ? 1 : 0
+    const transactionCount = ds.transaction ? 1 : 0
 
-    if (eventCount + storageCount !== 1)
-      throw new YamlNotSupported('currently requires only one \'event\' or \'storage\' field')
+    if (ds.transaction)
+      console.warn('Ethereum transaction section is still EXPERIMENTAL, use at your own risks.')
+
+    if (eventCount + storageCount + transactionCount !== 1)
+      throw new YamlNotSupported('currently requires only either \'event\' or \'storage\' or \'transaction\' field')
   }
 }
 

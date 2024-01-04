@@ -6,6 +6,7 @@ import { loadConfigByNetwork } from '../src/common/utils'
 import * as zkgapi from '../src/index'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
+import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
@@ -42,7 +43,7 @@ describe('test prove', () => {
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
-    const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
 
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
@@ -58,16 +59,15 @@ describe('test prove', () => {
     const proveParams = dsp?.toProveParams(generalParams)
 
     const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-      { wasmUint8Array: null, zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
+      { zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
       false,
-      true,
     )
 
     // console.log([privateInputStr, publicInputStr])
 
     const result = await zkgapi.prove(
-      { wasmUint8Array, zkgraphYaml: null }, // doesn't care about zkgraphYaml
+      { wasmUint8Array }, // doesn't care about zkgraphYaml
       privateInputStr,
       publicInputStr,
       zkwasmUrl,
@@ -82,7 +82,7 @@ describe('test prove', () => {
   //   const wasm = fs.readFileSync(wasmPath)
   //   const wasmUint8Array = new Uint8Array(wasm)
   //   // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-  //   const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
+  //   const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
   //   const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
   //   const proveParams = dsp.toProveParams(

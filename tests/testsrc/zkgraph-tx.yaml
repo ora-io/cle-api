@@ -1,0 +1,25 @@
+specVersion: 0.0.2
+apiVersion: 0.0.2
+name: eg_addr
+description: 'Demo zkgraph. '
+repository: https://github.com/hyperoracle/zkgraph
+dataSources:
+  - kind: ethereum
+    network: sepolia
+    # block:
+    #   - offset: [0]
+    transaction:
+      - from: '0x1E2cD78882b12d3954a049Fd82FFD691565dC0A5'
+        to: '*'
+      - from: '*'
+        to: '0x33B47b485d56FaCb821442f504eDD93efaFa6B03'
+
+mapping:
+  language: wasm/assemblyscript
+  file: ./mapping.ts
+  handler: handleBlocks
+
+dataDestinations:
+  - kind: ethereum
+    network: sepolia
+    address: '0x1B17C66e37CB33202Fd1C058fa1B97e36b7e517D'

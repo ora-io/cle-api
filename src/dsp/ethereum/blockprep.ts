@@ -1,4 +1,4 @@
-import type { BytesLike } from 'ethers'
+import type { BytesLike, providers } from 'ethers'
 import type { Hexable } from 'ethers/lib/utils'
 import { DataPrep } from '../interface.js'
 
@@ -79,11 +79,13 @@ export class BlockPrep {
   rlpHeader: any
   accounts: Map<string, AccountPrep>
   rlpreceipts: any[]
+  transactions: providers.TransactionResponse[]
   constructor(blocknum: number | bigint | BytesLike | Hexable, rlpHeader: string) {
     this.number = blocknum
     this.rlpHeader = rlpHeader
     this.accounts = new Map() // <string, Account>
     this.rlpreceipts = []
+    this.transactions = []
   }
 
   addAccount(address: string, rlpAccount: string, accountProof: any) {
@@ -101,7 +103,8 @@ export class BlockPrep {
   }
 
   hasAccount(address: string) {
-    return this.accounts.has(address)
+    const addressLowercase = address.toLowerCase()
+    return this.accounts.has(addressLowercase)
   }
 
   addFromGetProofResult(ethproof: { address: any; accountProof: any; storageProof: any }, accountRLP: string | null = null) {
@@ -122,6 +125,10 @@ export class BlockPrep {
     rlpReceiptList.forEach((rlpRcpt: any) => {
       this.rlpreceipts.push(rlpRcpt)
     })
+  }
+
+  setTransactions(transactions: providers.TransactionResponse[]) {
+    this.transactions = transactions
   }
 
   getRLPReceipts() {

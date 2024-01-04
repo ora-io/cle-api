@@ -232,3 +232,20 @@ export function loadConfigByNetwork(yaml: Partial<ZkGraphYaml>, networksConfig: 
 
   return targetConfig
 }
+
+export function safeHex(rawHex: string) {
+  let hex = ''
+  if (rawHex.startsWith('0x'))
+    hex = rawHex.slice(2)
+  else
+    hex = rawHex
+
+  if (hex.length % 2 === 0)
+    return hex
+  else
+    return `0${hex}`
+}
+
+export function uint8ArrayToHex(uint8array: Uint8Array): string {
+  return Array.from(uint8array).map(b => b.toString(16).padStart(2, '0')).join('')
+}

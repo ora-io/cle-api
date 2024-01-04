@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { Nullable, NullableObjectWithKeys } from '@murongg/utils'
+import type { Nullable } from '@murongg/utils'
 import { toHexStringBytes32Reverse } from '../common/utils'
-import { logLoadingAnimation } from '../common/log_utils'
 import { zkwasm_prove } from '../requests/zkwasm_prove'
 import {
-  taskPrettyPrint,
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { ZkGraphExecutable } from '../types/api'
@@ -21,7 +19,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {object} - proof task details in json
  */
 export async function prove(
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'>,
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'>,
   privateInputStr: string,
   publicInputStr: string,
   zkwasmProverUrl: string,
@@ -62,36 +60,17 @@ export async function prove(
   if (enableLog)
     console.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
-  // TODO: move log to cli
-
   if (isSetUpSuccess) {
-    //   console.log(`[+] IMAGE MD5: ${response.data.result.md5}`, "\n");
-
     const taskId = response.data.result.id
     result.taskId = taskId
     result.errorMessage = errorMessage
-    // if (enableLog) {
-    //   console.log(`[+] PROVE TASK STARTED. TASK ID: ${taskId}`, "\n");
-
-    //   console.log(
-    //     "[*] Please wait for proof generation... (estimated: 1-5 min)",
-    //     "\n"
-    //   );
-    // }
   }
-  else {
-    // if (enableLog) {
-    //   console.log(`[-] PROVE CANNOT BE STARTED. MIGHT NEED TO SETUP`, "\n");
-    // }
-  }
-
   return result
 }
 
 export async function waitProve(
   zkwasmProverUrl: string,
   taskId: string,
-  enableLog = true,
 ) {
   const result: {
     instances: Nullable<string>
@@ -100,6 +79,8 @@ export async function waitProve(
     aux: Nullable<string>
     md5: Nullable<string>
     taskId: Nullable<string>
+    status: Nullable<string>
+    taskDetails: Nullable<any>
   } = {
     instances: null,
     batch_instances: null,
@@ -107,62 +88,38 @@ export async function waitProve(
     aux: null,
     md5: null,
     taskId: null,
+    status: '',
+    taskDetails: null,
   }
 
-  let loading
-
-  if (enableLog)
-    loading = logLoadingAnimation()
-
-  let taskDetails
-  try {
-    taskDetails = await waitTaskStatus(
-      zkwasmProverUrl,
-      taskId,
-      ['Done', 'Fail', 'DryRunFailed'],
-      3000,
-      0,
-    ).catch((err) => {
-      throw err
-    }) // TODO: timeout
-  }
-  catch (error) {
-    loading?.stopAndClear()
-    throw error
-  }
+  const taskDetails = await waitTaskStatus(
+    zkwasmProverUrl,
+    taskId,
+    ['Done', 'Fail', 'DryRunFailed'],
+    3000,
+    0,
+  ).catch((err) => {
+    throw err
+  }) // TODO: timeout
 
   if (taskDetails.status === 'Done') {
-    if (enableLog) {
-      loading?.stopAndClear()
-      console.log('[+] PROVE SUCCESS!', '\n')
-    }
-
     const instances = toHexStringBytes32Reverse(taskDetails.instances)
     const batch_instances = toHexStringBytes32Reverse(
       taskDetails.batch_instances,
     )
     const proof = toHexStringBytes32Reverse(taskDetails.proof)
     const aux = toHexStringBytes32Reverse(taskDetails.aux)
-    if (enableLog) {
-      taskPrettyPrint(taskDetails, '[*] ')
-
-      console.log()
-    }
     result.instances = instances
     result.batch_instances = batch_instances
     result.proof = proof
     result.aux = aux
     result.taskId = taskId
+    result.status = taskDetails.status
   }
   else {
     result.taskId = taskId
-
-    if (enableLog) {
-      loading?.stopAndClear()
-
-      console.log('[-] PROVE OR DRYRUN FAILED.', '\n')
-    }
   }
 
+  result.taskDetails = taskDetails
   return result
 }

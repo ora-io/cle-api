@@ -1,16 +1,10 @@
 import type { providers } from 'ethers'
 import { ethers } from 'ethers'
+import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import { polling } from '@murongg/utils'
 import { InsufficientBalance, TDNoTaskFound } from '../common/error'
-
-axiosRetry(axios, {
-  retries: 5,
-  retryDelay: (retryCount) => {
-    return retryCount * 2000
-  },
-})
 
 const ABI = [
   'function setup(string memory imageId, uint256 circuitSize) payable',
@@ -29,10 +23,21 @@ export class TaskDispatch {
   queryAPI: string
   feeInWei: ethers.BigNumber
   dispatcherContract: ethers.Contract
+  private request: AxiosInstance
+
   constructor(queryAPI: string, contractAddress: string, feeInWei: ethers.BigNumber, provider: providers.JsonRpcProvider, signer: ethers.Wallet | ethers.providers.Provider | string) {
     this.queryAPI = queryAPI
     this.feeInWei = feeInWei
     this.dispatcherContract = new ethers.Contract(contractAddress, ABI, provider).connect(signer)
+    this.request = axios.create({
+      baseURL: queryAPI,
+    })
+    axiosRetry(this.request, {
+      retries: 5,
+      retryDelay: (retryCount) => {
+        return retryCount * 2000
+      },
+    })
   }
 
   /**
@@ -41,7 +46,11 @@ export class TaskDispatch {
   async queryTask(txhash: string) {
     let res: QueryTaskResponse | undefined
     const request = async () => {
-      const response = await axios.get<QueryTaskResponse>(`${this.queryAPI}/task?txhash=${txhash}`)
+      const response = await this.request.get<QueryTaskResponse>('/task', {
+        params: {
+          txhash,
+        },
+      })
       const data = response.data
       if (data.task?.status === 'submitted') {
         res = data

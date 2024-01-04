@@ -7,6 +7,7 @@ import * as zkgapi from '../src/index'
 import { DSPNotFound } from '../src/common/error'
 import { config } from './config'
 import { getLatestBlocknumber } from './utils/ethers'
+import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
@@ -39,7 +40,7 @@ describe('test exec', () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
@@ -56,7 +57,6 @@ describe('test exec', () => {
       { wasmUint8Array, zkgraphYaml: yaml },
       execParams as any,
       local,
-      true,
     )
 
     return state
@@ -68,7 +68,7 @@ describe('test exec', () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
     if (!dsp)
       throw new DSPNotFound('DSP not found')
@@ -93,7 +93,6 @@ describe('test exec', () => {
       { wasmUint8Array, zkgraphYaml: yaml },
       dataPrep,
       local,
-      true,
     )
 
     return state
@@ -110,7 +109,7 @@ describe('test exec', () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
     const zkGraphExecutable = { wasmUint8Array, zkgraphYaml: yaml }
     // get dsp
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
@@ -140,7 +139,6 @@ describe('test exec', () => {
       { wasmUint8Array, zkgraphYaml: yaml },
       dataPrep,
       local,
-      true,
     )
     const stateStr = zkgapi.utils.toHexString(stateu8a)
 

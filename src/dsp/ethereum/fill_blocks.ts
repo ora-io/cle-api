@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
+import type { providers } from 'ethers'
 import { filterEvents } from '../../common/api_helper'
+import { getRawTransaction } from '../../common/ethers_helper'
 import { toHexString } from '../../common/utils'
 import type { ZkGraphYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
@@ -130,5 +132,65 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
     input.addInt(0, false) // source contract count; meaning: no source contract
   }
 
+  if (ds.transaction) {
+    const filteredTransactions = blockPrep.transactions.filter((transaction) => {
+      const matchingTransactionItem = ds.transaction?.find((item) => {
+        return (item.from === transaction.from || item.from === '*') && (item.to === transaction.to || item.to === '*')
+      })
+      return matchingTransactionItem
+    })
+
+    input.addInt(filteredTransactions.length, false) // tx count
+    for (const tx of filteredTransactions) {
+      const hash = tx.hash
+      // const index = blockPrep.transactions.findIndex(transaction => transaction.hash === tx.hash)
+      input.addHexString(hash, false)
+      input.addHexString(tx.from, false)
+      const rawTx = getRawTransaction(tx)
+      input.addVarLenHexString(rawTx, false)
+
+      const offsets = calcTxFieldOffset(tx, rawTx)
+      for (const offset of offsets)
+        input.addInt(offset, false)
+    }
+  }
+  else {
+    console.log('[*] No transaction DS provided, skip...')
+    input.addInt(0, false) // tx count
+  }
+
   return input
+}
+
+function calcTxFieldOffset(tx: providers.TransactionResponse, raw: string): number[] {
+  const rawTx = raw.substring(2)
+  const hexNonce = tx.nonce.toString(16)
+  const nonceOffset = rawTx.indexOf(hexNonce) / 2
+  const nonceLen = hexNonce.length
+  const offsets: number[] = [nonceOffset, nonceLen / 2]
+
+  let toOffset = 0
+  if (tx.to != null) {
+    const toAddr = tx.to.toLowerCase().substring(2)
+    toOffset = rawTx.indexOf(toAddr) / 2
+  }
+  offsets.push(toOffset)
+
+  let dataOffset = 0
+  if (tx.data !== '0x')
+    dataOffset = rawTx.indexOf(tx.data.substring(2)) / 2
+
+  const dataLen = tx.data.length - 2
+  offsets.push(dataOffset)
+  offsets.push(dataLen / 2)
+
+  const rOffset = rawTx.indexOf(tx.r?.substring(2)) / 2
+  const sOffset = rawTx.indexOf(tx.s?.substring(2)) / 2
+  offsets.push(rOffset - 1)
+  offsets.push(rOffset)
+  offsets.push(sOffset)
+
+  // console.log(offsets) // nonce offset, nonce len, to offset, data offset, data len, v offset, r offset, r len
+
+  return offsets
 }

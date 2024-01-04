@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
   },
-  "exclude": ["dist"]
+  "exclude": ["dist", "test/fixtures/**/*"]
 }
