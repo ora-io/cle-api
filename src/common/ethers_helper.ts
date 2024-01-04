@@ -109,7 +109,7 @@ export async function getBlockBasic(provider: providers.JsonRpcProvider, block: 
   }
   const result = await retry(fn, 3)
   if (result === null)
-    throw new BlockNotFound(`Not found block ${block} in this provider: ${provider.connection.url}`)
+    throw new BlockNotFound(`Invalid blocknum ${block}, please check the given blocknum or the chain network specified in yaml.`)
 
   else
     return result
@@ -174,7 +174,6 @@ export async function getProof(ethersProvider: providers.JsonRpcProvider, addres
     }
   }
 }
-
 
 export function getRawTransaction(tx: providers.TransactionResponse): string {
   function addKey(accum: any, key: keyof providers.TransactionResponse) {
