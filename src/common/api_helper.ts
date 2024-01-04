@@ -45,8 +45,8 @@ export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList
   let accumulateReceiptLength = 0
   let rawreceipts = ''
 
-  if (rawreceiptList.length === eventList.length)
-    throw new Error('rawreceiptList and eventList not should have same length.')
+  if (rawreceiptList.length !== eventList.length)
+    throw new Error('rawreceiptList and eventList should have same length.')
 
   for (const rcpid in rawreceiptList) {
     const es = eventList[rcpid]
