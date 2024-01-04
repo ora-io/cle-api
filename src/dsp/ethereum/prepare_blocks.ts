@@ -2,6 +2,7 @@ import type { providers } from 'ethers'
 import { ethers } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
 import {
+  getBlockWithTxs,
   getProof,
   getRawReceipts,
 } from '../../common/ethers_helper'
@@ -32,11 +33,12 @@ export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider,
     [stateDSAddrList, stateDSSlotsList] = [[], []]
 
   const needRLPReceiptList = ds.event != null
+  const needTransactions = ds.transaction != null
 
-  return await prepareOneBlock(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList)
+  return await prepareOneBlock(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList, needTransactions)
 }
 
-export async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: string, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean) {
+export async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
 
   const block = new BlockPrep(
@@ -87,6 +89,11 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
     )
 
     block.addRLPReceipts(rawreceiptList)
+  }
+
+  if (needTransactions) {
+    const blockwithtxs = await getBlockWithTxs(provider, blockNumber)
+    block.setTransactions(blockwithtxs.transactions)
   }
 
   return block
