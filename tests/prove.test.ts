@@ -62,7 +62,6 @@ describe('test prove', () => {
       { zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
       false,
-      true,
     )
 
     // console.log([privateInputStr, publicInputStr])

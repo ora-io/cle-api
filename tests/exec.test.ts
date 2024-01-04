@@ -57,7 +57,6 @@ describe('test exec', () => {
       { wasmUint8Array, zkgraphYaml: yaml },
       execParams as any,
       local,
-      true,
     )
 
     return state
@@ -94,7 +93,6 @@ describe('test exec', () => {
       { wasmUint8Array, zkgraphYaml: yaml },
       dataPrep,
       local,
-      true,
     )
 
     return state
@@ -141,7 +139,6 @@ describe('test exec', () => {
       { wasmUint8Array, zkgraphYaml: yaml },
       dataPrep,
       local,
-      true,
     )
     const stateStr = zkgapi.utils.toHexString(stateu8a)
 

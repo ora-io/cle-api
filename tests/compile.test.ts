@@ -4,7 +4,7 @@ import { expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
 import webjson from '@hyperoracle/zkgraph-lib/test/weblib/weblib.json'
 import { compile } from '../src/api/compile'
-import { ZkGraphYaml } from '../src'
+import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
@@ -13,7 +13,7 @@ function getMappingContent(filepath: string) {
 }
 
 it('test compile', async () => {
-  const yaml = ZkGraphYaml.fromYamlPath(path.join(__dirname, 'fixtures/compile/zkgraph.yaml'))
+  const yaml = loadYamlFromPath(path.join(__dirname, 'fixtures/compile/zkgraph.yaml'))
   if (!yaml)
     throw new Error('yaml is null')
 

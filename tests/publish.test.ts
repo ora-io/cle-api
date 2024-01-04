@@ -27,7 +27,6 @@ it('test publish', async () => {
       ipfsHash,
       newBountyRewardPerTrigger,
       signer,
-      true,
     )
     // eslint-disable-next-line no-console
     console.log(publishTxHash)
