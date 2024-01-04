@@ -17,7 +17,7 @@ class EventItem {
     public address: string,
     public events: string[],
   ) {
-    // this.address = address.toLocaleLowerCase()
+    // this.address = address.toLowerCase()
   }
 }
 class StorageItem {
@@ -25,7 +25,7 @@ class StorageItem {
     public address: string,
     public slots: string[], // ethers.utils.BytesLike[]
   ) {
-    // this.address = address.toLocaleLowerCase()
+    // this.address = address.toLowerCase()
   }
 }
 class TransactionItem {
@@ -42,7 +42,7 @@ class EventSectionCache {
     public addressList: string[],
     public esigsList: string[][],
   ) {
-    this.addressList = addressList.map(item => item.toLocaleLowerCase())
+    this.addressList = addressList.map(item => item.toLowerCase())
   }
 }
 class StorageSectionCache {
@@ -50,7 +50,7 @@ class StorageSectionCache {
     public addressList: string[],
     public slotsList: string[][],
   ) {
-    this.addressList = addressList.map(item => item.toLocaleLowerCase())
+    this.addressList = addressList.map(item => item.toLowerCase())
   }
 }
 
@@ -135,7 +135,7 @@ export class EthereumDataSource extends DataSource {
     // return if there's cache, cause it's always the same
     if (!useCache || this.storageSectionCache == null) {
       const loadFromStorageSource = (storage: StorageItem) => {
-        const source_address = storage.address.toLocaleLowerCase()
+        const source_address = storage.address.toLowerCase()
         const source_slots = storage.slots.map((sl: ethers.utils.BytesLike) => {
           return ethers.utils.hexZeroPad(sl, 32)
         })
