@@ -1,4 +1,6 @@
 import { hasOwnProperty, randomStr } from '@murongg/utils'
+import type { AxiosRequestConfig } from 'axios'
+import axios from 'axios'
 import type { ZkGraphExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
 import { DSPNotFound } from '../common/error'
@@ -103,4 +105,20 @@ export async function compile(
     outputs,
     ...ascResult,
   }
+}
+
+export async function compileRequest(endpoint: string, data: any) {
+  // Set up request config
+  const requestConfig: AxiosRequestConfig = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: endpoint,
+    headers: {
+      ...data?.getHeaders(),
+    },
+    data,
+    timeout: 50000,
+  }
+
+  return await axios.request(requestConfig)
 }
