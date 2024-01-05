@@ -108,11 +108,12 @@ export async function getBlockBasic(provider: providers.JsonRpcProvider, block: 
     return fullBlock
   }
   const result = await retry(fn, 3)
-  if (result === null)
-    throw new BlockNotFound(`Invalid blocknum ${block}, please check the given blocknum or the chain network specified in yaml.`)
+  if (result === null) {
+    const latestBlock = await provider.getBlockNumber()
+    throw new BlockNotFound(`Invalid blocknum ${block}, please check the given blocknum or the chain network specified in yaml. Block must be within 100000 blocks of the head block number (currently ${latestBlock})`)
+  }
 
-  else
-    return result
+  else { return result }
 }
 
 export async function getBlockWithTxs(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
