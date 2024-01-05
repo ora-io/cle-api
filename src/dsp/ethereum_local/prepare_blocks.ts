@@ -7,46 +7,10 @@ import {
   getRawReceipts,
 } from '../../common/ethers_helper'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
-import type { EthereumDataSource } from '../../types/zkgyaml_eth'
-import { BlockPrep, EthereumDataPrep } from './blockprep'
+import { BlockPrep } from '../ethereum/blockprep'
 
-export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, latestBlocknumber: number, latestBlockhash: string, expectedStateStr: string, zkgraphYaml: ZkGraphYaml) {
-  // TODO: multi blocks
-  const blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, zkgraphYaml)
-
-  const blockPrepMap = new Map()
-  blockPrepMap.set(latestBlocknumber, blockPrep)
-
-  const blocknumOrder = [latestBlocknumber]
-
-  return new EthereumDataPrep(blockPrepMap, blocknumOrder, latestBlockhash, expectedStateStr)
-}
-
-// modularize prepareOneBlockFunc, re-use in eth local dsp.
-let prepareOneBlockFunc = prepareOneBlock
-export function setPrePareOneBlockFunc(_func: any) {
-  prepareOneBlockFunc = _func
-}
-
-export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider, blockNumber: any, zkgraphYaml: ZkGraphYaml) {
-  let stateDSAddrList, stateDSSlotsList
-  const ds = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
-  if (ds.storage)
-    [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
-
-  else
-    [stateDSAddrList, stateDSSlotsList] = [[], []]
-
-  const needRLPReceiptList = ds.event != null
-  const needTransactions = ds.transaction != null
-
-  return await prepareOneBlockFunc(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList, needTransactions)
-}
-
-async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
+export async function prepareOneBlockLocal(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
-
   const block = new BlockPrep(
     blockNumber,
     // header rlp

@@ -21,19 +21,36 @@ export function asmain(): Uint8Array {
 }
 function abort(a: usize, b: usize, c: u32, d: u32): void {}
 `
+// TODO: merge codegen_local & codegen into 1 var
+const codegen_local = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
+import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/zkgraph-lib/dsp/${libDSPName}"
+import { ${handleFuncName} } from "./${mappingFileName}"
+
+export function zkmain(): void {
+  registerHandle(${handleFuncName})
+  return zkmain_lib()
+}
+
+export function asmain(): Uint8Array {
+  registerHandle(${handleFuncName})
+  return asmain_lib()
+}
+function abort(a: usize, b: usize, c: u32, d: u32): void {}
+`
 
 function getAbortTsFilepath(innerTsFilePath: string) {
   return `${innerTsFilePath.replace('.ts', '')}/abort`.replaceAll('\\', '/')
 }
 
-const getCompilerOptions = () => {
+const getCompilerOptions = (isLocal = false) => {
   const options: string[] = []
   options.push('--optimize')
   options.push('--noAssert')
   options.push('--exportRuntime')
   options.push('--disable', 'bulk-memory')
   options.push('--disable', 'mutable-globals')
-  options.push('--exportStart', '__as_start')
+  if (!isLocal)
+    options.push('--exportStart', '__as_start')
   options.push('--memoryBase', '70000')
   options.push('--target', 'release')
   options.push('--runtime', 'stub')
@@ -81,7 +98,7 @@ export async function compile(
   const outputs: Record<string, string | Uint8Array> = {}
   sources = {
     ...sources,
-    [tsModule]: codegen(libDSPName, mappingFileName, handleFuncName),
+    [tsModule]: isLocal ? codegen_local(libDSPName, mappingFileName, handleFuncName) : codegen(libDSPName, mappingFileName, handleFuncName),
   }
   const config = {
     stdout,
@@ -96,7 +113,7 @@ export async function compile(
     '--use', `abort=${abortPath}`,
     '--textFile', textModule,
     '--outFile', wasmModule,
-    ...getCompilerOptions(),
+    ...getCompilerOptions(isLocal),
   ]
   const ascResult = await asc.main(compileOptions, config)
   return {
