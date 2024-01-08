@@ -95,9 +95,10 @@ export async function publishByImgCmt(
   }
 }
 
-function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
+function littleEndianToUint256(inputArray: Uint8Array): ethers.BigNumber {
   const reversedArray = inputArray.reverse()
-  const hexString = `0x${reversedArray.map(byte => byte.toString(16).padStart(2, '0')).join('')}`
+  const reversed = reversedArray.reduce((accum: any, item: any) => accum + item.toString(16).padStart(2, '0'), '')
+  const hexString = `0x${reversed}`
 
   return ethers.BigNumber.from(hexString)
 }
@@ -115,9 +116,8 @@ export async function getImageCommitment(
 ) {
   const { wasmUint8Array } = zkGraphExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
-  const result = deatails[0]?.data.result[0]
-  if (result === null)
+  const [result] = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
+  if (!result || !result.checksum)
     throw new Error('Can\'t find zkWasm image details, please finish setup before publish.')
 
   const pointX = littleEndianToUint256(result.checksum.x)

@@ -67,7 +67,7 @@
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
     "@hyperoracle/zkwasm-service-helper": "1.0.1",
-    "@murongg/utils": "^0.1.18",
+    "@murongg/utils": "^0.1.20",
     "assemblyscript": "^0.27.22",
     "axios": "^1.6.2",
     "axios-retry": "^3.9.1",

@@ -1,19 +1,9 @@
-import axios from 'axios'
-import url from './url.js'
+import { to } from '@murongg/utils'
+import type { Image } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmServiceHelper } from '@hyperoracle/zkwasm-service-helper'
 
 export async function zkwasm_imagedetails(zkwasmProverUrl: string, md5: string) {
-  const requestConfig = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: url.searchImageURL(zkwasmProverUrl, md5.toUpperCase()).url,
-    headers: {
-      ...url.searchImageURL(zkwasmProverUrl, md5.toUpperCase()).contentType,
-    },
-  }
-
-  let errorMessage = null
-  const response = await axios.request(requestConfig).catch((error) => {
-    errorMessage = error
-  })
-  return [response, errorMessage]
+  const helper = new ZkWasmServiceHelper(zkwasmProverUrl, '', '')
+  const [errorMessage, response] = await to(helper.queryImage(md5.toUpperCase()))
+  return [response, errorMessage] as ([Image, null] | [undefined, Error])
 }
