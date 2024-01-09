@@ -11,7 +11,7 @@ export class EthereumLocalDataPrep extends EthereumDataPrep {
   }
 }
 
-// name with *Prep to avoid confusion with zkgraph-lib/Block
+// name with *Prep to avoid confusion with cle-lib/Block
 export class BlockLocalPrep extends BlockPrep {
   eventOffsets: Uint32Array
   constructor(blocknum: number | bigint | BytesLike | Hexable, rlpHeader: string) {

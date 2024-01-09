@@ -226,7 +226,7 @@ export function loadConfigByNetwork(yaml: Partial<CLEYaml>, networksConfig: Netw
 
   if (!targetConfig) {
     throw new Error(
-      `[-] networksConfig for network "${network}" is not found in zkgraph-api.`,
+      `[-] networksConfig for network "${network}" is not found in cle-api.`,
     )
   }
 

@@ -7,7 +7,7 @@ import { loadYamlFromPath } from './utils/yaml'
 
 const rpcUrl = 'https://rpc.ankr.com/eth_sepolia'
 
-const yamlPath = 'tests/testsrc/zkgraph-event.yaml'
+const yamlPath = 'tests/testsrc/cle-event.yaml'
 // let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
 const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
 // let proveTaskId = "6554584c82ab2c8b29dbc2c2" // true
@@ -16,7 +16,7 @@ const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
 describe('test verify', () => {
   const yaml = loadYamlFromPath(yamlPath)
 
-  it('test verify ZKGraphExecutable', async () => {
+  it('test verify CLEExecutable', async () => {
     const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
     expect(await zkgapi.verify(
       { wasmUint8Array: null, cleYaml: yaml },

@@ -14,7 +14,7 @@ import type { EthereumLocalDataPrep } from './dataprep'
 import { prepareOneBlockLocal } from './prepare_blocks'
 
 export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, EthereumLocalDataPrep> {
-  // SHOULD align with zkgraph-lib/dsp/<DSPName>
+  // SHOULD align with cle-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum_local' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>): Promise<any> {

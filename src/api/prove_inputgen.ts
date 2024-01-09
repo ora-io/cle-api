@@ -2,7 +2,7 @@ import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 
 /**
  * Generate the private and public inputs in hex string format
@@ -13,11 +13,11 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {[string, string]} - private input string, public input string
  */
 export async function proveInputGen(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
+  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   proveParams: Record<string, any>,
   isLocal = false,
 ) {
-  const { cleYaml } = zkGraphExecutable
+  const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
@@ -26,15 +26,15 @@ export async function proveInputGen(
   const prepareParams = await dsp?.toPrepareParams(proveParams, 'prove')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
 
-  return proveInputGenOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
+  return proveInputGenOnDataPrep(cleExecutable, dataPrep, isLocal)
 }
 
 export function proveInputGenOnDataPrep(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
+  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   dataPrep: DataPrep,
   isLocal = false,
 ): [string, string] {
-  const { cleYaml } = zkGraphExecutable
+  const { cleYaml } = cleExecutable
 
   let input = new Input()
 

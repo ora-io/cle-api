@@ -5,7 +5,7 @@ import {
 } from '../common/constants'
 
 /**
- * Publish and register zkGraph onchain.
+ * Publish and register CLE onchain.
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {object} signer - the acct for sign tx
  * @param {string} graphContractAddress - the deployed verification contract address

@@ -22,14 +22,14 @@ const blocknumForStorageTest = {
 }
 
 const execOptionsForEvent = {
-  wasmPath: 'tests/build/zkgraph-event.wasm',
-  yamlPath: 'tests/testsrc/zkgraph-event.yaml',
+  wasmPath: 'tests/build/cle-event.wasm',
+  yamlPath: 'tests/testsrc/cle-event.yaml',
   local: false,
 }
 
 const execOptionsForStorage = {
-  wasmPath: 'tests/build/zkgraph-storage.wasm',
-  yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
+  wasmPath: 'tests/build/cle-storage.wasm',
+  yamlPath: 'tests/testsrc/cle-storage.yaml',
   local: false,
 }
 
@@ -102,7 +102,7 @@ describe('test exec', () => {
     const { wasmPath, yamlPath, local } = execOptionsForEvent
 
     /**
-     * assemble zkGraphExecutable & get dsp
+     * assemble cleExecutable & get dsp
      */
 
     // get wasmUint8Array & Yaml
@@ -110,7 +110,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const zkGraphExecutable = { wasmUint8Array, cleYaml: yaml }
+    const cleExecutable = { wasmUint8Array, cleYaml: yaml }
     // get dsp
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
     if (!dsp)
@@ -154,16 +154,16 @@ describe('test exec', () => {
     // console.log(`(Execute) Public Input: ${publicInputStr}`)
 
     // // execute, get state
-    // const state = await zkgapi.executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr)
+    // const state = await zkgapi.executeOnInputs(cleExecutable, privateInputStr, publicInputStr)
 
-    console.log(`ZKGRAPH STATE OUTPUT: ${stateStr}`)
+    console.log(`CLE STATE OUTPUT: ${stateStr}`)
 
     /**
      * Prove Input Gen
      */
 
     dataPrep = dsp?.toProveDataPrep(dataPrep, stateStr)
-    const [privateInputStr, publicInputStr] = zkgapi.proveInputGenOnDataPrep(zkGraphExecutable, dataPrep)
+    const [privateInputStr, publicInputStr] = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep)
 
     console.log(`(Prove) Private Input: ${privateInputStr}`)
     console.log(`(Prove) Public Input: ${publicInputStr}`)

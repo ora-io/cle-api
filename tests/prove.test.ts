@@ -26,14 +26,14 @@ const expectedStateStrForTest = {
 }
 
 // const proveModeOptionsForEvent = {
-//   wasmPath: 'tests/build/zkgraph-event.wasm',
-//   yamlPath: 'tests/testsrc/zkgraph-event.yaml',
+//   wasmPath: 'tests/build/cle-event.wasm',
+//   yamlPath: 'tests/testsrc/cle-event.yaml',
 //   zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
 // }
 
 const proveModeOptionsForStorage = {
-  wasmPath: 'tests/build/zkgraph-storage.wasm',
-  yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
+  wasmPath: 'tests/build/cle-storage.wasm',
+  yamlPath: 'tests/testsrc/cle-storage.yaml',
   zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
 }
 

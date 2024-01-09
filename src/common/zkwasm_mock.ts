@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { fromHexString, toHexString } from './utils.js'
-import { ZKGraphRequireFailed } from './error.js'
+import { CLERequireFailed } from './error.js'
 
 export class HostMemory {
   mem: Uint8Array
@@ -92,7 +92,7 @@ export class ZKWASMMock {
   static require(a: 0 | 1) {
     if (!a) {
     //   console.log("[-] zkwasm require condition is false");
-      throw new ZKGraphRequireFailed('Abort execution since the require condition is false.')
+      throw new CLERequireFailed('Abort execution since the require condition is false.')
       // TODO: change to graceful kill rather than throw Error?
     }
   }

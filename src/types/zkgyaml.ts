@@ -129,7 +129,7 @@ export class CLEYaml {
     if (semver.gt(yaml.specVersion, '0.0.2'))
       throw new YamlHealthCheckFailed('Invalid specVersion, it should be <= 0.0.2')
 
-    // apiVersion → zkgraph-lib version check
+    // apiVersion → cle-lib version check
     if (!yaml.apiVersion || typeof yaml.apiVersion !== 'string' || yaml.apiVersion.trim() === '')
       throw new YamlHealthCheckFailed('apiVersion is missing or empty')
 

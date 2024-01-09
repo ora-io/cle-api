@@ -1,17 +1,17 @@
 import { ZKWASMMock } from '../common/zkwasm_mock'
 import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
-import { ZKGraphRequireFailed } from '../common/error'
-import type { ZkGraphExecutable } from '../types/api'
+import { CLERequireFailed } from '../common/error'
+import type { CLEExecutable } from '../types/api'
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
- * @param {object} zkGraphExecutable
+ * @param {object} cleExecutable
  * @param {string} privateInputStr
  * @param {string} publicInputStr
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(zkGraphExecutable: Omit<ZkGraphExecutable, 'cleYaml'>, privateInputStr: string, publicInputStr: string) {
-  const { wasmUint8Array } = zkGraphExecutable
+export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, privateInputStr: string, publicInputStr: string) {
+  const { wasmUint8Array } = cleExecutable
 
   const mock = new ZKWASMMock()
   mock.set_private_input(privateInputStr)
@@ -26,7 +26,7 @@ export async function proveMock(zkGraphExecutable: Omit<ZkGraphExecutable, 'cleY
     zkmain()
   }
   catch (e) {
-    if (e instanceof ZKGraphRequireFailed)
+    if (e instanceof CLERequireFailed)
       return false
 
     throw e

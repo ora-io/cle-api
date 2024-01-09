@@ -73,7 +73,7 @@ export class AccountPrep {
   }
 }
 
-// name with *Prep to avoid confusion with zkgraph-lib/Block
+// name with *Prep to avoid confusion with cle-lib/Block
 export class BlockPrep {
   number: any
   rlpHeader: any

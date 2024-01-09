@@ -8,7 +8,7 @@ import { createFileFromUint8Array } from './utils/file'
 
 describe('test exec', () => {
   it('test setup', async () => {
-    const wasm = fs.readFileSync('tests/build/zkgraph-storage.wasm')
+    const wasm = fs.readFileSync('tests/build/cle-storage.wasm')
     const wasmUint8Array = new Uint8Array(wasm)
     const image = createFileFromUint8Array(wasm, 'poc.wasm')
     const result = await zkgapi.setup(

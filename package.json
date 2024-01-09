@@ -1,8 +1,8 @@
 {
-  "name": "@hyperoracle/zkgraph-api",
+  "name": "@hyperoracle/cle-api",
   "type": "module",
   "version": "1.0.3",
-  "description": "API for interacting with Hyper Oracle zkGraphs",
+  "description": "API for interacting with Hyper Oracle CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
   "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
@@ -14,11 +14,9 @@
     "url": "https://github.com/hyperoracle/zkgraph-api/issues"
   },
   "keywords": [
-    "zkgraph",
+    "cle",
     "api",
-    "hyperoracle",
-    "ho",
-    "zkg"
+    "ora"
   ],
   "sideEffects": false,
   "exports": {
@@ -79,7 +77,7 @@
     "web3-eth-contract": "^1.8.2"
   },
   "devDependencies": {
-    "@hyperoracle/zkgraph-lib": "^1.0.1",
+    "@hyperoracle/cle-lib": "^1.0.1",
     "@murongg/eslint-config": "^0.2.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",

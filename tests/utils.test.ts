@@ -9,9 +9,9 @@ import { loadYamlFromPath } from './utils/yaml'
 
 describe('test utils', () => {
   it('test healthcheck', () => {
-    test_healthcheck('tests/testsrc/zkgraph-event.yaml')
-    test_healthcheck('tests/testsrc/zkgraph-storage.yaml')
-    test_healthcheck('tests/testsrc/zkgraph-dirty.yaml')
+    test_healthcheck('tests/testsrc/cle-event.yaml')
+    test_healthcheck('tests/testsrc/cle-storage.yaml')
+    test_healthcheck('tests/testsrc/cle-dirty.yaml')
   })
   it('getRawReceipts', async () => {
     const provider = new ethers.providers.JsonRpcProvider(config.JsonRpcProviderUrl.sepolia)

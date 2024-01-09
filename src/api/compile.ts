@@ -1,11 +1,11 @@
 import { hasOwnProperty, randomStr } from '@murongg/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
 import { DSPNotFound } from '../common/error'
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
-import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/zkgraph-lib/dsp/${libDSPName}"
+import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
 
 declare function __call_as_start(): void;
@@ -25,7 +25,7 @@ function abort(a: usize, b: usize, c: u32, d: u32): void {}
 `
 // TODO: merge codegen_local & codegen into 1 var
 const codegen_local = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
-import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/zkgraph-lib/dsp/${libDSPName}"
+import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
 
 export function zkmain(): void {
@@ -76,11 +76,11 @@ export interface CompileOptions {
 }
 
 export async function compile(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'wasmUint8Array'>,
+  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  const { cleYaml } = zkGraphExecutable
+  const { cleYaml } = cleExecutable
   const { isLocal = false } = options
 
   const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })

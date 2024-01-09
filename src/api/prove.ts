@@ -6,11 +6,11 @@ import { zkwasm_prove } from '../requests/zkwasm_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {object} zkGraphExecutable
+ * @param {object} cleExecutable
  * @param {string} privateInputStr - the packed private input in hex string
  * @param {string} publicInputStr - the packed public input in hex string
  * @param {string} zkwasmProverUrl - the url of the zkwasm prover
@@ -19,7 +19,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {object} - proof task details in json
  */
 export async function prove(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'cleYaml'>,
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
   privateInputStr: string,
   publicInputStr: string,
   zkwasmProverUrl: string,
@@ -35,7 +35,7 @@ export async function prove(
     taskId: null,
     errorMessage: null,
   }
-  const { wasmUint8Array } = zkGraphExecutable
+  const { wasmUint8Array } = cleExecutable
 
   // Prove mode
   const privateInputArray = privateInputStr.trim().split(' ')

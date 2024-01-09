@@ -4,18 +4,18 @@ import { Input } from '../common/input'
 import { ZKWASMMock } from '../common/zkwasm_mock'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 
 /**
- * Execute the given zkGraphExecutable in the context of execParams
- * @param {object} zkGraphExecutable {'cleYaml': cleYaml}
+ * Execute the given cleExecutable in the context of execParams
+ * @param {object} cleExecutable {'cleYaml': cleYaml}
  * @param {object} execParams
  * @param {boolean} isLocal
  * @param {boolean} enableLog
- * @returns {Uint8Array} - execution result (aka. zkgraph state)
+ * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: Record<string, any>, isLocal = false) {
-  const { cleYaml } = zkGraphExecutable
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false) {
+  const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
@@ -24,19 +24,19 @@ export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: 
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
 
-  return await executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
+  return await executeOnDataPrep(cleExecutable, dataPrep, isLocal)
 }
 
 /**
  *
- * @param {object} zkGraphExecutable
+ * @param {object} cleExecutable
  * @param {DataPrep} dataPrep
  * @param {boolean} isLocal
  * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, dataPrep: DataPrep, isLocal = false) {
-  const { cleYaml } = zkGraphExecutable
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false) {
+  const { cleYaml } = cleExecutable
 
   let input = new Input()
 
@@ -48,18 +48,18 @@ export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, da
 
   const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
 
-  return await executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr)
+  return await executeOnInputs(cleExecutable, privateInputStr, publicInputStr)
 }
 
 /**
  *
- * @param {object} zkGraphExecutable
+ * @param {object} cleExecutable
  * @param {string} privateInputStr
  * @param {string} publicInputStr
  * @returns
  */
-export async function executeOnInputs(zkGraphExecutable: ZkGraphExecutable, privateInputStr: string, publicInputStr: string) {
-  const { wasmUint8Array } = zkGraphExecutable
+export async function executeOnInputs(cleExecutable: CLEExecutable, privateInputStr: string, publicInputStr: string) {
+  const { wasmUint8Array } = cleExecutable
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is null')
 
@@ -82,51 +82,3 @@ export async function executeOnInputs(zkGraphExecutable: ZkGraphExecutable, priv
   }
   return stateU8a as Uint8Array
 }
-
-// /**
-//  * // TODO: compitable purpose
-//  * // Deprecated since yaml specVersion: v0.0.2
-//  * Execute the given zkgraph {$wasmUint8Array, $yamlContent} in the context of $blockid
-//  * @param {string} wasmUint8Array
-//  * @param {string} yamlContent
-//  * @param {Array<string>} rawreceiptList
-//  * @param {boolean} isLocal
-//  * @param {boolean} enableLog
-//  * @returns {Uint8Array} - execution result (aka. zkgraph state)
-//  */
-// export async function executeOnRawReceipts(wasmUint8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
-
-//     const cleYaml = CLEYaml.fromYamlContent(yamlContent)
-//     const provider = new providersonRpcProvider(rpcUrl);
-
-//     const [eventDSAddrList, eventDSEsigsList] = cleYaml.dataSources[0].event.toArray();
-
-//     // prepare data
-
-//     // filter
-//     const [rawReceipts, matchedEventOffsets] = filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog).catch((error) => {
-//       throw error;
-//     })
-
-//     // create blockPrepMap
-//     let blockNumber = 0; // to compitable, use fixed block num
-
-//     let blockPrep = new BlockPrep(
-//       blockNumber,
-//       // header rlp
-//       "0x00",
-//     )
-//     blockPrep.addRLPReceipts(rawreceiptList)
-
-//     let blockPrepMap = new Map();
-//     blockPrepMap.set(blockNumber, blockPrep)
-
-//     let blocknumOrder = [blockNumber]
-
-//     // gen inputs
-//     let input = new Input();
-//     input = fillExecInput(input, cleYaml, blockPrepMap, blocknumOrder)
-//     let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
-
-//     return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)
-// }

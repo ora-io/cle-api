@@ -16,7 +16,7 @@ it('test dispatch', async () => {
   const signer = new ethers.Wallet(privateKey, provider)
 
   const dispatcher = new zkgapi.TaskDispatch(queryAPI, contractAddress, feeInWei, provider, signer)
-  const tx = await dispatcher.setup('zkgraph', 22)
+  const tx = await dispatcher.setup('cle', 22)
   await tx.wait()
 
   const txhash = tx.hash

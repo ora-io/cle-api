@@ -4,7 +4,7 @@ import { isKeyOf, objectMap } from '@murongg/utils'
 import { pinata_upload } from '../requests/pinata_upload'
 import { UploadFileNotExist } from '../common/error'
 
-export const UploadMustBeExistFiles = ['zkgraph.yaml', 'zkgraph.wasm']
+export const UploadMustBeExistFiles = ['cle.yaml', 'cle.wasm']
 
 /**
  * Uploads files to a specified directory.

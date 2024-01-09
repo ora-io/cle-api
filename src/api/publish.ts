@@ -10,51 +10,51 @@ import { DSPNotFound, GraphAlreadyExist } from '../common/error'
 import { loadConfigByNetwork } from '../common/utils'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 import type { CLEYaml } from '../types/zkgyaml'
 
 /**
- * Publish and register zkGraph onchain.
- * @param {object} zkGraphExecutable {wasmUint8Array, cleYaml}
+ * Publish and register CLE onchain.
+ * @param {object} cleExecutable {wasmUint8Array, cleYaml}
  * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {string} ipfsHash - the ipfs hash of the zkGraph
+ * @param {string} ipfsHash - the ipfs hash of the CLE
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
  * @param {object} signer - the acct for sign tx
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function publish(
-  zkGraphExecutable: ZkGraphExecutable,
+  cleExecutable: CLEExecutable,
   zkwasmProviderUrl: string,
   provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
 ) {
-  const imgCmt = await getImageCommitment(zkGraphExecutable, zkwasmProviderUrl)
-  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer)
+  const imgCmt = await getImageCommitment(cleExecutable, zkwasmProviderUrl)
+  return publishByImgCmt(cleExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer)
 }
 
 /**
- * Publish and register zkGraph onchain, with code hash provided.
- * @param {object} zkGraphExecutable {cleYaml}
+ * Publish and register CLE onchain, with code hash provided.
+ * @param {object} cleExecutable {cleYaml}
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {string} ipfsHash - the ipfs hash of the zkGraph
+ * @param {string} ipfsHash - the ipfs hash of the CLE
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
  * @param {object} signer - the acct for sign tx
  * @param {boolean} enableLog - enable logging or not
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function publishByImgCmt(
-  zkGraphExecutable: ZkGraphExecutable,
+  cleExecutable: CLEExecutable,
   imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
   provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
 ) {
-  const { cleYaml } = zkGraphExecutable
+  const { cleYaml } = cleExecutable
 
   const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false })
   if (!dsp)
@@ -78,7 +78,7 @@ export async function publishByImgCmt(
       imageCommitment.pointY,
     )
     .catch((_err: any) => {
-      throw new GraphAlreadyExist('Duplicate zkGraph detected. Only publishing distinct zkGraphs is allowed.')
+      throw new GraphAlreadyExist('Duplicate CLE detected. Only publishing distinct CLEs is allowed.')
     })
 
   const txReceipt = await tx.wait(1).catch((err: any) => {
@@ -104,16 +104,16 @@ function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
 
 /**
  *
- * @param {object} zkGraphExecutable {wasmUint8Array}
- * @param zkGraphExecutable
+ * @param {object} cleExecutable {wasmUint8Array}
+ * @param cleExecutable
  * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
  * @returns
  */
 export async function getImageCommitment(
-  zkGraphExecutable: ZkGraphExecutable,
+  cleExecutable: CLEExecutable,
   zkwasmProviderUrl: string,
 ) {
-  const { wasmUint8Array } = zkGraphExecutable
+  const { wasmUint8Array } = cleExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
   const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
   const result = deatails[0]?.data.result[0]

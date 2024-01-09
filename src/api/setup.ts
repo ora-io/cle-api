@@ -6,7 +6,7 @@ import {
 } from '../requests/zkwasm_taskdetails'
 import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 
 /**
  * Set up zkwasm image with given wasm file.
@@ -20,13 +20,13 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
 export async function setup(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'cleYaml'> & { image: any },
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'> & { image: any },
   circuitSize: number,
   userPrivateKey: string,
   ZkwasmProviderUrl: string,
   enableLog = true,
 ) {
-  const { wasmUint8Array, image } = zkGraphExecutable
+  const { wasmUint8Array, image } = cleExecutable
   let cirSz
   if (circuitSize >= 18 && circuitSize <= 24)
     cirSz = circuitSize

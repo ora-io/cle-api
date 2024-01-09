@@ -30,7 +30,7 @@ export interface EthereumDSPProveParams {
 }
 
 export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, EthereumDataPrep> {
-  // SHOULD align with zkgraph-lib/dsp/<DSPName>
+  // SHOULD align with cle-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: EthereumDSPPrepareParams) {

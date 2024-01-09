@@ -57,7 +57,7 @@ export class EthereumOffchainDP extends DataPrep {
 }
 
 export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExecParams, EthereumOffchainDSPProveParams, EthereumOffchainDSPPrepareParams, EthereumOffchainDPDataPrep> {
-  // SHOULD align with zkgraph-lib/dsp/<DSPName>
+  // SHOULD align with cle-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum-offchain.bytes' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: EthereumOffchainDSPPrepareParams) {

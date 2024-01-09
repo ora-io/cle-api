@@ -84,7 +84,7 @@ async function instantiate(module: BufferSource, imports: Record<string, any> = 
         }
       },
       asmain() {
-        // dev: always throw for zkgraph debug purpose.
+        // dev: always throw for CLE debug purpose.
         // try {
         return __liftTypedArray(
           Uint8Array,
@@ -195,7 +195,7 @@ async function instantiate(module: BufferSource, imports: Record<string, any> = 
 //       }
 //     })(),
 //     {},
-//   ))(new URL("../../build/zkgraph_full.wasm", import.meta.url));
+//   ))(new URL("../../build/cle_full.wasm", import.meta.url));
 
 export const instantiateWasm = async (wasmUint8Array: Uint8Array) => {
   return instantiate(

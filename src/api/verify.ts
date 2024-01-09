@@ -8,7 +8,7 @@ import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/cons
 import { ProveTaskNotReady } from '../common/error'
 import { loadConfigByNetwork } from '../common/utils'
 import type { CLEYaml } from '../types/zkgyaml'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types/api'
 // import { VerifyProofParams } from '@hyperoracle/zkwasm-service-helper'
 export interface VerifyProofParams {
   aggregate_proof: Uint8Array
@@ -18,11 +18,11 @@ export interface VerifyProofParams {
 }
 
 export async function verify(
-  zkGraphExecutable: NullableObject<ZkGraphExecutable>,
+  cleExecutable: NullableObject<CLEExecutable>,
   proofParams: VerifyProofParams,
   jsonRpcProviderUrl: string,
 ) {
-  const { cleYaml } = zkGraphExecutable
+  const { cleYaml } = cleExecutable
   const verifierContractAddress = loadConfigByNetwork(cleYaml as CLEYaml, AggregatorVerifierAddress, false)
   return await verifyProof(verifierContractAddress, proofParams, jsonRpcProviderUrl)
 }
