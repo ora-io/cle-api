@@ -31,6 +31,24 @@ export function fillInputBlocks(
   return input
 }
 
+// modularize, re-use in eth local dsp.
+let fillInputStorageFunc = fillInputStorage
+export function setFillInputStorageFunc(_func: any) {
+  fillInputStorageFunc = _func
+}
+
+// modularize, re-use in eth local dsp.
+let fillInputEventsFunc = fillInputEvents
+export function setFillInputEventsFunc(_func: any) {
+  fillInputEventsFunc = _func
+}
+
+// modularize, re-use in eth local dsp.
+let fillInputTxsFunc = fillInputTxs
+export function setFillInputTxsFunc(_func: any) {
+  fillInputTxsFunc = _func
+}
+
 // blockPrep: class BlockPrep, used for prepare data & interface params.
 export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPrep: BlockPrep) {
   input.addInt(blockPrep.number, false)
@@ -59,37 +77,11 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
         stateDSSlotsList[i],
         '\n',
       )
-
-      input.addHexString(stateDSAddrList[i], false) // address
-      // let ethproof = await getProof(
-      //   provider,
-      //   stateDSAddrList[i],
-      //   stateDSSlotsList[i],
-      //   ethers.utils.hexValue(blockNumber)
-      // );
-
-      const acctPrep = blockPrep?.getAccount(stateDSAddrList[i])
-
-      input.addVarLenHexString(acctPrep?.rlpNode, false) // account rlp
-      input.addVarLenHexStringArray(acctPrep?.accountProof, false) // account proof
-
-      const sourceSlots = stateDSSlotsList[i]
-      input.addInt(sourceSlots.length, false) // slot count
-
-      for (let j = 0; j < sourceSlots.length; j++) {
-        const slotPrep = acctPrep?.getSlot(sourceSlots[j])
-        // slot might doesn't exist. can't proceed in this case.
-        if (slotPrep.storageProof == null)
-          throw new Error(`In ExecInputGen: slot ${sourceSlots[j]} doesn't exist on given block height, storage proof == null. \n Please update yaml or use later blocknumber.`)
-
-        input.addHexString(sourceSlots[j], false)
-        input.addVarLenHexString(slotPrep.value, false)
-        input.addVarLenHexStringArray(slotPrep.storageProof, false)
-      }
     }
+    fillInputStorageFunc(input, blockPrep, stateDSAddrList, stateDSSlotsList)
   }
   else {
-    console.log('[*] No storage DS provided, skip...')
+    console.log('[*] No storage DS provided, skip...') // can rm
     input.addInt(0, false) // account count
   }
 
@@ -98,9 +90,6 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
    * */
 
   if (ds.event) {
-    // TODO move logs to cli
-    const enableLog = true
-
     const [eventDSAddrList, eventDSEsigsList] = ds.getEventLists()
 
     // TODO: move this to cli
@@ -108,60 +97,17 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
     for (let i = 0; i < eventDSAddrList.length; i++)
       console.log(`    (${i}) Address:`, eventDSAddrList[i], '\n        Event Sigs:', eventDSEsigsList[i], '\n')
 
-    const rawreceiptList = blockPrep?.getRLPReceipts()
-
-    // TODO: return list rather than appending string.
-    // NODE: rm `matchedEventOffsets` already. please add it yourself.
-    const [rawReceipts] = filterEvents(
-      eventDSAddrList,
-      eventDSEsigsList,
-      rawreceiptList as any,
-      enableLog,
-    )
-
-    // TODO: calc receipt count from filterEvents
-    const receiptCount = (rawReceipts.length > 0 ? rawreceiptList?.length : 0) || 0
-    input.addInt(receiptCount, false) // receipt count (tmp)
-
-    if (receiptCount > 0) {
-      // fill raw receipts
-      input.addVarLenHexString(toHexString(rawReceipts), false)
-    }
+    fillInputEventsFunc(input, blockPrep, eventDSAddrList, eventDSEsigsList)
   }
   else {
-    console.log('[*] No event DS provided, skip...')
+    console.log('[*] No event DS provided, skip...') // can rm
     input.addInt(0, false) // source contract count; meaning: no source contract
   }
 
   if (ds.transaction) {
     // TODO: move this to cli
     console.log('[*] Defined Data Sources - Transaction.')
-
-    const filteredTransactions = blockPrep.transactions.filter((transaction) => {
-      const matchingTransactionItem = ds.transaction?.find((item) => {
-        return (item.from === transaction.from || item.from === '*') && (item.to === transaction.to || item.to === '*')
-      })
-      return matchingTransactionItem
-    })
-
-    // TODO: move this to cli
-    console.log(`[*] ${filteredTransactions.length} transaction matched.`)
-    for (let i = 0; i < filteredTransactions.length; i++)
-      console.log(`    (${i}) Hash:`, filteredTransactions[i].hash)
-
-    input.addInt(filteredTransactions.length, false) // tx count
-    for (const tx of filteredTransactions) {
-      const hash = tx.hash
-      // const index = blockPrep.transactions.findIndex(transaction => transaction.hash === tx.hash)
-      input.addHexString(hash, false)
-      input.addHexString(tx.from, false)
-      const rawTx = getRawTransaction(tx)
-      input.addVarLenHexString(rawTx, false)
-
-      const offsets = calcTxFieldOffset(tx, rawTx)
-      for (const offset of offsets)
-        input.addInt(offset, false)
-    }
+    fillInputTxsFunc(input, blockPrep, ds.transaction)
   }
   else {
     console.log('[*] No transaction DS provided, skip...')
@@ -169,6 +115,90 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
   }
 
   return input
+}
+
+function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrList: string[], stateDSSlotsList: string[][]) {
+  for (let i = 0; i < stateDSAddrList.length; i++) {
+    input.addHexString(stateDSAddrList[i], false) // address
+    // let ethproof = await getProof(
+    //   provider,
+    //   stateDSAddrList[i],
+    //   stateDSSlotsList[i],
+    //   ethers.utils.hexValue(blockNumber)
+    // );
+
+    const acctPrep = blockPrep?.getAccount(stateDSAddrList[i])
+
+    input.addVarLenHexString(acctPrep?.rlpNode, false) // account rlp
+    input.addVarLenHexStringArray(acctPrep?.accountProof, false) // account proof
+
+    const sourceSlots = stateDSSlotsList[i]
+    input.addInt(sourceSlots.length, false) // slot count
+
+    for (let j = 0; j < sourceSlots.length; j++) {
+      const slotPrep = acctPrep?.getSlot(sourceSlots[j])
+      // slot might doesn't exist. can't proceed in this case.
+      if (slotPrep.storageProof == null)
+        throw new Error(`In ExecInputGen: slot ${sourceSlots[j]} doesn't exist on given block height, storage proof == null. \n Please update yaml or use later blocknumber.`)
+
+      input.addHexString(sourceSlots[j], false)
+      input.addVarLenHexString(slotPrep.value, false)
+      input.addVarLenHexStringArray(slotPrep.storageProof, false)
+    }
+  }
+}
+
+function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][]) {
+  const rawreceiptList = blockPrep?.getRLPReceipts()
+
+  // TODO move logs to cli
+  const enableLog = true
+
+  // TODO: return list rather than appending string.
+  // NODE: rm `matchedEventOffsets` already. please add it yourself.
+  const [rawReceipts] = filterEvents(
+    eventDSAddrList,
+    eventDSEsigsList,
+    rawreceiptList as any,
+    enableLog,
+  )
+
+  // TODO: calc receipt count from filterEvents
+  const receiptCount = (rawReceipts.length > 0 ? rawreceiptList?.length : 0) || 0
+  input.addInt(receiptCount, false) // receipt count (tmp)
+
+  if (receiptCount > 0) {
+    // fill raw receipts
+    input.addVarLenHexString(toHexString(rawReceipts), false)
+  }
+}
+
+function fillInputTxs(input: any, blockPrep: BlockPrep, txDSList: any[]) {
+  const filteredTransactions = blockPrep.transactions.filter((transaction) => {
+    const matchingTransactionItem = txDSList?.find((item) => {
+      return (item.from === transaction.from || item.from === '*') && (item.to === transaction.to || item.to === '*')
+    })
+    return matchingTransactionItem
+  })
+
+  // TODO: move this to cli
+  console.log(`[*] ${filteredTransactions.length} transaction matched.`)
+  for (let i = 0; i < filteredTransactions.length; i++)
+    console.log(`    (${i}) Hash:`, filteredTransactions[i].hash)
+
+  input.addInt(filteredTransactions.length, false) // tx count
+  for (const tx of filteredTransactions) {
+    const hash = tx.hash
+    // const index = blockPrep.transactions.findIndex(transaction => transaction.hash === tx.hash)
+    input.addHexString(hash, false)
+    input.addHexString(tx.from, false)
+    const rawTx = getRawTransaction(tx)
+    input.addVarLenHexString(rawTx, false)
+
+    const offsets = calcTxFieldOffset(tx, rawTx)
+    for (const offset of offsets)
+      input.addInt(offset, false)
+  }
 }
 
 function calcTxFieldOffset(tx: providers.TransactionResponse, raw: string): number[] {
