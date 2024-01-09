@@ -1,5 +1,5 @@
 {
-  "name": "@hyperoracle/cle-api",
+  "name": "@hyperoracle/zkgraph-api",
   "type": "module",
   "version": "1.0.3",
   "description": "API for interacting with Hyper Oracle zkGraphs",
