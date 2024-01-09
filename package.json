@@ -85,6 +85,7 @@
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-strip": "^3.0.4",
     "@types/bn.js": "^5.1.5",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.0",

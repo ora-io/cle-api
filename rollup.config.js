@@ -2,9 +2,10 @@ import { builtinModules } from 'node:module'
 import path from 'node:path'
 import esbuild from 'rollup-plugin-esbuild'
 import { dts } from 'rollup-plugin-dts'
-// import nodeResolve from '@rollup/plugin-node-resolve'
+import nodeResolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
+import strip from '@rollup/plugin-strip'
 import { defineConfig } from 'rollup'
 
 const input = path.join(__dirname, './src/index.ts')
@@ -14,20 +15,26 @@ const external = [
   'ethers',
   'bn.js',
   'js-yaml',
-  '@hyperoracle/zkwasm-service-helper',
   'web3-eth-contract',
   'semver',
   'axios',
   'form-data',
   '@ethereumjs/rlp',
+  'ts-md5',
+  'bn.js',
+  'yargs',
+  'binaryen',
+  'assemblyscript',
 ]
 
 const plugins = [
   json(),
-  // nodeResolve({
-  //   preferBuiltins: false,
-  //   bowser: true
-  // }),
+  strip(),
+  nodeResolve({
+    preferBuiltins: false,
+    modulesOnly: true,
+    resolveOnly: ['@hyperoracle/zkwasm-service-helper'],
+  }),
   commonjs(),
 ]
 
