@@ -1,4 +1,4 @@
-import type { ZkGraphYaml } from '../types/zkgyaml'
+import type { CLEYaml } from '../types/zkgyaml'
 import { EthereumDataSourcePlugin } from './ethereum'
 import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
 import { EthereumLocalDataSourcePlugin } from './ethereum_local'
@@ -16,8 +16,8 @@ import type { DataSourcePlugin } from './interface'
 //   DSPHub.set(toHubKey(primaryKey, foreignKeys), dsp);
 // }
 
-// export function hubGetDSPByYaml(zkgraphYaml, foreignKeys){
-//   const primaryKey = zkgraphYaml.dataSources[0].primaryKey;
+// export function hubGetDSPByYaml(cleYaml, foreignKeys){
+//   const primaryKey = cleYaml.dataSources[0].primaryKey;
 //   return DSPHub.get(toHubKey(primaryKey, foreignKeys));
 // }
 
@@ -41,8 +41,8 @@ export class DSPHub {
     return `${primaryKey}:${keyFullLocal}`
   }
 
-  toHubKeyByYaml(zkgraphYaml: ZkGraphYaml, foreignKeys: DSPHubForeignKeys) {
-    const sigKeys = zkgraphYaml.getSignificantKeys(true)
+  toHubKeyByYaml(cleYaml: CLEYaml, foreignKeys: DSPHubForeignKeys) {
+    const sigKeys = cleYaml.getSignificantKeys(true)
     const primaryKey = this.toPrimaryKey(sigKeys)
     return this.toHubKey(primaryKey, foreignKeys)
   }
@@ -63,8 +63,8 @@ export class DSPHub {
     return this.hub.get(key)
   }
 
-  getDSPByYaml(zkgraphYaml: ZkGraphYaml, foreignKeys: DSPHubForeignKeys) {
-    const sigKeys = zkgraphYaml.getSignificantKeys(true)
+  getDSPByYaml(cleYaml: CLEYaml, foreignKeys: DSPHubForeignKeys) {
+    const sigKeys = cleYaml.getSignificantKeys(true)
     const primaryKey = this.toPrimaryKey(sigKeys) as any
     return this.getDSP(primaryKey, foreignKeys)
   }

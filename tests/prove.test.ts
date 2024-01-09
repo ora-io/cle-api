@@ -43,7 +43,7 @@ describe('test prove', () => {
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
-    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
 
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
@@ -59,7 +59,7 @@ describe('test prove', () => {
     const proveParams = dsp?.toProveParams(generalParams)
 
     const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-      { zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
+      { cleYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
       false,
     )
@@ -67,7 +67,7 @@ describe('test prove', () => {
     // console.log([privateInputStr, publicInputStr])
 
     const result = await zkgapi.prove(
-      { wasmUint8Array }, // doesn't care about zkgraphYaml
+      { wasmUint8Array }, // doesn't care about cleYaml
       privateInputStr,
       publicInputStr,
       zkwasmUrl,
@@ -82,7 +82,7 @@ describe('test prove', () => {
   //   const wasm = fs.readFileSync(wasmPath)
   //   const wasmUint8Array = new Uint8Array(wasm)
   //   // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-  //   const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
+  //   const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
   //   const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
   //   const proveParams = dsp.toProveParams(
@@ -93,14 +93,14 @@ describe('test prove', () => {
   //     },
   //   )
   //   const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-  //     { wasmUint8Array: null, zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
+  //     { wasmUint8Array: null, cleYaml: yaml }, // doesn't care about wasmUint8Array
   //     proveParams,
   //     false,
   //     true,
   //   )
 
   //   const res = await zkgapi.proveMock(
-  //     { wasmUint8Array, zkgraphYaml: null },
+  //     { wasmUint8Array, cleYaml: null },
   //     privateInputStr,
   //     publicInputStr,
   //   )

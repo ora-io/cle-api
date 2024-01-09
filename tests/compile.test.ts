@@ -23,7 +23,7 @@ it('test compile', async () => {
   }
 
   const zkgraphExecutable = {
-    zkgraphYaml: yaml,
+    cleYaml: yaml,
   }
 
   const result = await compile(zkgraphExecutable, sources)

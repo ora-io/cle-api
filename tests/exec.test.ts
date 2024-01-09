@@ -40,7 +40,7 @@ describe('test exec', () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
@@ -54,7 +54,7 @@ describe('test exec', () => {
     const execParams = dsp?.toExecParams(generalParams)
 
     const state = await zkgapi.execute(
-      { wasmUint8Array, zkgraphYaml: yaml },
+      { wasmUint8Array, cleYaml: yaml },
       execParams as any,
       local,
     )
@@ -68,7 +68,7 @@ describe('test exec', () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
     if (!dsp)
       throw new DSPNotFound('DSP not found')
@@ -90,7 +90,7 @@ describe('test exec', () => {
     const dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParams(execParams, 'exec'))
 
     const state = await zkgapi.executeOnDataPrep(
-      { wasmUint8Array, zkgraphYaml: yaml },
+      { wasmUint8Array, cleYaml: yaml },
       dataPrep,
       local,
     )
@@ -109,8 +109,8 @@ describe('test exec', () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = loadYamlFromPath(yamlPath) as zkgapi.ZkGraphYaml
-    const zkGraphExecutable = { wasmUint8Array, zkgraphYaml: yaml }
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
+    const zkGraphExecutable = { wasmUint8Array, cleYaml: yaml }
     // get dsp
     const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
     if (!dsp)
@@ -136,7 +136,7 @@ describe('test exec', () => {
     let dataPrep = await dsp?.prepareData(yaml, await dsp.toPrepareParams(execParams, 'exec'))
 
     const stateu8a = await zkgapi.executeOnDataPrep(
-      { wasmUint8Array, zkgraphYaml: yaml },
+      { wasmUint8Array, cleYaml: yaml },
       dataPrep,
       local,
     )

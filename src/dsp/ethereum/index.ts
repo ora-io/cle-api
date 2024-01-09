@@ -3,7 +3,7 @@ import type { providers } from 'ethers'
 import { getBlock } from '../../common/ethers_helper'
 import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types/zkgyaml'
 import { DataSourcePlugin } from '../interface'
 import type { EthereumDataPrep } from './blockprep'
 import { fillInputBlocks } from './fill_blocks'
@@ -33,18 +33,18 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecPa
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum' }
 
-  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumDSPPrepareParams) {
+  async prepareData(cleYaml: CLEYaml, prepareParams: EthereumDSPPrepareParams) {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
-    const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', zkgraphYaml)
+    const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
     return dataPrep
   }
 
-  fillExecInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
-    return fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
 
-  fillProveInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
-    this.fillExecInput(input, zkgraphYaml, dataPrep)
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+    this.fillExecInput(input, cleYaml, dataPrep)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
     input.addVarLenHexString(expectedStateStr, true)

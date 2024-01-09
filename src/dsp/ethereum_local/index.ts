@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { KeyofToArray } from '@murongg/utils'
 import type { Input } from '../../common/input'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types/zkgyaml'
 import { DataSourcePlugin } from '../interface'
 import type { EthereumDSPExecParams, EthereumDSPPrepareParams, EthereumDSPProveParams } from '../ethereum'
 import { EthereumDataSourcePlugin } from '../ethereum'
@@ -17,24 +17,24 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum_local' }
 
-  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: Record<string, any>): Promise<any> {
+  async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>): Promise<any> {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
     // set local func
     setPrePareOneBlockFunc(prepareOneBlockLocal)
 
-    const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', zkgraphYaml)
+    const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
     return dataPrep
   }
 
-  fillExecInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumLocalDataPrep) {
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumLocalDataPrep) {
     // set local func
     setFillInputEventsFunc(fillInputEvents)
 
-    return fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
 
-  fillProveInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumLocalDataPrep) {
-    this.fillExecInput(input, zkgraphYaml, dataPrep)
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumLocalDataPrep) {
+    this.fillExecInput(input, cleYaml, dataPrep)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
     input.addVarLenHexString(expectedStateStr, true)

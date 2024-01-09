@@ -7,13 +7,13 @@ import {
   getRawReceipts,
 } from '../../common/ethers_helper'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
 
-export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, latestBlocknumber: number, latestBlockhash: string, expectedStateStr: string, zkgraphYaml: ZkGraphYaml) {
+export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, latestBlocknumber: number, latestBlockhash: string, expectedStateStr: string, cleYaml: CLEYaml) {
   // TODO: multi blocks
-  const blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, zkgraphYaml)
+  const blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, cleYaml)
 
   const blockPrepMap = new Map()
   blockPrepMap.set(latestBlocknumber, blockPrep)
@@ -29,9 +29,9 @@ export function setPrePareOneBlockFunc(_func: any) {
   prepareOneBlockFunc = _func
 }
 
-export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider, blockNumber: any, zkgraphYaml: ZkGraphYaml) {
+export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider, blockNumber: any, cleYaml: CLEYaml) {
   let stateDSAddrList, stateDSSlotsList
-  const ds = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
+  const ds = cleYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
   if (ds.storage)
     [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
 

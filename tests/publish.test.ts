@@ -14,14 +14,14 @@ it('test publish', async () => {
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
-  const zkgraphYaml = loadYamlFromPath('tests/testsrc/zkgraph-dirty.yaml') as zkgapi.ZkGraphYaml
+  const cleYaml = loadYamlFromPath('tests/testsrc/zkgraph-dirty.yaml') as zkgapi.CLEYaml
   const ipfsHash = '111'
   const newBountyRewardPerTrigger = 0
   const wasm = fs.readFileSync('tests/build/zkgraph_full.wasm')
   const wasmUint8Array = new Uint8Array(wasm)
   try {
     const publishTxHash = await zkgapi.publish(
-      { wasmUint8Array, zkgraphYaml },
+      { wasmUint8Array, cleYaml },
       ZkwasmProviderUrl,
       provider,
       ipfsHash,

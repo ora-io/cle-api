@@ -11,11 +11,11 @@ import { loadConfigByNetwork } from '../common/utils'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
 import type { ZkGraphExecutable } from '../types/api'
-import type { ZkGraphYaml } from '../types/zkgyaml'
+import type { CLEYaml } from '../types/zkgyaml'
 
 /**
  * Publish and register zkGraph onchain.
- * @param {object} zkGraphExecutable {wasmUint8Array, zkgraphYaml}
+ * @param {object} zkGraphExecutable {wasmUint8Array, cleYaml}
  * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
@@ -38,7 +38,7 @@ export async function publish(
 
 /**
  * Publish and register zkGraph onchain, with code hash provided.
- * @param {object} zkGraphExecutable {zkgraphYaml}
+ * @param {object} zkGraphExecutable {cleYaml}
  * @param {providers.JsonRpcProvider} provider - the provider of the target network
  * @param {string} ipfsHash - the ipfs hash of the zkGraph
  * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
@@ -54,17 +54,17 @@ export async function publishByImgCmt(
   bountyRewardPerTrigger: number,
   signer: ethers.Wallet | ethers.providers.Provider | string,
 ) {
-  const { zkgraphYaml } = zkGraphExecutable
+  const { cleYaml } = zkGraphExecutable
 
-  const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal: false })
+  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false })
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
 
-  const networkName = zkgraphYaml?.dataDestinations[0].network
-  const destinationContractAddress = zkgraphYaml?.dataDestinations[0].address
-  const factoryAddress = loadConfigByNetwork(zkgraphYaml as ZkGraphYaml, addressFactory, false)
+  const networkName = cleYaml?.dataDestinations[0].network
+  const destinationContractAddress = cleYaml?.dataDestinations[0].address
+  const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
   const factoryContract = new Contract(factoryAddress, abiFactory, provider).connect(signer)
 
   const tx = await factoryContract

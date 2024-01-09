@@ -1,3 +1,3 @@
-export { ZkGraphYaml } from './zkgyaml'
+export { CLEYaml } from './zkgyaml'
 export * from './api'
 

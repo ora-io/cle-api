@@ -17,14 +17,14 @@ export async function proveInputGen(
   proveParams: Record<string, any>,
   isLocal = false,
 ) {
-  const { zkgraphYaml } = zkGraphExecutable
+  const { cleYaml } = zkGraphExecutable
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const prepareParams = await dsp?.toPrepareParams(proveParams, 'prove')
-  const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
 
   return proveInputGenOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
 }
@@ -34,15 +34,15 @@ export function proveInputGenOnDataPrep(
   dataPrep: DataPrep,
   isLocal = false,
 ): [string, string] {
-  const { zkgraphYaml } = zkGraphExecutable
+  const { cleYaml } = zkGraphExecutable
 
   let input = new Input()
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp.fillProveInput(input, zkgraphYaml, dataPrep)
+  input = dsp.fillProveInput(input, cleYaml, dataPrep)
 
   return [input.getPrivateInputStr(), input.getPublicInputStr()]
 }

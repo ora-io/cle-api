@@ -3,13 +3,13 @@ import type { providers } from 'ethers'
 import { filterEvents } from '../../common/api_helper'
 import { getRawTransaction } from '../../common/ethers_helper'
 import { toHexString } from '../../common/utils'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
 import type { BlockPrep } from './blockprep'
 
 export function fillInputBlocks(
   input: any,
-  zkgraphYaml: ZkGraphYaml,
+  cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
   latestBlockhash: string,
@@ -21,7 +21,7 @@ export function fillInputBlocks(
     if (!blockPrepMap.has(bn))
       throw new Error(`Lack blockPrep for block (${bn})`)
 
-    fillInputOneBlock(input, zkgraphYaml, blockPrepMap.get(bn) as BlockPrep)
+    fillInputOneBlock(input, cleYaml, blockPrepMap.get(bn) as BlockPrep)
   })
 
   // Optional but easy to handle;
@@ -50,7 +50,7 @@ export function setFillInputTxsFunc(_func: any) {
 }
 
 // blockPrep: class BlockPrep, used for prepare data & interface params.
-export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPrep: BlockPrep) {
+export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: BlockPrep) {
   input.addInt(blockPrep.number, false)
 
   input.addVarLenHexString(
@@ -61,7 +61,7 @@ export function fillInputOneBlock(input: any, zkgraphYaml: ZkGraphYaml, blockPre
   /**
    * Fill storage
    * */
-  const ds = zkgraphYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
+  const ds = cleYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
   if (ds.storage) {
     const [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
     input.addInt(stateDSAddrList.length, false) // account count

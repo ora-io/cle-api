@@ -24,7 +24,7 @@ describe('test utils', () => {
 function test_healthcheck(yamlPath: string) {
   try {
     const yaml1 = loadYamlFromPath(yamlPath) as any
-    zkgapi.ZkGraphYaml.healthCheck(yaml1)
+    zkgapi.CLEYaml.healthCheck(yaml1)
     console.log('valid:', yamlPath)
   }
   catch (e) {

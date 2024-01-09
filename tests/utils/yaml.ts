@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { ZkGraphYaml } from '../../src'
+import { CLEYaml } from '../../src'
 export function loadYamlFromPath(path: string) {
   let fileContents = ''
   try {
@@ -9,5 +9,5 @@ export function loadYamlFromPath(path: string) {
   catch (error) {
     console.error(error)
   }
-  return ZkGraphYaml.fromYamlContent(fileContents)
+  return CLEYaml.fromYamlContent(fileContents)
 }

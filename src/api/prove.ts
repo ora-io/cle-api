@@ -19,7 +19,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {object} - proof task details in json
  */
 export async function prove(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'>,
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'cleYaml'>,
   privateInputStr: string,
   publicInputStr: string,
   zkwasmProverUrl: string,

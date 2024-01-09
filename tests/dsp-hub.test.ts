@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ZkGraphYaml } from '../src'
+import type { CLEYaml } from '../src'
 import { EthereumDataSourcePlugin } from '../src/dsp/ethereum'
 import type { DSPHubForeignKeys } from '../src/dsp/hub'
 import { dspHub } from '../src/dsp/hub'
@@ -30,7 +30,7 @@ describe('DSPHub', () => {
   })
 
   it('should get DSP by YAML correctly', () => {
-    const zkgraphYaml = {
+    const cleYaml = {
       getSignificantKeys: vi.fn(() => [['ethereum']]),
     }
     const foreignKeys: DSPHubForeignKeys = { isLocal: false }
@@ -38,6 +38,6 @@ describe('DSPHub', () => {
 
     dspHub.setDSP('ethereum', foreignKeys, dsp)
 
-    expect(dspHub.getDSPByYaml(zkgraphYaml as unknown as ZkGraphYaml, foreignKeys)).toBe(dsp)
+    expect(dspHub.getDSPByYaml(cleYaml as unknown as CLEYaml, foreignKeys)).toBe(dsp)
   })
 })

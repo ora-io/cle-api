@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import BN from 'bn.js'
-import type { ZkGraphYaml } from '../types/zkgyaml'
+import type { CLEYaml } from '../types/zkgyaml'
 import { networks } from './constants'
 
 /**
@@ -197,7 +197,7 @@ interface NetworksConfig {
   goerli?: any // Optional
 }
 
-export function loadConfigByNetwork(yaml: Partial<ZkGraphYaml>, networksConfig: NetworksConfig, isDataSource: boolean) {
+export function loadConfigByNetwork(yaml: Partial<CLEYaml>, networksConfig: NetworksConfig, isDataSource: boolean) {
   let network: string | undefined
   if (yaml.dataSources?.[0].kind !== 'ethereum')
     throw new Error('loadConfigByNetwork only support ethereum right now.')

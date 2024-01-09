@@ -80,16 +80,16 @@ export async function compile(
   sources: Record<string, string>,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  const { zkgraphYaml } = zkGraphExecutable
+  const { cleYaml } = zkGraphExecutable
   const { isLocal = false } = options
 
-  const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const libDSPName = dsp.getLibDSPName()
-  const mappingFileName = zkgraphYaml.mapping.file
-  const handleFuncName = zkgraphYaml.mapping.handler
+  const mappingFileName = cleYaml.mapping.file
+  const handleFuncName = cleYaml.mapping.handler
 
   const tsModule = `entry_${randomStr()}.ts`
   const textModule = 'inner_pre_pre.wat'

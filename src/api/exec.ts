@@ -8,21 +8,21 @@ import type { ZkGraphExecutable } from '../types/api'
 
 /**
  * Execute the given zkGraphExecutable in the context of execParams
- * @param {object} zkGraphExecutable {'zkgraphYaml': zkgraphYaml}
+ * @param {object} zkGraphExecutable {'cleYaml': cleYaml}
  * @param {object} execParams
  * @param {boolean} isLocal
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. zkgraph state)
  */
 export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: Record<string, any>, isLocal = false) {
-  const { zkgraphYaml } = zkGraphExecutable
+  const { cleYaml } = zkGraphExecutable
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
-  const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
 
   return await executeOnDataPrep(zkGraphExecutable, dataPrep, isLocal)
 }
@@ -36,15 +36,15 @@ export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: 
  * @returns
  */
 export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, dataPrep: DataPrep, isLocal = false) {
-  const { zkgraphYaml } = zkGraphExecutable
+  const { cleYaml } = zkGraphExecutable
 
   let input = new Input()
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp.fillExecInput(input, zkgraphYaml, dataPrep)
+  input = dsp.fillExecInput(input, cleYaml, dataPrep)
 
   const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
 
@@ -96,10 +96,10 @@ export async function executeOnInputs(zkGraphExecutable: ZkGraphExecutable, priv
 //  */
 // export async function executeOnRawReceipts(wasmUint8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
 
-//     const zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
+//     const cleYaml = CLEYaml.fromYamlContent(yamlContent)
 //     const provider = new providersonRpcProvider(rpcUrl);
 
-//     const [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.dataSources[0].event.toArray();
+//     const [eventDSAddrList, eventDSEsigsList] = cleYaml.dataSources[0].event.toArray();
 
 //     // prepare data
 
@@ -125,7 +125,7 @@ export async function executeOnInputs(zkGraphExecutable: ZkGraphExecutable, priv
 
 //     // gen inputs
 //     let input = new Input();
-//     input = fillExecInput(input, zkgraphYaml, blockPrepMap, blocknumOrder)
+//     input = fillExecInput(input, cleYaml, blockPrepMap, blocknumOrder)
 //     let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
 
 //     return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)

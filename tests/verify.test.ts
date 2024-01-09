@@ -19,7 +19,7 @@ describe('test verify', () => {
   it('test verify ZKGraphExecutable', async () => {
     const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
     expect(await zkgapi.verify(
-      { wasmUint8Array: null, zkgraphYaml: yaml },
+      { wasmUint8Array: null, cleYaml: yaml },
       proofParams,
       rpcUrl,
     )).toBeTruthy()

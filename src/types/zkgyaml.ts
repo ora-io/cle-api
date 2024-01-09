@@ -16,7 +16,8 @@ dataSourceClassMap.set('offchain', OffchainDataSource)
 const dataDestinationClassMap = new Map()
 dataDestinationClassMap.set('ethereum', EthereumDataDestination)
 
-export class ZkGraphYaml {
+// class ZkGraphYaml
+export class CLEYaml {
   specVersion: string
   apiVersion: string
   description: string
@@ -53,7 +54,7 @@ export class ZkGraphYaml {
     if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestinations.length !== 0)
       yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
 
-    return new ZkGraphYaml(
+    return new CLEYaml(
       yaml.specVersion,
       yaml.apiVersion,
       yaml.name,
@@ -68,12 +69,12 @@ export class ZkGraphYaml {
   // TODO: type: should be the return class of yaml.load
   static fromYaml(yaml: any) {
     // health check before parse
-    ZkGraphYaml.healthCheck(yaml)
+    CLEYaml.healthCheck(yaml)
     if (yaml.specVersion === '0.0.1')
-      return ZkGraphYaml.from_v_0_0_1(yaml)
+      return CLEYaml.from_v_0_0_1(yaml)
 
     else if (yaml.specVersion === '0.0.2')
-      return ZkGraphYaml.from_v_0_0_2(yaml)
+      return CLEYaml.from_v_0_0_2(yaml)
 
     else
       throw new Error(`Unsupported specVersion: ${yaml.specVersion}`)
@@ -83,7 +84,7 @@ export class ZkGraphYaml {
     try {
       // Parse the YAML content
       const config = yaml.load(yamlContent)
-      return ZkGraphYaml.fromYaml(config)
+      return CLEYaml.fromYaml(config)
     }
     catch (error: any) {
       // TODO: is there other cases than "Invalid Yaml"?
@@ -91,7 +92,7 @@ export class ZkGraphYaml {
     }
   }
 
-  static from_v_0_0_1(_yaml: any): ZkGraphYaml {
+  static from_v_0_0_1(_yaml: any): CLEYaml {
     throw new Error('no 0.0.1 support') // TODO
   }
 

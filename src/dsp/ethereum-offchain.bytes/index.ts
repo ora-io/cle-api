@@ -9,7 +9,7 @@ import { prepareBlocksByYaml } from '../ethereum/prepare_blocks'
 import { getBlock } from '../../common/ethers_helper'
 import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types/zkgyaml'
 import type { BlockPrep } from '../ethereum/blockprep'
 
 export interface EthereumOffchainDPDataPrep {
@@ -60,9 +60,9 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
   // SHOULD align with zkgraph-lib/dsp/<DSPName>
   getLibDSPName() { return 'ethereum-offchain.bytes' }
 
-  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumOffchainDSPPrepareParams) {
+  async prepareData(cleYaml: CLEYaml, prepareParams: EthereumOffchainDSPPrepareParams) {
     const { provider, latestBlocknumber, latestBlockhash, offchainData, expectedStateStr } = prepareParams
-    const ethDP = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', zkgraphYaml)
+    const ethDP = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
     return new EthereumOffchainDP(
       ethDP.blockPrepMap,
       ethDP.blocknumberOrder,
@@ -73,15 +73,15 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     )
   }
 
-  fillExecInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumOffchainDPDataPrep) {
-    input = fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumOffchainDPDataPrep) {
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
     // add offchain data
     input.addVarLenHexString(dataPrep.offchainData)
     return input
   }
 
-  fillProveInput(input: any, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumOffchainDPDataPrep) {
-    this.fillExecInput(input, zkgraphYaml, dataPrep)
+  fillProveInput(input: any, cleYaml: CLEYaml, dataPrep: EthereumOffchainDPDataPrep) {
+    this.fillExecInput(input, cleYaml, dataPrep)
     // add offchain data
     input.addVarLenHexString(dataPrep.offchainData)
     // add expected State Str

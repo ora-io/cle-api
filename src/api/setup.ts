@@ -20,7 +20,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
 export async function setup(
-  zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'> & { image: any },
+  zkGraphExecutable: Omit<ZkGraphExecutable, 'cleYaml'> & { image: any },
   circuitSize: number,
   userPrivateKey: string,
   ZkwasmProviderUrl: string,

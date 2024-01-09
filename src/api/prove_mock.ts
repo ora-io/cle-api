@@ -10,7 +10,7 @@ import type { ZkGraphExecutable } from '../types/api'
  * @param {string} publicInputStr
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(zkGraphExecutable: Omit<ZkGraphExecutable, 'zkgraphYaml'>, privateInputStr: string, publicInputStr: string) {
+export async function proveMock(zkGraphExecutable: Omit<ZkGraphExecutable, 'cleYaml'>, privateInputStr: string, publicInputStr: string) {
   const { wasmUint8Array } = zkGraphExecutable
 
   const mock = new ZKWASMMock()
