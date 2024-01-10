@@ -84,16 +84,18 @@ async function instantiate(module: BufferSource, imports: Record<string, any> = 
         }
       },
       asmain() {
-        // dev: always throw for CLE debug purpose.
-        // try {
-        return __liftTypedArray(
-          Uint8Array,
-          exports.asmain() >>> 0,
-        )
-        // }
-        // catch (e) {throw e}
 
-        // finally {}
+        // dev: always throw for zkgraph debug purpose.
+        try {
+          return __liftTypedArray(
+            Uint8Array,
+            exports.asmain() >>> 0,
+          )
+        }
+        catch (e) {
+          console.log('possibly memory access out of bounds, consider increase memory size.')
+          throw e;
+        }
       },
     },
     exports,
