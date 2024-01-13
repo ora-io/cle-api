@@ -1,7 +1,12 @@
 node_modules/
 package-lock.json
+pnpm-lock.yaml
 
 .idea/
 yarn.lock
 tests/config.js
+tests/config.ts
 dist
+.DS_Store
+
+tests/fixtures/compile/build/*

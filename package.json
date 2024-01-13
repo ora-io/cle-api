@@ -1,28 +1,17 @@
 {
   "name": "@hyperoracle/zkgraph-api",
-  "version": "0.1.8",
-  "description": "API for interacting with Hyper Oracle zkGraphs",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
-    }
-  },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "scripts": {
-    "build": "rollup -c --bundleConfigAsCjs",
-    "prepublishOnly": "npm run build",
-    "release": "npm publish --access public",
-    "testexec": "node tests/testexec.js",
-    "testprove": "node tests/testprove.js",
-    "testsetup": "node tests/testsetup.js",
-    "testverify": "node tests/testverify.js"
-  },
   "type": "module",
+  "version": "1.0.3",
+  "description": "API for interacting with Hyper Oracle zkGraphs",
+  "author": "Norman (nom4dv3) & Suning (msfew)",
+  "license": "ISC",
+  "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hyperoracle/zkgraph-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hyperoracle/zkgraph-api/issues"
   },
   "keywords": [
     "zkgraph",
@@ -31,38 +20,94 @@
     "ho",
     "zkg"
   ],
-  "author": "Norman (nom4dv3) & Suning (msfew)",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/hyperoracle/zkgraph-api/issues"
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    },
+    "./browser": {
+      "types": "./dist/index.browser.d.ts",
+      "require": "./dist/index.browser.cjs",
+      "import": "./dist/index.browser.mjs"
+    }
   },
-  "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
-  "dependencies": {
-    "bn.js": "^5.2.1",
-    "ethers": "^5.7.2",
-    "js-yaml": "^4.1.0",
-    "zkWasm-service-helper": "github:DelphinusLab/zkWasm-service-helper",
-    "web3-eth-contract": "^1.8.2",
-    "semver": "^7.5.4"
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./dist/index.d.ts"
+      ],
+      "browser": [
+        "./dist/index.browser.d.ts"
+      ]
+    }
   },
   "files": [
-    "api",
-    "common",
-    "requests",
-    "index.js",
-    "README.md",
     "dist"
   ],
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepublishOnly": "nr build",
+    "release": "bumpp && npm publish",
+    "start": "esno src/index.ts",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "testexec": "npm test exec",
+    "testprove": "npm test prove",
+    "testsetup": "npm test setup",
+    "testverify": "npm test verify"
+  },
+  "dependencies": {
+    "@ethereumjs/rlp": "^5.0.1",
+    "@hyperoracle/zkwasm-service-helper": "1.0.1",
+    "@murongg/utils": "^0.1.18",
+    "assemblyscript": "^0.27.22",
+    "axios": "^1.6.2",
+    "axios-retry": "^3.9.1",
+    "bn.js": "^5.2.1",
+    "ethers": "^5.7.2",
+    "form-data": "^4.0.0",
+    "js-yaml": "^4.1.0",
+    "semver": "^7.5.4",
+    "web3-eth-contract": "^1.8.2"
+  },
   "devDependencies": {
-    "@types/node": "^20.4.5",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
+    "@hyperoracle/zkgraph-lib": "^1.0.1",
+    "@murongg/eslint-config": "^0.2.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.2.1",
+    "@types/bn.js": "^5.1.5",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.10.0",
+    "@types/semver": "^7.5.6",
+    "bumpp": "^9.2.1",
+    "eslint": "^8.54.0",
+    "esno": "^4.0.0",
+    "lint-staged": "^15.1.0",
+    "rimraf": "^5.0.5",
     "rollup": "^3.29.3",
     "rollup-plugin-dts": "^6.0.2",
-    "rollup-plugin-esbuild": "^6.0.1"
+    "rollup-plugin-esbuild": "^6.0.1",
+    "simple-git-hooks": "^2.9.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2",
+    "unbuild": "^2.0.0",
+    "vite": "^5.0.2",
+    "vitest": "^0.34.6"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }

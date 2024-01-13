@@ -86,7 +86,7 @@ export async function waitDeploy(
     if (enableLog === true) {
       loading.stopAndClear();
       console.log("[-] DEPLOY FAILED.", "\n");
-      console.log(`[-] ${taskDetails.internal_message}`);
+      console.log(`[-] ${taskDetails.internal_message}`, "\n");
     }
 
     return "";
