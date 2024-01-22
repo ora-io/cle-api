@@ -4,6 +4,7 @@ import axios from 'axios'
 import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
 import { DSPNotFound } from '../common/error'
+import type { CLEYaml } from '../types'
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
 import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
@@ -71,11 +72,34 @@ export interface CompileResult {
   stats: any
 }
 
+function onlyAscCompile(yaml: CLEYaml) {
+  let noETHSafe = true
+  yaml.dataSources.forEach((dataSource: { kind: any; unsafe?: boolean }) => {
+    if (dataSource.kind === 'ethereum') {
+      if (dataSource.unsafe !== true)
+        noETHSafe = false
+    }
+  })
+  return noETHSafe
+}
+
 export interface CompileOptions {
   isLocal?: boolean
 }
 
 export async function compile(
+  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
+  sources: Record<string, string>,
+  options: CompileOptions = {},
+  // endpoint: string,
+): Promise<CompileResult> {
+  // TODO: complete this func
+  const { cleYaml } = cleExecutable
+  onlyAscCompile(cleYaml)
+  return await compileAsc(cleExecutable, sources, options)
+}
+
+export async function compileAsc(
   cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
