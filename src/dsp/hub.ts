@@ -1,9 +1,9 @@
 import type { CLEYaml } from '../types/zkgyaml'
 import { EthereumDataSourcePlugin } from './ethereum'
 import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
-import { EthereumLocalDataSourcePlugin } from './ethereum_local'
 import { EthereumUnsafeDataSourcePlugin } from './ethereum.unsafe'
 import type { DataSourcePlugin } from './interface'
+import { ETHUnsafe_ETH_DSP } from './ethereum.unsafe-ethereum'
 
 // export const DSPHub = new Map();
 
@@ -82,6 +82,8 @@ export const dspHub = new DSPHub()
 dspHub.setDSP('ethereum', { isLocal: false }, new EthereumDataSourcePlugin())
 dspHub.setDSP('ethereum-offchain.bytes', { isLocal: false }, new EthereumOffchainDSP())
 
-dspHub.setDSP('ethereum.unsafe', { isLocal: false }, new EthereumUnsafeDataSourcePlugin())
 // compatible purpose, deprecating
-dspHub.setDSP('ethereum', { isLocal: true }, new EthereumLocalDataSourcePlugin())
+// dspHub.setDSP('ethereum', { isLocal: true }, new EthereumLocalDataSourcePlugin())
+
+dspHub.setDSP('ethereum.unsafe', { isLocal: false }, new EthereumUnsafeDataSourcePlugin())
+dspHub.setDSP('ethereum.unsafe-ethereum', { isLocal: false }, new ETHUnsafe_ETH_DSP())
