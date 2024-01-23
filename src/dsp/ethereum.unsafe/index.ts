@@ -9,9 +9,9 @@ import { trimPrefix } from '../../common/utils'
 import { getBlock } from '../../common/ethers_helper'
 import { fillInputBlocks, setFillInputEventsFunc } from '../ethereum/fill_blocks'
 import { prepareBlocksByYaml, setPrePareOneBlockFunc } from '../ethereum/prepare_blocks'
-import { fillInputEvents } from './fill_blocks'
+import { fillInputEventsUnsafe } from './fill'
 import type { EthereumUnsafeDataPrep } from './dataprep'
-import { prepareOneBlockUnsafe } from './prepare_blocks'
+import { prepareOneBlockUnsafe } from './prepare'
 
 export class EthereumUnsafeDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, EthereumUnsafeDataPrep> {
   // SHOULD align with cle-lib/dsp/<DSPName>
@@ -29,7 +29,7 @@ export class EthereumUnsafeDataSourcePlugin extends DataSourcePlugin<EthereumDSP
 
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumUnsafeDataPrep) {
     // set unsafe func
-    setFillInputEventsFunc(fillInputEvents)
+    setFillInputEventsFunc(fillInputEventsUnsafe)
 
     return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
