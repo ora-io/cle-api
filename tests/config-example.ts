@@ -4,4 +4,5 @@ export const config = {
     sepolia: 'https://eth-sepolia.public.blastapi.io',
   },
   UserPrivateKey: '0x{key}',
+  CompilerServerEndpoint: 'http://compiler.hyperoracle.io/compile',
 }

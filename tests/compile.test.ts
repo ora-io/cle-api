@@ -8,7 +8,7 @@ import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
-function getMappingContent(filepath: string) {
+function readFile(filepath: string) {
   return fs.readFileSync(filepath, 'utf-8')
 }
 
@@ -19,7 +19,8 @@ it('test compile', async () => {
 
   const sources = {
     ...webjson,
-    'mapping.ts': getMappingContent(path.join(__dirname, 'fixtures/compile/mapping.ts')),
+    'mapping.ts': readFile(path.join(__dirname, 'fixtures/compile/mapping.ts')),
+    'cle.yaml': readFile(path.join(__dirname, 'fixtures/compile/cle.yaml')),
   }
 
   const cleExecutable = {
@@ -29,6 +30,15 @@ it('test compile', async () => {
   const result = await compile(cleExecutable, sources)
   expect(result.error).toBeNull()
   expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
-  expect(result.outputs['inner_pre_pre.wasm']).toBeDefined()
-  expect(result.outputs['inner_pre_pre.wat']).toBeDefined()
+
+  const wasmContent = result.outputs['inner_pre_pre.wasm']
+  const watContent = result.outputs['inner_pre_pre.wat']
+  expect(wasmContent).toBeDefined()
+  expect(watContent).toBeDefined()
+
+  // optional: output compile result for further exec test
+  // let wasmPath = 'tests/build/cle-compiletest.wasm'
+  // let watPath = 'tests/build/cle-compiletest.wat'
+  // fs.writeFileSync(wasmPath, wasmContent)
+  // fs.writeFileSync(watPath, watContent)
 })

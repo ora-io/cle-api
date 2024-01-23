@@ -72,7 +72,7 @@ export interface CompileResult {
   stats: any
 }
 
-function onlyAscCompile(yaml: CLEYaml) {
+export function onlyAscCompile(yaml: CLEYaml) {
   let noETHSafe = true
   yaml.dataSources.forEach((dataSource: { kind: any; unsafe?: boolean }) => {
     if (dataSource.kind === 'ethereum') {
@@ -95,8 +95,14 @@ export async function compile(
 ): Promise<CompileResult> {
   // TODO: complete this func
   const { cleYaml } = cleExecutable
-  onlyAscCompile(cleYaml)
-  return await compileAsc(cleExecutable, sources, options)
+  if (onlyAscCompile(cleYaml))
+    options.isLocal = true
+
+  const result = await compileAsc(cleExecutable, sources, options)
+  if (options.isLocal === false) {
+    // result = compileRequest(...)
+  }
+  return result
 }
 
 export async function compileAsc(
@@ -107,7 +113,8 @@ export async function compileAsc(
   const { cleYaml } = cleExecutable
   const { isLocal = false } = options
 
-  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  // const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false }) // deprecating isLocal, 'false' for compatible
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
