@@ -76,7 +76,7 @@ export class HostMemory {
 export class ZKWASMMock {
   privateMem: HostMemory
   publicMem: HostMemory
-  constructor(max_pri_size = 100000000, max_pub_size = 1000) {
+  constructor(max_pri_size = 100000000, max_pub_size = 3000) {
     this.privateMem = new HostMemory(max_pri_size)
     this.publicMem = new HostMemory(max_pub_size)
   }
