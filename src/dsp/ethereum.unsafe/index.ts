@@ -2,6 +2,7 @@
 import type { KeyofToArray } from '@murongg/utils'
 import type { Input } from '../../common/input'
 import type { CLEYaml } from '../../types/zkgyaml'
+import type { DataPrep } from '../interface'
 import { DataSourcePlugin } from '../interface'
 import type { EthereumDSPExecParams, EthereumDSPPrepareParams, EthereumDSPProveParams } from '../ethereum'
 import { EthereumDataSourcePlugin } from '../ethereum'
@@ -13,28 +14,39 @@ import { fillInputEventsUnsafe } from './fill'
 import type { EthereumUnsafeDataPrep } from './dataprep'
 import { prepareOneBlockUnsafe } from './prepare'
 
-export class EthereumUnsafeDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, EthereumUnsafeDataPrep> {
+export class EthereumUnsafeDataSourcePlugin<UnsafeDataPrep extends EthereumUnsafeDataPrep> extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, UnsafeDataPrep> {
   // SHOULD align with cle-lib/dsp/<DSPName>
   // TODO unsafe
   getLibDSPName() { return 'ethereum.unsafe' }
 
-  async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>): Promise<any> {
+  async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
+    return this.unsafePrepareData(cleYaml, prepareParams)
+  }
+
+  protected async unsafePrepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
     const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
-    // set unsafe func
     setPrePareOneBlockFunc(prepareOneBlockUnsafe)
 
     const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
-    return dataPrep
+    return dataPrep as UnsafeDataPrep
   }
 
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumUnsafeDataPrep) {
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeDataPrep) {
+    return this.unsafeFillExecInput(input, cleYaml, dataPrep)
+  }
+
+  protected unsafeFillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeDataPrep) {
     // set unsafe func
     setFillInputEventsFunc(fillInputEventsUnsafe)
 
     return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
   }
 
-  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumUnsafeDataPrep) {
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeDataPrep) {
+    return this.unsafeFillProveInput(input, cleYaml, dataPrep)
+  }
+
+  unsafeFillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeDataPrep) {
     this.fillExecInput(input, cleYaml, dataPrep)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
@@ -42,7 +54,7 @@ export class EthereumUnsafeDataSourcePlugin extends DataSourcePlugin<EthereumDSP
     return input
   }
 
-  toProveDataPrep(execDataPrep: EthereumUnsafeDataPrep, execResult: any) {
+  toProveDataPrep(execDataPrep: UnsafeDataPrep, execResult: any) {
     const proveDataPrep = execDataPrep
     proveDataPrep.expectedStateStr = execResult
     return proveDataPrep
