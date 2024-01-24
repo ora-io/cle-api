@@ -1,4 +1,6 @@
 import { instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/bundle.js'
+// import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+
 import { Simulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/simulator.js'
 import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
@@ -62,7 +64,6 @@ export async function executeOnInputs(cleExecutable: CLEExecutable, privateInput
   const { wasmUint8Array } = cleExecutable
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is null')
-
   const mock = new Simulator(100000000, 2000)
   mock.set_private_input(privateInputStr)
   mock.set_public_input(publicInputStr)
