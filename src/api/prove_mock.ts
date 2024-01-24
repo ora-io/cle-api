@@ -18,7 +18,7 @@ export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, p
   mock.set_public_input(publicInputStr)
   setupZKWasmSimulator(mock)
 
-  const { zkmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
+  const { zkmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error
   })
 

@@ -69,7 +69,7 @@ export async function executeOnInputs(cleExecutable: CLEExecutable, privateInput
   mock.set_public_input(publicInputStr)
   setupZKWasmSimulator(mock)
 
-  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
+  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error
   })
 

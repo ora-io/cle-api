@@ -66,12 +66,13 @@ export async function publishByImgCmt(
   const destinationContractAddress = cleYaml?.dataDestinations[0].address
   const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
   const factoryContract = new Contract(factoryAddress, abiFactory, provider).connect(signer)
+  const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
 
   const tx = await factoryContract
     .registry(
       destinationContractAddress,
       AddressZero,
-      bountyRewardPerTrigger,
+      bountyReward,
       dspID,
       ipfsHash,
       imageCommitment.pointX,

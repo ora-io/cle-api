@@ -16,7 +16,7 @@ it('test publish', async () => {
   const signer = new ethers.Wallet(userPrivateKey, provider)
   const cleYaml = loadYamlFromPath('tests/testsrc/cle-dirty.yaml') as zkgapi.CLEYaml
   const ipfsHash = '111'
-  const newBountyRewardPerTrigger = 0
+  const newBountyRewardPerTrigger = 0.01
   const wasm = fs.readFileSync('tests/build/cle_full.wasm')
   const wasmUint8Array = new Uint8Array(wasm)
   try {
