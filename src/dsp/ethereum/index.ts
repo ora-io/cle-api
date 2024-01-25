@@ -39,8 +39,8 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecPa
     return dataPrep
   }
 
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = false) {
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {

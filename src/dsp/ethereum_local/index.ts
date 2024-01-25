@@ -26,7 +26,7 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
     return dataPrep
   }
 
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumLocalDataPrep) {
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumLocalDataPrep, enableLog = false) {
     // set local func
     setFillInputEventsFunc(fillInputEvents)
 
