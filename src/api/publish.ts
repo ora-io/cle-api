@@ -86,11 +86,22 @@ export async function publishByImgCmt(
     throw err
   })
 
+  // Define the interface of the event
+  const iface = new ethers.utils.Interface(['event NewZkg(address graph)'])
+
+  // Parse the transaction receipt
+  const logs = txReceipt.logs.map((log: { topics: string[]; data: string }) => iface.parseLog(log))
+
+  // Extract the graph address from the event
+  const graphAddress = logs[0]?.args.graph
+
   return {
     networkName,
+    graphAddress,
     ...txReceipt,
   } as {
     networkName: string
+    graphAddress: string
     blockNumber: number
     transactionHash: string
   }
