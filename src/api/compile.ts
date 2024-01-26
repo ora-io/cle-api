@@ -73,14 +73,15 @@ export interface CompileResult {
 }
 
 export function onlyAscCompile(yaml: CLEYaml) {
-  let noETHSafe = true
-  yaml.dataSources.forEach((dataSource: { kind: any; unsafe?: boolean }) => {
-    if (dataSource.kind === 'ethereum') {
-      if (dataSource.unsafe !== true)
-        noETHSafe = false
-    }
-  })
-  return noETHSafe
+  return !yaml.dataSources.some((dataSource: { kind: any; unsafe?: boolean }) => dataSource.kind === 'ethereum' && dataSource.unsafe !== true)
+  // let noETHSafe = true
+  // yaml.dataSources.forEach((dataSource: { kind: any; unsafe?: boolean }) => {
+  //   if (dataSource.kind === 'ethereum') {
+  //     if (dataSource.unsafe !== true)
+  //       noETHSafe = false
+  //   }
+  // })
+  // return noETHSafe
 }
 
 export interface CompileOptions {
