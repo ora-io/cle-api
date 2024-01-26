@@ -3,7 +3,7 @@ import type { UnsafeEthereumDataPrep } from '../ethereum.unsafe/dataprep.js'
 import { DataPrep } from '../interface.js'
 
 // includes both exec & prove params
-export class ETHUnsafe_ETH_DataPrep extends DataPrep {
+export class UnsafeSafeETHDP extends DataPrep {
   unsafeETHDP: UnsafeEthereumDataPrep
   safeEthDP: EthereumDataPrep
   // latestBlockhash & expectedStateStr should use these, not the ones in 2 xxxDataPreps

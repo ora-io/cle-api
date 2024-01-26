@@ -3,7 +3,7 @@ import { EthereumDataSourcePlugin } from './ethereum'
 import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
 import { EthereumUnsafeDataSourcePlugin } from './ethereum.unsafe'
 import type { DataSourcePlugin } from './interface'
-import { ETHUnsafe_ETH_DSP } from './ethereum.unsafe-ethereum'
+import { UnsafeSafeETHDSP } from './ethereum.unsafe-ethereum'
 
 // export const DSPHub = new Map();
 
@@ -86,4 +86,4 @@ dspHub.setDSP('ethereum-offchain.bytes', { isLocal: false }, new EthereumOffchai
 // dspHub.setDSP('ethereum', { isLocal: true }, new EthereumLocalDataSourcePlugin())
 
 dspHub.setDSP('ethereum.unsafe', { isLocal: false }, new EthereumUnsafeDataSourcePlugin())
-dspHub.setDSP('ethereum.unsafe-ethereum', { isLocal: false }, new ETHUnsafe_ETH_DSP())
+dspHub.setDSP('ethereum.unsafe-ethereum', { isLocal: false }, new UnsafeSafeETHDSP())

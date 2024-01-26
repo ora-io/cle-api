@@ -4,9 +4,9 @@ import { fillInputBlocksWithoutLatestBlockhash, fillInputEvents, setFillInputEve
 import { unsafePrepareData } from '../ethereum.unsafe'
 import { ExtendableEthereumDataSourcePlugin, safePrepareData } from '../ethereum'
 import { unsafeFillInputEvents } from '../ethereum.unsafe/fill'
-import { ETHUnsafe_ETH_DataPrep } from './dataprep'
+import { UnsafeSafeETHDP } from './dataprep'
 
-export class ETHUnsafe_ETH_DSP extends ExtendableEthereumDataSourcePlugin<ETHUnsafe_ETH_DataPrep> {
+export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeSafeETHDP> {
   constructor() {
     super()
   }
@@ -19,11 +19,11 @@ export class ETHUnsafe_ETH_DSP extends ExtendableEthereumDataSourcePlugin<ETHUns
     const { latestBlockhash, expectedStateStr } = prepareParams
     const unsafeEthDP = await unsafePrepareData(cleYaml, prepareParams)
     const safeEthDP = await safePrepareData(cleYaml, prepareParams)
-    const dataPrep = new ETHUnsafe_ETH_DataPrep(unsafeEthDP, safeEthDP, latestBlockhash, expectedStateStr)
+    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, latestBlockhash, expectedStateStr)
     return dataPrep
   }
 
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: ETHUnsafe_ETH_DataPrep) {
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeSafeETHDP) {
     // set unsafe func
     setFillInputEventsFunc(unsafeFillInputEvents)
     input = fillInputBlocksWithoutLatestBlockhash(input, cleYaml, dataPrep.unsafeETHDP.blockPrepMap, dataPrep.unsafeETHDP.blocknumberOrder)
