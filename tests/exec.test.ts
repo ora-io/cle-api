@@ -35,6 +35,35 @@ const execOptionsForStorage = {
 
 describe('test exec', () => {
   it('test_exec', async () => {
+    const wasmPath = 'tests/build/cle-latest.wasm'
+    const yamlPath = 'tests/testsrc/cle-latest.yaml'
+    const local = false
+
+    const wasm = fs.readFileSync(wasmPath)
+    const wasmUint8Array = new Uint8Array(wasm)
+    // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
+    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+
+    const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const generalParams = {
+      provider,
+      // blockId: loadConfigByNetwork(yaml, blocknumForStorageTest, true), // for storage
+      blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
+    }
+
+    const execParams = dsp?.toExecParams(generalParams)
+    const state = await zkgapi.execute(
+      { wasmUint8Array, cleYaml: yaml },
+      execParams as any,
+      local,
+    )
+
+    return state
+  }, { timeout: 100000 })
+
+  it('test_exec_with_latest', async () => {
     const { wasmPath, yamlPath, local } = execOptionsForEvent
 
     const wasm = fs.readFileSync(wasmPath)
@@ -52,7 +81,6 @@ describe('test exec', () => {
     }
 
     const execParams = dsp?.toExecParams(generalParams)
-
     const state = await zkgapi.execute(
       { wasmUint8Array, cleYaml: yaml },
       execParams as any,

@@ -1,0 +1,22 @@
+specVersion: 0.0.2
+apiVersion: 0.0.2
+name: zkAuto-DEMO
+description: 'This demo zkGraph shows Uniswap price-based zkAutomation case. Calculate ETH/USDC price, set it as the trigger payload whenever price > theshold.'
+repository: https://github.com/hyperoracle/zkgraph
+dataSources:
+  - kind: ethereum
+    network: sepolia
+    event:
+      - address: '0x362b63b77448C2ffBC03511FE100fCd3d879795F'
+        events:
+          - 'eventTriggered(uint256,uint256)'
+
+mapping:
+  language: wasm/assemblyscript
+  file: ./mapping.ts
+  handler: handleBlocks
+
+dataDestinations:
+  - kind: ethereum
+    network: sepolia
+    address: '0x362b63b77448C2ffBC03511FE100fCd3d879795F'
