@@ -20,6 +20,7 @@ export function fillInputBlocks(
     cleYaml,
     blockPrepMap,
     blocknumOrder,
+    enableLog,
   )
   // Optional but easy to handle;
   // Public: blockhash_latest
@@ -33,6 +34,7 @@ export function fillInputBlocksWithoutLatestBlockhash(
   cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
+  enableLog = false,
 ) {
   const blockCount = blocknumOrder.length
   input.addInt(blockCount, false) // block count
