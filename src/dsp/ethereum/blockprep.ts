@@ -7,13 +7,11 @@ export class EthereumDataPrep extends DataPrep {
   blockPrepMap: any
   blocknumberOrder: any
   latestBlockhash: any
-  expectedStateStr: any
   constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlockhash: string, expectedStateStr: string) {
-    super()
+    super(expectedStateStr)
     this.blockPrepMap = blockPrepMap
     this.blocknumberOrder = blocknumberOrder
     this.latestBlockhash = latestBlockhash
-    this.expectedStateStr = expectedStateStr
   }
 }
 

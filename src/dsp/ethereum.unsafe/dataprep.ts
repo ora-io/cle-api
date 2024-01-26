@@ -2,9 +2,8 @@ import type { BytesLike } from 'ethers'
 import type { Hexable } from 'ethers/lib/utils'
 import { BlockPrep, EthereumDataPrep } from '../ethereum/blockprep.js'
 
-// includes both exec & prove params
-export class EthereumUnsafeDataPrep extends EthereumDataPrep {
-  blockPrepMap: Map<number, BlockUnsafePrep>
+export class UnsafeEthereumDataPrep extends EthereumDataPrep {
+  blockPrepMap: Map<number, UnsafeBlockPrep>
   constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlockhash: string, expectedStateStr: string) {
     super(new Map(), blocknumberOrder, latestBlockhash, expectedStateStr)
     this.blockPrepMap = blockPrepMap
@@ -12,7 +11,7 @@ export class EthereumUnsafeDataPrep extends EthereumDataPrep {
 }
 
 // name with *Prep to avoid confusion with cle-lib/Block
-export class BlockUnsafePrep extends BlockPrep {
+export class UnsafeBlockPrep extends BlockPrep {
   eventOffsets: Uint32Array
   constructor(blocknum: number | bigint | BytesLike | Hexable, rlpHeader: string) {
     super(blocknum, rlpHeader)

@@ -2,7 +2,7 @@ import { filterEvents } from '../../common/api_helper'
 import { toHexString } from '../../common/utils'
 import type { BlockPrep } from '../ethereum/blockprep'
 
-export function fillInputEventsUnsafe(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][]) {
+export function unsafeFillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][]) {
   const rawreceiptList = blockPrep?.getRLPReceipts()
 
   // TODO move logs to cli
