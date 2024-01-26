@@ -5,12 +5,10 @@ import { describe, expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
 import webjson from '@hyperoracle/cle-lib-test/test/weblib/weblib.json'
 import { providers } from 'ethers'
-// import { compile } from '../../src/api/compile'
 import { fromHexString, loadConfigByNetwork, toHexString } from '../src/common/utils'
 import * as zkgapi from '../src/index'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
-// import { getLatestBlocknumber } from './utils/ethers'
 
 (global as any).__BROWSER__ = false
 

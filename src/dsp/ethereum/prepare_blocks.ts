@@ -1,14 +1,10 @@
 import type { providers } from 'ethers'
 import { ethers } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
-import {
-  getBlockWithTxs,
-  getProof,
-  getRawReceipts,
-} from '../../common/ethers_helper'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
+import { dspHooks } from '../hooks'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
 
 export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, latestBlocknumber: number, latestBlockhash: string, expectedStateStr: string, cleYaml: CLEYaml) {
@@ -59,7 +55,7 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
 
   for (let i = 0; i < stateDSAddrList.length; i++) {
     // request
-    const ethproof = await getProof(
+    const ethproof = await dspHooks.getProof(
       provider,
       stateDSAddrList[i],
       stateDSSlotsList[i],
@@ -88,7 +84,7 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
    * prepare raw receipts data
    */
   if (needRLPReceiptList) {
-    const rawreceiptList = await getRawReceipts(provider, blockNumber).catch(
+    const rawreceiptList = await dspHooks.getRawReceipts(provider, blockNumber).catch(
       (error) => {
         throw error
       },
@@ -98,7 +94,7 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
   }
 
   if (needTransactions) {
-    const blockwithtxs = await getBlockWithTxs(provider, blockNumber)
+    const blockwithtxs = await dspHooks.getBlockWithTxs(provider, blockNumber)
     block.setTransactions(blockwithtxs.transactions)
   }
 

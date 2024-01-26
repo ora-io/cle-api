@@ -1,13 +1,9 @@
 import type { providers } from 'ethers'
 import { ethers } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
-import {
-  getBlockWithTxs,
-  getProof,
-  getRawReceipts,
-} from '../../common/ethers_helper'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
 import { BlockPrep } from '../ethereum/blockprep'
+import { dspHooks } from '../hooks'
 
 export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
@@ -23,7 +19,7 @@ export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider,
 
   for (let i = 0; i < stateDSAddrList.length; i++) {
     // request
-    const ethproof = await getProof(
+    const ethproof = await dspHooks.getProof(
       provider,
       stateDSAddrList[i],
       stateDSSlotsList[i],
@@ -52,7 +48,7 @@ export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider,
    * prepare raw receipts data
    */
   if (needRLPReceiptList) {
-    const rawreceiptList = await getRawReceipts(provider, blockNumber).catch(
+    const rawreceiptList = await dspHooks.getRawReceipts(provider, blockNumber).catch(
       (error) => {
         throw error
       },
@@ -62,7 +58,7 @@ export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider,
   }
 
   if (needTransactions) {
-    const blockwithtxs = await getBlockWithTxs(provider, blockNumber)
+    const blockwithtxs = await dspHooks.getBlockWithTxs(provider, blockNumber)
     block.setTransactions(blockwithtxs.transactions)
   }
 

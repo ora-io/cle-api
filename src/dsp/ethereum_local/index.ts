@@ -4,11 +4,10 @@ import type { Input } from '../../common/input'
 import type { CLEYaml } from '../../types/zkgyaml'
 import { DataSourcePlugin } from '../interface'
 import type { EthereumDSPExecParams, EthereumDSPPrepareParams, EthereumDSPProveParams } from '../ethereum'
-import { EthereumDataSourcePlugin } from '../ethereum'
 import { trimPrefix } from '../../common/utils'
-import { getBlock } from '../../common/ethers_helper'
 import { fillInputBlocks, setFillInputEventsFunc } from '../ethereum/fill_blocks'
 import { prepareBlocksByYaml, setPrePareOneBlockFunc } from '../ethereum/prepare_blocks'
+import { dspHooks } from '../hooks'
 import { fillInputEvents } from './fill_blocks'
 import type { EthereumLocalDataPrep } from './dataprep'
 import { prepareOneBlockLocal } from './prepare_blocks'
@@ -65,7 +64,7 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
-    const rawblock = await getBlock(provider, blockId)
+    const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
     const blockHash = rawblock.hash
 

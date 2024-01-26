@@ -1,11 +1,11 @@
 import type { KeyofToArray } from '@murongg/utils/index'
 import type { providers } from 'ethers'
-import { getBlock } from '../../common/ethers_helper'
 import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
 import type { DataPrep } from '../interface'
 import { DataSourcePlugin } from '../interface'
+import { dspHooks } from '../hooks'
 import type { EthereumDataPrep } from './blockprep'
 import { fillInputBlocks, fillInputEvents, setFillInputEventsFunc } from './fill_blocks'
 import { prepareBlocksByYaml, prepareOneBlock, setPrePareOneBlockFunc } from './prepare_blocks'
@@ -44,7 +44,7 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
-    const rawblock = await getBlock(provider, blockId)
+    const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
     const blockHash = rawblock.hash
 

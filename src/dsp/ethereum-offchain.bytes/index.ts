@@ -6,11 +6,11 @@ import { DataPrep, DataSourcePlugin } from '../interface'
 import { fillInputBlocks } from '../ethereum/fill_blocks'
 import { prepareBlocksByYaml } from '../ethereum/prepare_blocks'
 
-import { getBlock } from '../../common/ethers_helper'
 import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
 import type { BlockPrep } from '../ethereum/blockprep'
+import { dspHooks } from '../hooks'
 
 export interface EthereumOffchainDPDataPrep {
   blockPrepMap: Map<number, BlockPrep>
@@ -110,7 +110,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
-    const rawblock = await getBlock(provider, blockId)
+    const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
     const blockHash = rawblock.hash
 
