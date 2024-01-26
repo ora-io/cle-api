@@ -7,7 +7,12 @@ import type { Input } from '../common/input'
 import { dspParamsNormalize } from '../common/utils'
 import type { CLEYaml } from '../types/zkgyaml'
 
-export class DataPrep {}
+export class DataPrep {
+  expectedStateStr: any
+  constructor(expectedStateStr: string) {
+    this.expectedStateStr = expectedStateStr
+  }
+}
 
 export abstract class DataSourcePlugin<EP extends object, PP extends object, PRP extends object, DP extends object> {
   abstract getLibDSPName(): string

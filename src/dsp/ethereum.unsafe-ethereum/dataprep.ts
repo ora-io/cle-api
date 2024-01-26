@@ -1,25 +1,23 @@
 import type { EthereumDataPrep } from '../ethereum/blockprep.js'
-import type { EthereumUnsafeDataPrep } from '../ethereum.unsafe/dataprep.js'
+import type { UnsafeEthereumDataPrep } from '../ethereum.unsafe/dataprep.js'
 import { DataPrep } from '../interface.js'
 
 // includes both exec & prove params
 export class ETHUnsafe_ETH_DataPrep extends DataPrep {
-  ethUnsafeDP: EthereumUnsafeDataPrep
-  ethDP: EthereumDataPrep
+  unsafeETHDP: UnsafeEthereumDataPrep
+  safeEthDP: EthereumDataPrep
   // latestBlockhash & expectedStateStr should use these, not the ones in 2 xxxDataPreps
   latestBlockhash: string
-  expectedStateStr: string
-  constructor(ethUnsafeDP: EthereumUnsafeDataPrep, ethDP: EthereumDataPrep, latestBlockhash: string, expectedStateStr: string) {
-    super()
-    this.ethUnsafeDP = ethUnsafeDP
-    this.ethDP = ethDP
+  constructor(ethUnsafeDP: UnsafeEthereumDataPrep, ethDP: EthereumDataPrep, latestBlockhash: string, expectedStateStr: string) {
+    super(expectedStateStr)
+    this.unsafeETHDP = ethUnsafeDP
+    this.safeEthDP = ethDP
     this.latestBlockhash = latestBlockhash
-    this.expectedStateStr = expectedStateStr
 
     // unify to avoid ambiguity
-    this.ethUnsafeDP.latestBlockhash = latestBlockhash
-    this.ethUnsafeDP.expectedStateStr = expectedStateStr
-    this.ethDP.latestBlockhash = latestBlockhash
-    this.ethDP.expectedStateStr = expectedStateStr
+    this.unsafeETHDP.latestBlockhash = latestBlockhash
+    this.unsafeETHDP.expectedStateStr = expectedStateStr
+    this.safeEthDP.latestBlockhash = latestBlockhash
+    this.safeEthDP.expectedStateStr = expectedStateStr
   }
 }

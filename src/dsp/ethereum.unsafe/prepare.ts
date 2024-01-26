@@ -9,7 +9,7 @@ import {
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
 import { BlockPrep } from '../ethereum/blockprep'
 
-export async function prepareOneBlockUnsafe(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
+export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
   const block = new BlockPrep(
     blockNumber,
