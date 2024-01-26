@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error.js'
+import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
 import type { DataDestinationKind, DataSourceKind } from './zkgyaml_def'
 import { DataDestination, DataSource } from './zkgyaml_def'
 
@@ -55,6 +55,7 @@ class StorageSectionCache {
 }
 
 export class EthereumDataSource extends DataSource {
+  unsafe: boolean
   network: string
   // event: EventSection | null
   // storage: StorageSection | null
@@ -69,6 +70,7 @@ export class EthereumDataSource extends DataSource {
 
   constructor(
     kind: DataSourceKind,
+    unsafe: boolean,
     network: string,
     event: EventItem[] | null,
     storage: StorageItem[] | null,
@@ -77,6 +79,7 @@ export class EthereumDataSource extends DataSource {
     block: any,
   ) {
     super(kind)
+    this.unsafe = unsafe
     this.network = network
     this.event = event
     this.storage = storage
@@ -85,9 +88,10 @@ export class EthereumDataSource extends DataSource {
     this.block = block
   }
 
-  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; network: string; event: EventItem[]; storage: StorageItem[]; transaction: TransactionItem[] }) {
+  static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; unsafe?: boolean; network: string; event: EventItem[]; storage: StorageItem[]; transaction: TransactionItem[] }) {
     return new EthereumDataSource(
       yamlEthDS.kind,
+      yamlEthDS.unsafe == null ? false : yamlEthDS.unsafe,
       yamlEthDS.network,
       // (yamlEthDS.event != null) ? EventSection.from_v_0_0_2(yamlEthDS.event) : null,
       // (yamlEthDS.storage != null) ? StorageSection.from_v_0_0_2(yamlEthDS.storage) : null,
@@ -104,8 +108,8 @@ export class EthereumDataSource extends DataSource {
   }
 
   // signaficant to decide which lib dsp main it should use.
-  getSignificantKeys() {
-    return [this.kind]
+  getSignificantKeys(): string[] {
+    return this.unsafe ? [this.kind, 'unsafe'] : [this.kind]
   }
 
   getEventLists(useCache = true) {
@@ -157,16 +161,26 @@ export class EthereumDataSource extends DataSource {
     return [this.storageSectionCache.addressList, this.storageSectionCache.slotsList] as [string[], string[][]]
   }
 
-  static healthCheck(ds: { event: any; storage: any; transaction: any }) {
-    const eventCount = ds.event ? 1 : 0
-    const storageCount = ds.storage ? 1 : 0
-    const transactionCount = ds.transaction ? 1 : 0
+  static healthCheck(ds: { kind: DataSourceKind; unsafe?: boolean; network: string; event: any; storage: any; transaction: any }) {
+    const validUnsafeType = ['boolean', 'undefined']
+    if (!validUnsafeType.includes(typeof ds.unsafe))
+      throw new YamlHealthCheckFailed(`unsafe only accept boolean when defined, provided: ${typeof ds.unsafe}`)
+
+    if (ds.network == null)
+      throw new YamlHealthCheckFailed('missing \'network\' in Ethereum DS')
+
+    // for safe mode, only accept 1 kind of eth state due to proving limits
+    if (ds.unsafe !== true) {
+      const eventCount = ds.event ? 1 : 0
+      const storageCount = ds.storage ? 1 : 0
+      const transactionCount = ds.transaction ? 1 : 0
+
+      if (eventCount + storageCount + transactionCount !== 1)
+        throw new YamlNotSupported('currently safe mode supports only either \'event\' or \'storage\' or \'transaction\' field, try "unsafe: true" for partially proof cases.')
+    }
 
     if (ds.transaction)
       console.warn('Ethereum transaction section is still EXPERIMENTAL, use at your own risks.')
-
-    if (eventCount + storageCount + transactionCount !== 1)
-      throw new YamlNotSupported('currently requires only either \'event\' or \'storage\' or \'transaction\' field')
   }
 }
 

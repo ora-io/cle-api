@@ -4,6 +4,7 @@ import axios from 'axios'
 import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
 import { DSPNotFound } from '../common/error'
+import type { CLEYaml } from '../types'
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
 import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
@@ -71,6 +72,18 @@ export interface CompileResult {
   stats: any
 }
 
+export function onlyAscCompile(yaml: CLEYaml) {
+  return !yaml.dataSources.some((dataSource: { kind: any; unsafe?: boolean }) => dataSource.kind === 'ethereum' && dataSource.unsafe !== true)
+  // let noETHSafe = true
+  // yaml.dataSources.forEach((dataSource: { kind: any; unsafe?: boolean }) => {
+  //   if (dataSource.kind === 'ethereum') {
+  //     if (dataSource.unsafe !== true)
+  //       noETHSafe = false
+  //   }
+  // })
+  // return noETHSafe
+}
+
 export interface CompileOptions {
   isLocal?: boolean
 }
@@ -79,11 +92,30 @@ export async function compile(
   cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
+  // endpoint: string,
+): Promise<CompileResult> {
+  // TODO: complete this func
+  const { cleYaml } = cleExecutable
+  if (onlyAscCompile(cleYaml))
+    options.isLocal = true
+
+  const result = await compileAsc(cleExecutable, sources, options)
+  if (options.isLocal === false) {
+    // result = compileRequest(...)
+  }
+  return result
+}
+
+export async function compileAsc(
+  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
+  sources: Record<string, string>,
+  options: CompileOptions = {},
 ): Promise<CompileResult> {
   const { cleYaml } = cleExecutable
   const { isLocal = false } = options
 
-  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  // const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false }) // deprecating isLocal, 'false' for compatible
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 

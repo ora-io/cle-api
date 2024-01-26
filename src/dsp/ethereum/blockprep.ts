@@ -1,19 +1,17 @@
 import type { BytesLike, providers } from 'ethers'
 import type { Hexable } from 'ethers/lib/utils'
-import { DataPrep } from '../interface.js'
+import { DataPrep } from '../interface'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
   blockPrepMap: any
   blocknumberOrder: any
   latestBlockhash: any
-  expectedStateStr: any
   constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlockhash: string, expectedStateStr: string) {
-    super()
+    super(expectedStateStr)
     this.blockPrepMap = blockPrepMap
     this.blocknumberOrder = blocknumberOrder
     this.latestBlockhash = latestBlockhash
-    this.expectedStateStr = expectedStateStr
   }
 }
 

@@ -44,7 +44,7 @@ export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider,
   return await prepareOneBlockFunc(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList, needTransactions)
 }
 
-async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
+export async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
 
   const block = new BlockPrep(

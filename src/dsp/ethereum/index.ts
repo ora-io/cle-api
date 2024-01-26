@@ -4,10 +4,11 @@ import { getBlock } from '../../common/ethers_helper'
 import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
+import type { DataPrep } from '../interface'
 import { DataSourcePlugin } from '../interface'
 import type { EthereumDataPrep } from './blockprep'
-import { fillInputBlocks } from './fill_blocks'
-import { prepareBlocksByYaml } from './prepare_blocks'
+import { fillInputBlocks, fillInputEvents, setFillInputEventsFunc } from './fill_blocks'
+import { prepareBlocksByYaml, prepareOneBlock, setPrePareOneBlockFunc } from './prepare_blocks'
 
 export { EthereumDataPrep } from './blockprep'
 
@@ -29,35 +30,7 @@ export interface EthereumDSPProveParams {
   expectedStateStr: string
 }
 
-export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, EthereumDataPrep> {
-  // SHOULD align with cle-lib/dsp/<DSPName>
-  getLibDSPName() { return 'ethereum' }
-
-  async prepareData(cleYaml: CLEYaml, prepareParams: EthereumDSPPrepareParams) {
-    const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
-    const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
-    return dataPrep
-  }
-
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = false) {
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
-  }
-
-  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
-    this.fillExecInput(input, cleYaml, dataPrep)
-    // add expected State Str
-    const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
-    input.addVarLenHexString(expectedStateStr, true)
-    return input
-  }
-
-  // TODO: copy instead of rename
-  toProveDataPrep(execDataPrep: EthereumDataPrep, execResult: string) {
-    const proveDataPrep = execDataPrep
-    proveDataPrep.expectedStateStr = execResult
-    return proveDataPrep
-  }
-
+export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, X> {
   execParams: KeyofToArray<EthereumDSPExecParams> = ['provider', 'blockId']
   proveParams: KeyofToArray<EthereumDSPProveParams> = ['provider', 'blockId', 'expectedStateStr']
 
@@ -82,4 +55,42 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecPa
       expectedStateStr,
     }
   }
+
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: X) {
+    this.fillExecInput(input, cleYaml, dataPrep)
+    // add expected State Str
+    const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
+    input.addVarLenHexString(expectedStateStr, true)
+    return input
+  }
+
+  // TODO: copy instead of rename
+  toProveDataPrep(execDataPrep: X, execResult: string) {
+    const proveDataPrep = execDataPrep
+    proveDataPrep.expectedStateStr = execResult
+    return proveDataPrep
+  }
+}
+
+export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin<EthereumDataPrep> {
+  // SHOULD align with cle-lib/dsp/<DSPName>
+  getLibDSPName() { return 'ethereum' }
+
+  async prepareData(cleYaml: CLEYaml, prepareParams: EthereumDSPPrepareParams) {
+    return safePrepareData(cleYaml, prepareParams)
+  }
+
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = true) {
+    // set safe func
+    setFillInputEventsFunc(fillInputEvents)
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
+  }
+}
+
+export async function safePrepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
+  const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
+  setPrePareOneBlockFunc(prepareOneBlock)
+
+  const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
+  return dataPrep
 }

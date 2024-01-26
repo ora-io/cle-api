@@ -113,7 +113,7 @@ export class CLEYaml {
   //   throw new Error("Unsupported specVersion: ", this.specVersion)
   // }
 
-  getSignificantKeys(isSource: boolean) {
+  getSignificantKeys(isSource: boolean): string[][] {
     return isSource ? this.dataSources.map((ds: DataSource) => ds.getSignificantKeys()) : this.dataDestinations.map((ds: DataDestination) => ds.getSignificantKeys())
   }
 
@@ -157,8 +157,8 @@ export class CLEYaml {
       throw new YamlHealthCheckFailed(`Invalid dataSource kind, only support ${validKind.toString()}`)
 
     // can only have 1 data source with kind 'ethereum' right now
-    if (sourceKinds.indexOf('ethereum') !== sourceKinds.lastIndexOf('ethereum'))
-      throw new YamlHealthCheckFailed('Only 1 \'ethereum\' kind is allowed in data sources right now')
+    if (sourceKinds.indexOf('ethereum') + 1 < sourceKinds.lastIndexOf('ethereum'))
+      throw new YamlHealthCheckFailed('Only 2 \'ethereum\' kind is allowed in data sources right now')
 
     yaml.dataSources.forEach((dataSource: any) => {
       // check data sources

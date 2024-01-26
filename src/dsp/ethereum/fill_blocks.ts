@@ -15,6 +15,25 @@ export function fillInputBlocks(
   latestBlockhash: string,
   enableLog = false,
 ) {
+  input = fillInputBlocksWithoutLatestBlockhash(
+    input,
+    cleYaml,
+    blockPrepMap,
+    blocknumOrder,
+  )
+  // Optional but easy to handle;
+  // Public: blockhash_latest
+  input.addHexString(latestBlockhash, true)
+
+  return input
+}
+
+export function fillInputBlocksWithoutLatestBlockhash(
+  input: any,
+  cleYaml: CLEYaml,
+  blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
+  blocknumOrder: any[], // i32[]
+) {
   const blockCount = blocknumOrder.length
   input.addInt(blockCount, false) // block count
 
@@ -24,11 +43,6 @@ export function fillInputBlocks(
 
     fillInputOneBlock(input, cleYaml, blockPrepMap.get(bn) as BlockPrep, enableLog)
   })
-
-  // Optional but easy to handle;
-  // Public: blockhash_latest
-  input.addHexString(latestBlockhash, true)
-
   return input
 }
 
@@ -134,7 +148,7 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
   return input
 }
 
-function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrList: string[], stateDSSlotsList: string[][]) {
+export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrList: string[], stateDSSlotsList: string[][]) {
   for (let i = 0; i < stateDSAddrList.length; i++) {
     input.addHexString(stateDSAddrList[i], false) // address
     // let ethproof = await getProof(
@@ -165,7 +179,7 @@ function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrList: str
   }
 }
 
-function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][], enableLog = false) {
+export function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][], enableLog = true) {
   const rawreceiptList = blockPrep?.getRLPReceipts()
 
   // TODO: return list rather than appending string.
@@ -187,7 +201,7 @@ function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: stri
   }
 }
 
-function fillInputTxs(input: any, blockPrep: BlockPrep, txDSList: any[]) {
+export function fillInputTxs(input: any, blockPrep: BlockPrep, txDSList: any[]) {
   const filteredTransactions = blockPrep.transactions.filter((transaction) => {
     const matchingTransactionItem = txDSList?.find((item) => {
       return (item.from === transaction.from || item.from === '*') && (item.to === transaction.to || item.to === '*')

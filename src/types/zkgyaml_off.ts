@@ -1,5 +1,5 @@
 import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
-import { DataSource } from './zkgyaml_def.js'
+import { DataSource } from './zkgyaml_def'
 
 // can't do this, because of lib handleFunc requires static type
 // class CustomDataSection {
@@ -28,7 +28,7 @@ export class OffchainDataSource extends DataSource {
   }
 
   // signaficant to decide which lib dsp main it should use.
-  getSignificantKeys() {
+  getSignificantKeys(): string[] {
     return [this.kind, this.type]
   }
 
