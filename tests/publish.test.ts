@@ -1,8 +1,9 @@
 import fs from 'node:fs'
-import { ethers } from 'ethers'
-import { it } from 'vitest'
+import { Contract, ethers } from 'ethers'
+import { expect, it } from 'vitest'
 import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
+import { abiFactory, addressFactory, graph_abi } from '../src/common/constants'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 
@@ -15,7 +16,7 @@ it('test publish', async () => {
   const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
   const cleYaml = loadYamlFromPath('tests/testsrc/cle-dirty.yaml') as zkgapi.CLEYaml
-  const ipfsHash = '111'
+  const ipfsHash = Math.floor(Math.random() * (100000 - 0 + 1)).toString()
   const newBountyRewardPerTrigger = 0.01
   const wasm = fs.readFileSync('tests/build/cle_full.wasm')
   const wasmUint8Array = new Uint8Array(wasm)
@@ -30,6 +31,19 @@ it('test publish', async () => {
     )
     // eslint-disable-next-line no-console
     console.log(publishTxHash)
+    // slice the last 40 digits of result.logs[2].data to a ethereum address
+    // const address = "0x" + publishTxHash.logs[2].data.slice(-40);
+
+    // console.log(address);
+
+    const factoryContract = new Contract(addressFactory.sepolia, abiFactory, provider).connect(signer)
+    const deployedAddress = await factoryContract.getGraphBycreator(signer.address)
+
+    const graphContract = new Contract(deployedAddress[deployedAddress.length - 1], graph_abi, provider).connect(signer)
+
+    const reward = await graphContract.bountyReward()
+    // expect reward is equal to newBountyRewardPerTrigger
+    expect(reward).toEqual(ethers.utils.parseEther(newBountyRewardPerTrigger.toString()))
   }
   catch (error) {
     if (error instanceof GraphAlreadyExist)
