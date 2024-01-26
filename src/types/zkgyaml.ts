@@ -113,7 +113,7 @@ export class CLEYaml {
   //   throw new Error("Unsupported specVersion: ", this.specVersion)
   // }
 
-  getSignificantKeys(isSource: boolean) {
+  getSignificantKeys(isSource: boolean): string[][] {
     return isSource ? this.dataSources.map((ds: DataSource) => ds.getSignificantKeys()) : this.dataDestinations.map((ds: DataDestination) => ds.getSignificantKeys())
   }
 

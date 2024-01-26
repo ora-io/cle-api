@@ -108,7 +108,7 @@ export class EthereumDataSource extends DataSource {
   }
 
   // signaficant to decide which lib dsp main it should use.
-  getSignificantKeys() {
+  getSignificantKeys(): string[] {
     return this.unsafe ? [this.kind, 'unsafe'] : [this.kind]
   }
 

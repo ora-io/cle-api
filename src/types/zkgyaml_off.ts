@@ -28,7 +28,7 @@ export class OffchainDataSource extends DataSource {
   }
 
   // signaficant to decide which lib dsp main it should use.
-  getSignificantKeys() {
+  getSignificantKeys(): string[] {
     return [this.kind, this.type]
   }
 

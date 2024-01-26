@@ -7,7 +7,7 @@ export class DataSource {
     this.kind = kind
   }
 
-  getSignificantKeys(): any {
+  getSignificantKeys(): string[] {
     throw new Error(`default: getSignificantKeys not implemented for DataSource kind ${this.kind}.`)
   }
 
@@ -22,7 +22,7 @@ export class DataDestination {
     this.kind = kind
   }
 
-  getSignificantKeys(): any {
+  getSignificantKeys(): string[] {
     throw new Error(`default: getSignificantKeys not implemented for DataDestination kind ${this.kind}.`)
   }
 
