@@ -17,7 +17,7 @@ export class DataPrep {
 export abstract class DataSourcePlugin<EP extends object, PP extends object, PRP extends object, DP extends object> {
   abstract getLibDSPName(): string
   abstract prepareData(cleYaml: CLEYaml, prepareParams: PRP): Promise<DP>
-  abstract fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: DP): Input
+  abstract fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: DP, enableLog: boolean): Input
   abstract fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: DP): Input
   abstract toProveDataPrep(execDataPrep: DP, execResult: any): DP
 

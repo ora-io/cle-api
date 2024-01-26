@@ -1,7 +1,9 @@
-import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+import { instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/bundle.js'
+// import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+
+import { Simulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/simulator.js'
 import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
-import { ZKWASMMock } from '../common/zkwasm_mock'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
 import type { CLEExecutable } from '../types/api'
@@ -14,7 +16,7 @@ import type { CLEExecutable } from '../types/api'
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false) {
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false, enableLog = false) {
   const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
@@ -24,7 +26,7 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
 
-  return await executeOnDataPrep(cleExecutable, dataPrep, isLocal)
+  return await executeOnDataPrep(cleExecutable, dataPrep, isLocal, enableLog)
 }
 
 /**
@@ -35,7 +37,7 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
  * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false) {
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false, enableLog = false) {
   const { cleYaml } = cleExecutable
 
   let input = new Input()
@@ -44,7 +46,7 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp.fillExecInput(input, cleYaml, dataPrep)
+  input = dsp.fillExecInput(input, cleYaml, dataPrep, enableLog)
 
   const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
 
@@ -62,13 +64,12 @@ export async function executeOnInputs(cleExecutable: CLEExecutable, privateInput
   const { wasmUint8Array } = cleExecutable
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is null')
-
-  const mock = new ZKWASMMock()
+  const mock = new Simulator(100000000, 2000)
   mock.set_private_input(privateInputStr)
   mock.set_public_input(publicInputStr)
-  setupZKWasmMock(mock)
+  setupZKWasmSimulator(mock)
 
-  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
+  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error
   })
 

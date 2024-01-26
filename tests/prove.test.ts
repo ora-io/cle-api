@@ -64,7 +64,9 @@ describe('test prove', () => {
       false,
     )
 
-    // console.log([privateInputStr, publicInputStr])
+    // console.log(privateInputStr);
+    // console.log("-------------------");
+    // console.log(publicInputStr);
 
     const result = await zkgapi.prove(
       { wasmUint8Array }, // doesn't care about cleYaml
@@ -73,8 +75,9 @@ describe('test prove', () => {
       zkwasmUrl,
       config.UserPrivateKey,
       true)
+
     console.log(result)
-  }, { timeout: 100000 })
+  })
   // console.log('issued a prove taslk: ', result)
   // it('test mock mode', async () => {
   //   const { yamlPath, wasmPath, blockId, expectedStateStr } = proveModeOptions

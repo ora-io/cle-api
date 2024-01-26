@@ -66,12 +66,13 @@ export async function publishByImgCmt(
   const destinationContractAddress = cleYaml?.dataDestinations[0].address
   const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
   const factoryContract = new Contract(factoryAddress, abiFactory, provider).connect(signer)
+  const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
 
   const tx = await factoryContract
     .registry(
       destinationContractAddress,
       AddressZero,
-      bountyRewardPerTrigger,
+      bountyReward,
       dspID,
       ipfsHash,
       imageCommitment.pointX,
@@ -85,11 +86,22 @@ export async function publishByImgCmt(
     throw err
   })
 
+  // in the transaction receipt, get the event data with topic 0x3573344393f569107cbc8438d3f0a47ca210029fdc8226cc33804a7b35cd32d8
+  // this is the event newZkG(address graph)
+  const logs = txReceipt.logs.filter((log: { topics: string[] }) =>
+    log.topics.includes('0x3573344393f569107cbc8438d3f0a47ca210029fdc8226cc33804a7b35cd32d8'),
+  )
+
+  // Extract the graph address from the event
+  const graphAddress = `0x${logs[0].data.slice(-40)}`
+
   return {
     networkName,
+    graphAddress,
     ...txReceipt,
   } as {
     networkName: string
+    graphAddress: string
     blockNumber: number
     transactionHash: string
   }

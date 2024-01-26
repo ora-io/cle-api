@@ -73,8 +73,8 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     )
   }
 
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumOffchainDPDataPrep) {
-    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumOffchainDPDataPrep, enableLog = false) {
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
     // add offchain data
     input.addVarLenHexString(dataPrep.offchainData)
     return input
