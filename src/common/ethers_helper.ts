@@ -129,20 +129,25 @@ export async function getBlockByHash(ethersProvider: providers.JsonRpcProvider, 
 }
 
 export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string) {
+  let parsedBlockid: number | string = blockid
+  // accept latest as blockid
+  if (blockid === 'latest')
+    parsedBlockid = await ethersProvider.getBlockNumber()
+
   if (
-    typeof blockid === 'string'
-    && blockid.length === 66
-    && blockid.charAt(0) === '0'
-    && blockid.charAt(1) === 'x'
+    typeof parsedBlockid === 'string'
+    && parsedBlockid.length === 66
+    && parsedBlockid.charAt(0) === '0'
+    && parsedBlockid.charAt(1) === 'x'
   ) {
-    return await getBlockByHash(ethersProvider, blockid).catch((error) => {
+    return await getBlockByHash(ethersProvider, parsedBlockid).catch((error) => {
       throw error
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);
     })
   }
-  else if (isMaybeNumber(blockid)) {
-    return await getBlockByNumber(ethersProvider, toNumber(blockid)).catch((error) => {
+  else if (isMaybeNumber(parsedBlockid)) {
+    return await getBlockByNumber(ethersProvider, toNumber(parsedBlockid)).catch((error) => {
       throw error
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);

@@ -16,7 +16,7 @@ import type { CLEExecutable } from '../types/api'
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false) {
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false, enableLog = false) {
   const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
@@ -26,7 +26,7 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
 
-  return await executeOnDataPrep(cleExecutable, dataPrep, isLocal)
+  return await executeOnDataPrep(cleExecutable, dataPrep, isLocal, enableLog)
 }
 
 /**
@@ -37,7 +37,7 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
  * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false) {
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false, enableLog = false) {
   const { cleYaml } = cleExecutable
 
   let input = new Input()
@@ -46,7 +46,7 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp.fillExecInput(input, cleYaml, dataPrep)
+  input = dsp.fillExecInput(input, cleYaml, dataPrep, enableLog)
 
   const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
 
@@ -69,7 +69,7 @@ export async function executeOnInputs(cleExecutable: CLEExecutable, privateInput
   mock.set_public_input(publicInputStr)
   setupZKWasmSimulator(mock)
 
-  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
+  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error
   })
 

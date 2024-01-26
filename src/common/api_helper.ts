@@ -88,7 +88,7 @@ export function formatVarLenInput(input: string) {
   return formatted
 }
 
-export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[], enableLog: any): [Uint8Array, Uint32Array] {
+export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[], enableLog: any = false): [Uint8Array, Uint32Array] {
   // RLP Decode and Filter
   const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
     rawreceiptList,
