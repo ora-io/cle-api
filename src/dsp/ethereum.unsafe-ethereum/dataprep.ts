@@ -1,6 +1,6 @@
-import type { EthereumDataPrep } from '../ethereum/blockprep.js'
-import type { UnsafeEthereumDataPrep } from '../ethereum.unsafe/dataprep.js'
-import { DataPrep } from '../interface.js'
+import type { EthereumDataPrep } from '../ethereum/blockprep'
+import type { UnsafeEthereumDataPrep } from '../ethereum.unsafe/dataprep'
+import { DataPrep } from '../interface'
 
 // includes both exec & prove params
 export class UnsafeSafeETHDP extends DataPrep {

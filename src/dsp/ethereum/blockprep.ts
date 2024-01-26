@@ -1,6 +1,6 @@
 import type { BytesLike, providers } from 'ethers'
 import type { Hexable } from 'ethers/lib/utils'
-import { DataPrep } from '../interface.js'
+import { DataPrep } from '../interface'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {

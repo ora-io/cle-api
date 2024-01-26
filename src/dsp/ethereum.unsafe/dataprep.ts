@@ -1,6 +1,6 @@
 import type { BytesLike } from 'ethers'
 import type { Hexable } from 'ethers/lib/utils'
-import { BlockPrep, EthereumDataPrep } from '../ethereum/blockprep.js'
+import { BlockPrep, EthereumDataPrep } from '../ethereum/blockprep'
 
 export class UnsafeEthereumDataPrep extends EthereumDataPrep {
   blockPrepMap: Map<number, UnsafeBlockPrep>

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error.js'
+import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
 import type { DataDestinationKind, DataSourceKind } from './zkgyaml_def'
 import { DataDestination, DataSource } from './zkgyaml_def'
 
