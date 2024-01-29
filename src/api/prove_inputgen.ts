@@ -24,7 +24,7 @@ export async function proveInputGen(
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const prepareParams = await dsp?.toPrepareParams(proveParams, 'prove')
-  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams) as DataPrep
 
   return proveInputGenOnDataPrep(cleExecutable, dataPrep, isLocal)
 }

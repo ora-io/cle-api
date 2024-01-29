@@ -24,7 +24,7 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
-  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams)
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams) as DataPrep
 
   return await executeOnDataPrep(cleExecutable, dataPrep, isLocal, enableLog)
 }

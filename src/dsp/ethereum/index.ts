@@ -57,7 +57,7 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: X) {
-    this.fillExecInput(input, cleYaml, dataPrep)
+    this.fillExecInput(input, cleYaml, dataPrep, true)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
     input.addVarLenHexString(expectedStateStr, true)

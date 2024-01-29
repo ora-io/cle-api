@@ -47,7 +47,7 @@ export class EthereumOffchainDP extends DataPrep {
   offchainData: any
   expectedStateStr: any
   constructor(blockPrepMap: any, blocknumberOrder: any, latestBlockhash: any, offchainData: any, expectedStateStr: any) {
-    super()
+    super(expectedStateStr)
     this.blockPrepMap = blockPrepMap
     this.blocknumberOrder = blocknumberOrder
     this.latestBlockhash = latestBlockhash
