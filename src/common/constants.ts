@@ -298,33 +298,28 @@ export const graph_abi = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'blockNumber',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes32',
-        name: 'blockHash',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'bytes',
-        name: 'zkgState',
-        type: 'bytes',
-      },
-      {
         internalType: 'uint256[]',
         name: 'proof',
         type: 'uint256[]',
       },
       {
         internalType: 'uint256[]',
-        name: 'verify_instance',
+        name: 'verifyInstance',
         type: 'uint256[]',
       },
       {
         internalType: 'uint256[]',
         name: 'aux',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'uint256[][]',
+        name: 'targetInstance',
+        type: 'uint256[][]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'extra',
         type: 'uint256[]',
       },
     ],
