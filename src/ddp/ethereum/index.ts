@@ -25,11 +25,11 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
       const tx = await graph.trigger(proof, instances, aux, [arg], [0n], { gasLimit: goParams.gasLimit })
 
       // logger.info("transaction submitted, tx hash: " + tx.hash);
-      // console.info("transaction submitted, tx hash: " + tx.hash);
+      // console.log("transaction submitted, tx hash: " + tx.hash);
       // const receipt = await tx.wait();
       await tx.wait()
       // logger.info("transaction confirmed, block number: " + receipt.blockNumber);
-      // console.info("transaction confirmed, block number: " + receipt.blockNumber);
+      // console.log("transaction confirmed, block number: " + receipt.blockNumber);
       // this.status == 'off';
       // this.senderIdx = (this.senderIdx + 1) % config.UserPrivateKey.length;
     }
