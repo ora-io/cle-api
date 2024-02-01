@@ -1,7 +1,7 @@
-import { instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/bundle.js'
+// @ts-expect-error non-types
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain'
 // import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
 
-import { Simulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/simulator.js'
 import { DSPNotFound } from '../common/error'
 import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'

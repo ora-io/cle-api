@@ -1,5 +1,5 @@
-import { Simulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/simulator.js'
-import { instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain/zkwasmmock/bundle.js'
+// @ts-expect-error non-types
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain'
 import { CLERequireFailed } from '../common/error'
 import type { CLEExecutable } from '../types/api'
 
