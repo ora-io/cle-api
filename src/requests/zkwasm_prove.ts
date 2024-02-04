@@ -1,5 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import FormData from 'form-data'
 import { Wallet, utils } from 'ethers'
 import { InputContextType, ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'

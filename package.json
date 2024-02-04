@@ -1,7 +1,7 @@
 {
   "name": "@hyperoracle/cle-api-test",
   "type": "module",
-  "version": "1.0.3-alpha.1",
+  "version": "1.0.3-alpha.2",
   "description": "API for interacting with Hyper Oracle CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
@@ -64,8 +64,8 @@
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
-    "@hyperoracle/zkwasm-toolchain": "0.0.2",
     "@hyperoracle/zkwasm-service-helper": "^1.0.2",
+    "@hyperoracle/zkwasm-toolchain": "0.0.2",
     "@murongg/utils": "^0.1.18",
     "assemblyscript": "^0.27.22",
     "axios": "^1.6.2",

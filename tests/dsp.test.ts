@@ -22,14 +22,20 @@ function createOnNonexist(filePath: string): void {
     fs.mkdirSync(directoryPath, { recursive: true })
 }
 
+// const dspname = 'ethereum.unsafe-ethereum'
+// const dspExpectedState = '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
+
+const dspname = 'ethereum'
+const dspExpectedState = '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794'
+
 // options per dsp
 const execOptionsForDSP = {
-  mappingPath: 'tests/fixtures/dsp/ethereum.unsafe-ethereum/mapping.ts',
-  yamlPath: 'tests/fixtures/dsp/ethereum.unsafe-ethereum/cle-event.yaml',
-  wasmPath: 'tests/fixtures/compile/build/ethunsafe-eth.wasm',
-  watPath: 'tests/fixtures/compile/build/ethunsafe-eth.wat',
+  mappingPath: `tests/fixtures/dsp/${dspname}/mapping.ts`,
+  yamlPath: `tests/fixtures/dsp/${dspname}/cle-event.yaml`,
+  wasmPath: `tests/fixtures/compile/build/${dspname}.was`,
+  watPath: `tests/fixtures/compile/build/${dspname}.wat`,
   local: false,
-  expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
+  expectedState: dspExpectedState,
   blocknum: {
     sepolia: 2279547, // to test event use 2279547, to test storage use latest blocknum
     mainnet: 17633573,
@@ -60,7 +66,8 @@ describe('test dsp: ethereum.unsafe-ethereum', () => {
     // TODO: enrich the args when complate compile func
     const result = await zkgapi.compile(cleExecutable, sources)
 
-    // console.log('test compile stderr:', result.stderr.toString())
+    if (result.stderr.length > 0)
+      throw new Error(result.stderr.toString())
 
     expect(result.error).toBeNull()
     expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
