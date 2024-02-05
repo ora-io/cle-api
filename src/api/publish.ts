@@ -1,5 +1,4 @@
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { providers } from 'ethers'
 import { Contract, ethers, utils } from 'ethers'
 import {
   AddressZero,
@@ -27,13 +26,12 @@ import type { CLEYaml } from '../types/zkgyaml'
 export async function publish(
   cleExecutable: CLEExecutable,
   zkwasmProviderUrl: string,
-  provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
-  signer: ethers.Wallet | ethers.providers.Provider | string,
+  signer: ethers.Signer,
 ) {
   const imgCmt = await getImageCommitment(cleExecutable, zkwasmProviderUrl)
-  return publishByImgCmt(cleExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer)
+  return publishByImgCmt(cleExecutable, imgCmt, ipfsHash, bountyRewardPerTrigger, signer)
 }
 
 /**
@@ -49,10 +47,9 @@ export async function publish(
 export async function publishByImgCmt(
   cleExecutable: CLEExecutable,
   imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
-  provider: providers.JsonRpcProvider,
   ipfsHash: string,
   bountyRewardPerTrigger: number,
-  signer: ethers.Wallet | ethers.providers.Provider | string,
+  signer: ethers.Signer,
 ) {
   const { cleYaml } = cleExecutable
 
@@ -65,7 +62,7 @@ export async function publishByImgCmt(
   const networkName = cleYaml?.dataDestinations[0].network
   const destinationContractAddress = cleYaml?.dataDestinations[0].address
   const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
-  const factoryContract = new Contract(factoryAddress, abiFactory, provider).connect(signer)
+  const factoryContract = new Contract(factoryAddress, abiFactory, signer)
   const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
 
   const tx = await factoryContract

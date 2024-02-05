@@ -24,7 +24,6 @@ it('test publish', async () => {
     const publishTxHash = await zkgapi.publish(
       { wasmUint8Array, cleYaml },
       ZkwasmProviderUrl,
-      provider,
       ipfsHash,
       newBountyRewardPerTrigger,
       signer,
@@ -36,7 +35,7 @@ it('test publish', async () => {
 
     // console.log(address);
 
-    const factoryContract = new Contract(addressFactory.sepolia, abiFactory, provider).connect(signer)
+    const factoryContract = new Contract(addressFactory.sepolia, abiFactory, signer)
     const deployedAddress = await factoryContract.getGraphBycreator(signer.address)
 
     const graphContract = new Contract(deployedAddress[deployedAddress.length - 1], graph_abi, provider).connect(signer)
