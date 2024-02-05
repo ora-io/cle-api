@@ -1,4 +1,3 @@
-import type { providers } from 'ethers'
 import { Contract, ethers } from 'ethers'
 import {
   graph_abi,
@@ -14,12 +13,11 @@ import {
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function deposit(
-  provider: providers.JsonRpcProvider,
-  signer: ethers.Wallet | ethers.providers.Provider | string,
+  signer: ethers.Signer,
   graphContractAddress: string,
   depositAmount: string,
 ) {
-  const graphContract = new Contract(graphContractAddress, graph_abi, provider).connect(signer)
+  const graphContract = new Contract(graphContractAddress, graph_abi, signer)
   const tx = await graphContract
     .deposit(
       ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) },
