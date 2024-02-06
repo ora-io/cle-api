@@ -4,7 +4,7 @@
 
 import type { KeyofToArray } from '@murongg/utils'
 import type { Input } from '../common/input'
-import { dspParamsNormalize } from '../common/utils'
+import { paramsNormalize } from '../common/utils'
 import type { CLEYaml } from '../types/zkgyaml'
 
 export class DataPrep {
@@ -23,12 +23,12 @@ export abstract class DataSourcePlugin<EP extends object, PP extends object, PRP
 
   abstract execParams: KeyofToArray<EP>
   toExecParams(params: Record<string, any>) {
-    return dspParamsNormalize(this.execParams as string[], params) as EP
+    return paramsNormalize(this.execParams as string[], params) as EP
   }
 
   abstract proveParams: KeyofToArray<PP>
   toProveParams(params: Record<string, any>) {
-    return dspParamsNormalize(this.proveParams as string[], params) as PP
+    return paramsNormalize(this.proveParams as string[], params) as PP
   }
 
   toPrepareParamsFromExecParams(execParams: EP): Promise<PRP> {
