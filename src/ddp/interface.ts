@@ -7,5 +7,5 @@ export abstract class DataDestinationPlugin<GP extends object> {
   toGoParams(params: Record<string, any>) {
     return dspParamsNormalize(this.goParams as string[], params) as GP
   }
-  abstract go(cleId: string, proofParams: ProofParams, goParams: GP): Promise<void >
+  abstract go(cleId: string, proofParams: ProofParams, goParams: GP, _enableLog: boolean): Promise<void >
 }

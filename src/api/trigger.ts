@@ -11,5 +11,5 @@ export async function trigger(
   const { cleYaml } = cleExecutable
   const ddps = ddpHub.getDDPsByYaml(cleYaml)
   for (const ddp of ddps)
-    await ddp.go(cleId, proofParams, ddpParamsList).catch((err) => { throw err })
+    await ddp.go(cleId, proofParams, ddpParamsList, _enableLog)
 }
