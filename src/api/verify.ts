@@ -8,14 +8,8 @@ import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/cons
 import { ProveTaskNotReady } from '../common/error'
 import { loadConfigByNetwork } from '../common/utils'
 import type { CLEYaml } from '../types/zkgyaml'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable, ProofParams as VerifyProofParams } from '../types/api'
 // import { VerifyProofParams } from '@hyperoracle/zkwasm-service-helper'
-export interface VerifyProofParams {
-  aggregate_proof: Uint8Array
-  batch_instances: Uint8Array
-  aux: Uint8Array
-  instances: Uint8Array
-}
 
 export async function verify(
   cleExecutable: NullableObject<CLEExecutable>,

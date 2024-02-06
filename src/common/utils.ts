@@ -174,7 +174,7 @@ export function getTargetNetwork(inputtedNetworkName: string) {
  * @param paramKeyValue
  * @returns
  */
-export function dspParamsNormalize(paramNames: string[] = [], paramKeyValue: Record<string, any> = {}) {
+export function paramsNormalize(paramNames: string[] = [], paramKeyValue: Record<string, any> = {}) {
   const params = {}
   paramNames.forEach((param) => {
     Reflect.set(params, param, paramKeyValue[param])
