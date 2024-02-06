@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ethers } from 'ethers'
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import type { KeyofToArray } from '@murongg/utils/index'
@@ -26,13 +27,13 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
 
     if (enableLog) {
       // logger.info("transaction submitted, tx hash: " + tx.hash);
-      // console.log("transaction submitted, tx hash: " + tx.hash);
+      console.log(`transaction submitted, tx hash: ${tx.hash}`)
     }
-    // const receipt = await tx.wait();
-    await tx.wait()
+    const receipt = await tx.wait()
+    // await tx.wait()
     if (enableLog) {
       // logger.info("transaction confirmed, block number: " + receipt.blockNumber);
-      // console.log("transaction confirmed, block number: " + receipt.blockNumber);
+      console.log(`transaction confirmed, block number: ${receipt.blockNumber}`)
     }
     // this.status == 'off';
     // this.senderIdx = (this.senderIdx + 1) % config.UserPrivateKey.length;
