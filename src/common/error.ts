@@ -85,3 +85,9 @@ export class CircuitSizeOutOfRange extends Error {
     super(message)
   }
 }
+
+export class MissingRequiredOptions extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
