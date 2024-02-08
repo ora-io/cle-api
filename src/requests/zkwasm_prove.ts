@@ -22,7 +22,7 @@ export async function zkwasm_prove(
 
   const user_address = utils.computeAddress(user_privatekey).toLowerCase()
 
-  const signature = signMessage(user_privatekey, image_md5, public_inputs, private_inputs)
+  const signature = await signMessage(user_privatekey, image_md5, public_inputs, private_inputs)
   const formData = assembleFormData(user_address, image_md5, public_inputs, private_inputs)
 
   const zkwasmHeaders = {
@@ -77,7 +77,7 @@ function assembleFormData(
 /**
  * sign message for zkwasmhub compatibility
  */
-function signMessage(
+async function signMessage(
   user_privatekey: string,
   image_md5: string,
   public_inputs: string[],
@@ -114,7 +114,7 @@ export async function ora_prove_sk(
   const privateInputArray = input.getPrivateInputStr().trim().split(' ')
   const publicInputArray = input.getPublicInputStr().trim().split(' ')
 
-  const signature = signMessage(user_privatekey, image_md5, publicInputArray, privateInputArray)
+  const signature = await signMessage(user_privatekey, image_md5, publicInputArray, privateInputArray)
   const formData = assembleFormData(user_address, image_md5, publicInputArray, privateInputArray)
 
   formData.append('aux_params', input.auxParams)
