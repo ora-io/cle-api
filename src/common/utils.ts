@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import BN from 'bn.js'
 import type { CLEYaml } from '../types/zkgyaml'
 import { networks } from './constants'
@@ -248,4 +247,9 @@ export function safeHex(rawHex: string) {
 
 export function uint8ArrayToHex(uint8array: Uint8Array): string {
   return Array.from(uint8array).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+export function getPrefixPath(filePath: string): string | null {
+  const lastSlashIndex = filePath.lastIndexOf('/')
+  return filePath.slice(0, lastSlashIndex + 1)
 }

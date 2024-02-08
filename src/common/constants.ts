@@ -419,3 +419,15 @@ export const AggregatorVerifierAddress = {
 }
 
 export const AddressZero = '0x0000000000000000000000000000000000000000'
+
+export const DefaultPath = {
+  yaml: 'src/cle.yaml',
+  outWasm: 'build/cle.wasm',
+  outWat: 'build/cle.wat',
+  outInnerWasm: 'build/inner_pre_pre.wasm',
+  outInnerWat: 'build/inner_pre_pre.wat',
+}
+
+// export const DefaultEndpoint = {
+//   compilerServer:
+// }

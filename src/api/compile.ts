@@ -1,10 +1,18 @@
-import { hasOwnProperty, randomStr } from '@murongg/utils'
+import fs from 'node:fs'
+import path from 'node:path'
+import { tmpdir } from 'node:os'
+import type { Nullable } from '@murongg/utils'
+import { hasOwnProperty, randomStr, to } from '@murongg/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
+import FormData from 'form-data'
 import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
-import { DSPNotFound } from '../common/error'
-import type { CLEYaml } from '../types'
+import { DSPNotFound, MissingRequiredOptions } from '../common/error'
+import { CLEYaml } from '../types'
+import { DefaultPath } from '../common/constants'
+import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
+
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
 import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
@@ -63,13 +71,18 @@ const getCompilerOptions = (isLocal = false) => {
 export interface CompileResult {
   outputs: Record<string, string | Uint8Array>
   /** Encountered error, if any. */
-  error: Error | null
+  error: Nullable<Error>
   /** Standard output stream. */
-  stdout: any
+  stdout: Nullable<OutputStream>
   /** Standard error stream.  */
-  stderr: any
+  stderr: Nullable<OutputStream>
   /** Statistics. */
   stats: any
+}
+
+export interface OutputStream {
+  /** Writes a chunk of data to the stream. */
+  write(chunk: Uint8Array | string): void
 }
 
 export function onlyAscCompile(yaml: CLEYaml) {
@@ -85,54 +98,87 @@ export function onlyAscCompile(yaml: CLEYaml) {
 }
 
 export interface CompileOptions {
+  yamlPath?: string
   isLocal?: boolean
+  outWatPath?: string
+  outWasmPath?: string
+  compilerServerEndpoint?: string
 }
 
 export async function compile(
-  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
+  // cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
-  // endpoint: string,
 ): Promise<CompileResult> {
-  // TODO: complete this func
-  const { cleYaml } = cleExecutable
+  // Decide if only need to compile locally by yaml config
+  const {
+    isLocal = false,
+    yamlPath = DefaultPath.yaml,
+  } = options
+  // const { cleYaml } = cleExecutable
+  const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
   if (onlyAscCompile(cleYaml))
     options.isLocal = true
 
-  const result = await compileAsc(cleExecutable, sources, options)
+  // cache final out path
+  const {
+    outWasmPath = DefaultPath.outWasm,
+    outWatPath = DefaultPath.outWat,
+  } = options
+  const finalOutWasmPath = outWasmPath
+  const finalOutWatPath = outWatPath
+
+  // compile locally with asc, use inner path if isLocal
+  if (isLocal) {
+    options.outWasmPath = DefaultPath.outInnerWasm
+    options.outWatPath = DefaultPath.outInnerWat
+  }
+  const result = await compileAsc(sources, options)
+  if (result.error)
+    return result
+
+  // compile remotely on the compiler server if needed, using final out path
   if (options.isLocal === false) {
-    // result = compileRequest(...)
+    const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
+    const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
+    options.outWasmPath = finalOutWasmPath
+    options.outWatPath = finalOutWatPath
+    return await compileServer(innerCLEExecutable, options)
   }
   return result
 }
 
 export async function compileAsc(
-  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
+  // cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  const { cleYaml } = cleExecutable
-  const { isLocal = false } = options
+  // const { cleYaml } = cleExecutable
+  const {
+    isLocal = false,
+    yamlPath = DefaultPath.yaml,
+    outWasmPath = isLocal ? DefaultPath.outInnerWasm : DefaultPath.outWasm,
+    outWatPath = isLocal ? DefaultPath.outInnerWat : DefaultPath.outWat,
+  } = options
 
-  // const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  // TODO: complete this func
+  const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
   const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false }) // deprecating isLocal, 'false' for compatible
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const libDSPName = dsp.getLibDSPName()
-  const mappingFileName = cleYaml.mapping.file
+  const mappingFileName = getPrefixPath(yamlPath) + trimPrefix(cleYaml.mapping.file, './')
   const handleFuncName = cleYaml.mapping.handler
 
-  const tsModule = `entry_${randomStr()}.ts`
-  const textModule = 'inner_pre_pre.wat'
-  const wasmModule = 'inner_pre_pre.wasm'
-  const abortPath = getAbortTsFilepath(tsModule)
+  const entryFilePath = `entry_${randomStr()}.ts`
+  const abortPath = getAbortTsFilepath(entryFilePath)
   const asc = await import('assemblyscript/dist/asc.js')
   const stdout = asc.createMemoryStream()
   const outputs: Record<string, string | Uint8Array> = {}
   sources = {
     ...sources,
-    [tsModule]: isLocal ? codegen_local(libDSPName, mappingFileName, handleFuncName) : codegen(libDSPName, mappingFileName, handleFuncName),
+    [entryFilePath]: isLocal ? codegen_local(libDSPName, mappingFileName, handleFuncName) : codegen(libDSPName, mappingFileName, handleFuncName),
   }
   const config = {
     stdout,
@@ -142,17 +188,82 @@ export async function compileAsc(
     listFiles: () => [],
   }
   const compileOptions = [
-    tsModule,
+    entryFilePath,
     '--path', 'node_modules',
     '--use', `abort=${abortPath}`,
-    '--textFile', textModule,
-    '--outFile', wasmModule,
+    '--textFile', outWatPath,
+    '--outFile', outWasmPath,
     ...getCompilerOptions(isLocal),
   ]
   const ascResult = await asc.main(compileOptions, config)
   return {
     outputs,
     ...ascResult,
+  }
+}
+
+export async function compileServer(
+  innerCLEExecutable: CLEExecutable,
+  options: CompileOptions = {},
+): Promise<CompileResult> {
+  const { wasmUint8Array, cleYaml } = innerCLEExecutable
+
+  const {
+    compilerServerEndpoint,
+    outWasmPath = DefaultPath.outWasm,
+    outWatPath = DefaultPath.outWat,
+  } = options
+
+  const outputs: Record<string, string | Uint8Array> = {}
+
+  if (compilerServerEndpoint === undefined)
+    throw new MissingRequiredOptions('compilerServerEndpoint is required')
+
+  // Set up form data
+  const data = new FormData()
+  if (__BROWSER__) {
+    const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
+    const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
+    data.append('wasmFile', wasmFile)
+    const yamlFile = new File([new Blob([cleYaml.toString()], { type: 'text/yaml' })], 'src/zkgraph.yaml', { type: 'text/yaml' })
+    data.append('yamlFile', yamlFile)
+  }
+  else {
+    const tmpPath = path.join(tmpdir(), randomStr())
+    fs.writeFileSync(tmpPath, cleYaml.toString())
+    data.append('wasmFile', fs.createReadStream(outWasmPath))
+    data.append('yamlFile', fs.createReadStream(tmpPath))
+  }
+
+  const [requestErr, response] = await to(compileRequest(compilerServerEndpoint, data))
+
+  if (requestErr)
+    throw requestErr
+
+  if (!response) {
+    // rarely happen
+    throw new Error('ERROR WHEN COMPILING. invalid response')
+  }
+  const outWasmHex = response.data.wasmModuleHex
+  const outWat = response.data.wasmWat
+
+  outputs[outWasmPath] = fromHexString(outWasmHex)
+  outputs[outWatPath] = outWat
+
+  if (!__BROWSER__) {
+    createOnNonexist(outWasmPath)
+    fs.writeFileSync(outWasmPath, fromHexString(outWasmHex))
+
+    createOnNonexist(outWatPath)
+    fs.writeFileSync(outWatPath, outWat)
+  }
+
+  return {
+    outputs,
+    error: null,
+    stdout: null,
+    stderr: null,
+    stats: null,
   }
 }
 
@@ -170,4 +281,11 @@ export async function compileRequest(endpoint: string, data: any) {
   }
 
   return await axios.request(requestConfig)
+}
+
+function createOnNonexist(filePath: string): void {
+  const directoryPath = path.dirname(filePath)
+
+  if (!fs.existsSync(directoryPath))
+    fs.mkdirSync(directoryPath, { recursive: true })
 }
