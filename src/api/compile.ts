@@ -1,17 +1,17 @@
-import { hasOwnProperty, randomStr } from '@murongg/utils'
+import fs from 'node:fs'
+import path from 'node:path'
+import { tmpdir } from 'node:os'
+import type { Nullable } from '@murongg/utils'
+import { hasOwnProperty, randomStr, to } from '@murongg/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
+import FormData from 'form-data'
 import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
 import { DSPNotFound, MissingRequiredOptions } from '../common/error'
 import { CLEYaml } from '../types'
 import { DefaultPath } from '../common/constants'
 import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
-// import to from 'await-to-js'
-
-// TODO: rm FormData & fs
-// import FormData from 'form-data'
-// import fs from 'node:fs'
 
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
 import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
@@ -71,13 +71,18 @@ const getCompilerOptions = (isLocal = false) => {
 export interface CompileResult {
   outputs: Record<string, string | Uint8Array>
   /** Encountered error, if any. */
-  error: Error | null
+  error: Nullable<Error>
   /** Standard output stream. */
-  stdout: any
+  stdout: Nullable<OutputStream>
   /** Standard error stream.  */
-  stderr: any
+  stderr: Nullable<OutputStream>
   /** Statistics. */
   stats: any
+}
+
+export interface OutputStream {
+  /** Writes a chunk of data to the stream. */
+  write(chunk: Uint8Array | string): void
 }
 
 export function onlyAscCompile(yaml: CLEYaml) {
@@ -128,16 +133,17 @@ export async function compile(
     options.outWasmPath = DefaultPath.outInnerWasm
     options.outWatPath = DefaultPath.outInnerWat
   }
-  let result = await compileAsc(sources, options)
+  const result = await compileAsc(sources, options)
+  if (result.error)
+    return result
 
   // compile remotely on the compiler server if needed, using final out path
   if (options.isLocal === false) {
     const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
-    // @murong: TODO: complete this func
     const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
     options.outWasmPath = finalOutWasmPath
     options.outWatPath = finalOutWatPath
-    result = await compileServer(innerCLEExecutable, options)
+    return await compileServer(innerCLEExecutable, options)
   }
   return result
 }
@@ -197,11 +203,10 @@ export async function compileAsc(
 }
 
 export async function compileServer(
-  _innerCLEExecutable: CLEExecutable,
+  innerCLEExecutable: CLEExecutable,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  // @murong enable this when complete
-  // const { _wasmUint8Array, _cleYaml } = innerCLEExecutable
+  const { wasmUint8Array, cleYaml } = innerCLEExecutable
 
   const {
     compilerServerEndpoint,
@@ -214,24 +219,29 @@ export async function compileServer(
   if (compilerServerEndpoint === undefined)
     throw new MissingRequiredOptions('compilerServerEndpoint is required')
 
-  // @murong: TODO: try fill 'data' with wasmUint8Array, cleYaml
   // Set up form data
   const data = new FormData()
-  // data.append('wasmFile', fs.createReadStream(tmpWasmPath))
-  // data.append('yamlFile', fs.createReadStream(yamlPath))
+  if (__BROWSER__) {
+    const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
+    const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
+    data.append('wasmFile', wasmFile)
+    const yamlFile = new File([new Blob([cleYaml.toString()], { type: 'text/yaml' })], 'src/zkgraph.yaml', { type: 'text/yaml' })
+    data.append('yamlFile', yamlFile)
+  }
+  else {
+    const tmpPath = path.join(tmpdir(), randomStr())
+    fs.writeFileSync(tmpPath, cleYaml.toString())
+    data.append('wasmFile', fs.createReadStream(outWasmPath))
+    data.append('yamlFile', fs.createReadStream(tmpPath))
+  }
 
   const [requestErr, response] = await to(compileRequest(compilerServerEndpoint, data))
-  // const response = await compileRequest(compilerServerEndpoint, data)
 
-  // @murong: TODO: keep this err log outside of api
-  // if (requestErr) {
-  //   console.error(requestErr)
-  //   logger.error(`[-] ERROR WHEN COMPILING. ${requestErr.message}`)
-  //   return false
-  // }
-  if (!response) { // rarely happen
-    // logger.error('[-] ERROR WHEN COMPILING. invalid response')
-    // return false
+  if (requestErr)
+    throw requestErr
+
+  if (!response) {
+    // rarely happen
     throw new Error('ERROR WHEN COMPILING. invalid response')
   }
   const outWasmHex = response.data.wasmModuleHex
@@ -240,17 +250,17 @@ export async function compileServer(
   outputs[outWasmPath] = fromHexString(outWasmHex)
   outputs[outWatPath] = outWat
 
-  // @murong: TODO: this should stay outside of api
-  // createOnNonexist(wasmPath)
-  // fs.writeFileSync(wasmPath, fromHexString(outWasmHex))
+  if (!__BROWSER__) {
+    createOnNonexist(outWasmPath)
+    fs.writeFileSync(outWasmPath, fromHexString(outWasmHex))
 
-  // createOnNonexist(watPath)
-  // fs.writeFileSync(watPath, outWat)
+    createOnNonexist(outWatPath)
+    fs.writeFileSync(outWatPath, outWat)
+  }
 
   return {
     outputs,
-    error: requestErr,
-    // @murong: try convert error to stderr / stdout to compatible with CompileResult
+    error: null,
     stdout: null,
     stderr: null,
     stats: null,
@@ -271,4 +281,11 @@ export async function compileRequest(endpoint: string, data: any) {
   }
 
   return await axios.request(requestConfig)
+}
+
+function createOnNonexist(filePath: string): void {
+  const directoryPath = path.dirname(filePath)
+
+  if (!fs.existsSync(directoryPath))
+    fs.mkdirSync(directoryPath, { recursive: true })
 }
