@@ -1,7 +1,7 @@
 {
   "name": "@hyperoracle/cle-api-test",
   "type": "module",
-  "version": "1.0.3-alpha.4",
+  "version": "1.0.3-alpha.5",
   "description": "API for interacting with Hyper Oracle CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
