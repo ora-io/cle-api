@@ -47,12 +47,13 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
     // TODO: optimize: no need to getblock if blockId is block num
     const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
-    const blockHash = rawblock.hash
+    // const blockHash = rawblock.hash
 
     return {
       provider,
       latestBlocknumber: blockNumber,
-      latestBlockhash: blockHash,
+      // latestBlockhash: blockHash,
+      latestBlockhash: '-deprecate-',
       expectedStateStr,
     }
   }
@@ -84,7 +85,7 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = true) {
     // set safe func
     setFillInputEventsFunc(fillInputEvents)
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlocknumber, enableLog)
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {

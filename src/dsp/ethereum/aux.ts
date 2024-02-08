@@ -14,7 +14,7 @@ export function genAuxParams(
   const auxParams = {
     mpt: {
       private_input: mptInput.getPrivateInputStr(),
-      ppublic_input: mptInput.getPrivateInputStr(),
+      public_input: mptInput.getPublicInputStr(),
       context_input: mptInput.getContextInputStr(),
     },
     adaptor: {
@@ -34,18 +34,13 @@ function fillMPTInput(input: any, _cleYaml: CLEYaml, _dataPrep: EthereumDataPrep
 }
 
 function genAdaptorParams(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
-  dataPrep.blocknumberOrder.map((bn: any) => {
-    // if (!dataPrep.blockPrepMap.has(bn))
-    //   throw new Error(`Lack blockPrep for block (${bn})`)
-    return (dataPrep.blockPrepMap.get(bn) as BlockPrep).stateRoot
-  })
   const adaptorParam = {
     checkpoint_blocknum: calcCheckpointBlocknum([4321]), // "0x1234"
     mpt_blocknums: dataPrep.blocknumberOrder, // ["blocknum1", "blocknum2", ...]
     mpt_stateroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).stateRoot }), // ["0xstateroot1", "0xstateroot2", ...]
     // placeholder
-    // "mpt_receiptroots": adaptorParams.mpt_receiptroots,
-    // "mpt_txroots": adaptorParams.mpt_txroots
+    // mpt_receiptroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).receiptroots }),
+    // mpt_txroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).txroots }),
   }
   return adaptorParam
 }

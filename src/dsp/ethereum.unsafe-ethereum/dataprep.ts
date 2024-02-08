@@ -6,18 +6,18 @@ import { DataPrep } from '../interface'
 export class UnsafeSafeETHDP extends DataPrep {
   unsafeETHDP: UnsafeEthereumDataPrep
   safeEthDP: EthereumDataPrep
-  // latestBlockhash & expectedStateStr should use these, not the ones in 2 xxxDataPreps
-  latestBlockhash: string
-  constructor(ethUnsafeDP: UnsafeEthereumDataPrep, ethDP: EthereumDataPrep, latestBlockhash: string, expectedStateStr: string) {
+  // latestBlocknumber & expectedStateStr should use these, not the ones in 2 xxxDataPreps
+  latestBlocknumber: number
+  constructor(ethUnsafeDP: UnsafeEthereumDataPrep, ethDP: EthereumDataPrep, latestBlocknumber: number, expectedStateStr: string) {
     super(expectedStateStr)
     this.unsafeETHDP = ethUnsafeDP
     this.safeEthDP = ethDP
-    this.latestBlockhash = latestBlockhash
+    this.latestBlocknumber = latestBlocknumber
 
     // unify to avoid ambiguity
-    this.unsafeETHDP.latestBlockhash = latestBlockhash
+    this.unsafeETHDP.latestBlocknumber = latestBlocknumber
     this.unsafeETHDP.expectedStateStr = expectedStateStr
-    this.safeEthDP.latestBlockhash = latestBlockhash
+    this.safeEthDP.latestBlocknumber = latestBlocknumber
     this.safeEthDP.expectedStateStr = expectedStateStr
   }
 }

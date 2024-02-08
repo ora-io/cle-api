@@ -15,7 +15,7 @@ import { dspHooks } from '../hooks'
 export interface EthereumOffchainDPDataPrep {
   blockPrepMap: Map<number, BlockPrep>
   blocknumberOrder: any[]
-  latestBlockhash: string
+  latestBlocknumber: string
   offchainData: any
   expectedStateStr: string
 }
@@ -43,14 +43,14 @@ export interface EthereumOffchainDSPProveParams {
 export class EthereumOffchainDP extends DataPrep {
   blockPrepMap: any
   blocknumberOrder: any
-  latestBlockhash: any
+  latestBlocknumber: any
   offchainData: any
   expectedStateStr: any
-  constructor(blockPrepMap: any, blocknumberOrder: any, latestBlockhash: any, offchainData: any, expectedStateStr: any) {
+  constructor(blockPrepMap: any, blocknumberOrder: any, latestBlocknumber: any, offchainData: any, expectedStateStr: any) {
     super(expectedStateStr)
     this.blockPrepMap = blockPrepMap
     this.blocknumberOrder = blocknumberOrder
-    this.latestBlockhash = latestBlockhash
+    this.latestBlocknumber = latestBlocknumber
     this.offchainData = offchainData
     this.expectedStateStr = expectedStateStr
   }
@@ -66,7 +66,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     return new EthereumOffchainDP(
       ethDP.blockPrepMap,
       ethDP.blocknumberOrder,
-      ethDP.latestBlockhash,
+      ethDP.latestBlocknumber,
       // add offchain data
       offchainData,
       ethDP.expectedStateStr,
@@ -74,7 +74,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
   }
 
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumOffchainDPDataPrep, enableLog = false) {
-    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlocknumber, enableLog)
     // add offchain data
     input.addVarLenHexString(dataPrep.offchainData)
     return input
@@ -112,12 +112,13 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     // TODO: optimize: no need to getblock if blockId is block num
     const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
-    const blockHash = rawblock.hash
+    // const blockHash = rawblock.hash
 
     return {
       provider,
       latestBlocknumber: blockNumber,
-      latestBlockhash: blockHash,
+      // latestBlockhash: blockHash,
+      latestBlockhash: '-deprecate-',
       // add offchain data
       offchainData,
       expectedStateStr,

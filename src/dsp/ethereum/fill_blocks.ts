@@ -11,7 +11,7 @@ export function fillInputBlocks(
   cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
-  latestBlockhash: string,
+  latestBlocknumber: string,
   enableLog = false,
 ) {
   input = fillInputBlocksWithoutLatestBlockhash(
@@ -23,7 +23,7 @@ export function fillInputBlocks(
   )
   // Optional but easy to handle;
   // Public: blockhash_latest
-  input.addHexString(latestBlockhash, true)
+  input.addInt(latestBlocknumber, true)
   return input
 }
 
@@ -69,11 +69,11 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
   input.addInt(blockPrep.number, 0)
 
   // TODO: adjust this with lib
-  input.addVarLenHexString(
-    // blockPrep?.rlpHeader,
-    '00',
-    false,
-  )
+  // input.addVarLenHexString(
+  //   // blockPrep?.rlpHeader,
+  //   '00',
+  //   false,
+  // )
 
   /**
    * Fill storage
@@ -153,17 +153,11 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
 export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrList: string[], stateDSSlotsList: string[][]) {
   for (let i = 0; i < stateDSAddrList.length; i++) {
     input.addHexString(stateDSAddrList[i], false) // address
-    // let ethproof = await getProof(
-    //   provider,
-    //   stateDSAddrList[i],
-    //   stateDSSlotsList[i],
-    //   ethers.utils.hexValue(blockNumber)
-    // );
 
     const acctPrep = blockPrep?.getAccount(stateDSAddrList[i])
 
     input.addVarLenHexString(acctPrep?.rlpNode, false) // account rlp
-    input.addVarLenHexStringArray(acctPrep?.accountProof, false) // account proof
+    // input.addVarLenHexStringArray(acctPrep?.accountProof, false) // account proof
 
     const sourceSlots = stateDSSlotsList[i]
     input.addInt(sourceSlots.length, false) // slot count
@@ -176,7 +170,7 @@ export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrLi
 
       input.addHexString(sourceSlots[j], false)
       input.addVarLenHexString(slotPrep.value, false)
-      input.addVarLenHexStringArray(slotPrep.storageProof, false)
+      // input.addVarLenHexStringArray(slotPrep.storageProof, false)
     }
   }
 }

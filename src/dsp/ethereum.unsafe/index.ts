@@ -32,5 +32,5 @@ export async function unsafePrepareData(cleYaml: CLEYaml, prepareParams: Record<
 export function unsafeFillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeEthereumDataPrep) {
   // set unsafe func
   setFillInputEventsFunc(unsafeFillInputEvents)
-  return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
+  return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlocknumber)
 }

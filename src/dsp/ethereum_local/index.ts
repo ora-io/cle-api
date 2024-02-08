@@ -71,7 +71,8 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
     return {
       provider,
       latestBlocknumber: blockNumber,
-      latestBlockhash: blockHash,
+      // latestBlockhash: blockHash,
+      latestBlockhash: '-deprecate-',
       expectedStateStr,
     }
   }

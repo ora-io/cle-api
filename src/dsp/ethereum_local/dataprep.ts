@@ -5,8 +5,8 @@ import { BlockPrep, EthereumDataPrep } from '../ethereum/blockprep'
 // includes both exec & prove params
 export class EthereumLocalDataPrep extends EthereumDataPrep {
   blockPrepMap: Map<number, BlockLocalPrep>
-  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlockhash: string, expectedStateStr: string) {
-    super(new Map(), blocknumberOrder, latestBlockhash, expectedStateStr)
+  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlocknumber: string, expectedStateStr: string) {
+    super(new Map(), blocknumberOrder, latestBlocknumber, expectedStateStr)
     this.blockPrepMap = blockPrepMap
   }
 }
