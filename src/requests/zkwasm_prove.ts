@@ -117,7 +117,7 @@ export async function ora_prove_sk(
   const signature = await signMessage(user_privatekey, image_md5, publicInputArray, privateInputArray)
   const formData = assembleFormData(user_address, image_md5, publicInputArray, privateInputArray)
 
-  formData.append('aux_params', input.auxParams)
+  formData.append('aux_params', JSON.stringify(input.auxParams))
 
   const zkwasmHeaders = {
     'X-Eth-Signature': signature,

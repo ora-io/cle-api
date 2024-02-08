@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import fs from 'node:fs'
 import { providers } from 'ethers'
 import { describe, it } from 'vitest'
@@ -58,7 +57,7 @@ describe('test prove', () => {
 
     const proveParams = dsp?.toProveParams(generalParams)
 
-    const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
+    const input = await zkgapi.proveInputGen(
       { cleYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
       false,
@@ -70,8 +69,7 @@ describe('test prove', () => {
 
     const result = await zkgapi.prove(
       { wasmUint8Array }, // doesn't care about cleYaml
-      privateInputStr,
-      publicInputStr,
+      input,
       zkwasmUrl,
       config.UserPrivateKey,
       true)
