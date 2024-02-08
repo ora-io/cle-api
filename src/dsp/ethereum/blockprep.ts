@@ -74,13 +74,20 @@ export class AccountPrep {
 // name with *Prep to avoid confusion with cle-lib/Block
 export class BlockPrep {
   number: any
-  rlpHeader: any
+  // rlpHeader: any
+  hash: string
+  stateRoot: string
+  receiptsRoot: string
+  transactionsRoot: string
   accounts: Map<string, AccountPrep>
   rlpreceipts: any[]
   transactions: providers.TransactionResponse[]
-  constructor(blocknum: number | bigint | BytesLike | Hexable, rlpHeader: string) {
+  constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
     this.number = blocknum
-    this.rlpHeader = rlpHeader
+    this.hash = hash
+    this.stateRoot = stateRoot
+    this.receiptsRoot = receiptsRoot
+    this.transactionsRoot = transactionsRoot
     this.accounts = new Map() // <string, Account>
     this.rlpreceipts = []
     this.transactions = []

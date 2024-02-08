@@ -26,6 +26,7 @@ function createOnNonexist(filePath: string): void {
 // const dspExpectedState = '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
 
 const dspname = 'ethereum'
+// const dspname = 'ethereum.unsafe-ethereum'
 const dspExpectedState = '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794'
 
 // options per dsp
@@ -47,7 +48,7 @@ const execOptionsForDSP = {
   // },
 }
 
-describe('test dsp: ethereum.unsafe-ethereum', () => {
+describe(`test dsp: ${dspname}`, () => {
   it('test compile', async () => {
     const { mappingPath, yamlPath, wasmPath, watPath } = execOptionsForDSP
     const cleYaml = loadYamlFromPath(yamlPath)

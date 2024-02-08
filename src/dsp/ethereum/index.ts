@@ -9,6 +9,7 @@ import { dspHooks } from '../hooks'
 import type { EthereumDataPrep } from './blockprep'
 import { fillInputBlocks, fillInputEvents, setFillInputEventsFunc } from './fill_blocks'
 import { prepareBlocksByYaml, prepareOneBlock, setPrePareOneBlockFunc } from './prepare_blocks'
+import { genAuxParams } from './aux'
 
 export { EthereumDataPrep } from './blockprep'
 
@@ -84,6 +85,12 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
     // set safe func
     setFillInputEventsFunc(fillInputEvents)
     return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
+  }
+
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+    input = super.fillProveInput(input, cleYaml, dataPrep)
+    input.auxParams = genAuxParams(cleYaml, dataPrep)
+    return input
   }
 }
 

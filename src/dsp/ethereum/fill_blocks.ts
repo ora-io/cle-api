@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { providers } from 'ethers'
 import { filterEvents } from '../../common/api_helper'
 import { getRawTransaction } from '../../common/ethers_helper'
@@ -25,7 +24,6 @@ export function fillInputBlocks(
   // Optional but easy to handle;
   // Public: blockhash_latest
   input.addHexString(latestBlockhash, true)
-
   return input
 }
 
@@ -37,7 +35,7 @@ export function fillInputBlocksWithoutLatestBlockhash(
   enableLog = false,
 ) {
   const blockCount = blocknumOrder.length
-  input.addInt(blockCount, false) // block count
+  input.addInt(blockCount, 0) // block count
 
   blocknumOrder.forEach((bn: any) => {
     if (!blockPrepMap.has(bn))
@@ -68,10 +66,12 @@ export function setFillInputTxsFunc(_func: any) {
 
 // blockPrep: class BlockPrep, used for prepare data & interface params.
 export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: BlockPrep, enableLog = false) {
-  input.addInt(blockPrep.number, false)
+  input.addInt(blockPrep.number, 0)
 
+  // TODO: adjust this with lib
   input.addVarLenHexString(
-    blockPrep?.rlpHeader,
+    // blockPrep?.rlpHeader,
+    '00',
     false,
   )
 

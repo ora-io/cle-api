@@ -14,8 +14,8 @@ export class EthereumLocalDataPrep extends EthereumDataPrep {
 // name with *Prep to avoid confusion with cle-lib/Block
 export class BlockLocalPrep extends BlockPrep {
   eventOffsets: Uint32Array
-  constructor(blocknum: number | bigint | BytesLike | Hexable, rlpHeader: string) {
-    super(blocknum, rlpHeader)
+  constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
+    super(blocknum, hash, stateRoot, receiptsRoot, transactionsRoot)
     this.eventOffsets = new Uint32Array()
   }
 
