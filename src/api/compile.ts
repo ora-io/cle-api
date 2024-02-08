@@ -143,7 +143,7 @@ export async function compile(
     const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
     options.outWasmPath = finalOutWasmPath
     options.outWatPath = finalOutWatPath
-    return await compileServer(innerCLEExecutable, options)
+    return await compileServer(innerCLEExecutable, result.outputs, options)
   }
   return result
 }
@@ -204,6 +204,7 @@ export async function compileAsc(
 
 export async function compileServer(
   innerCLEExecutable: CLEExecutable,
+  outputs: Record<string, string | Uint8Array> = {},
   options: CompileOptions = {},
 ): Promise<CompileResult> {
   const { wasmUint8Array, cleYaml } = innerCLEExecutable
@@ -213,8 +214,6 @@ export async function compileServer(
     outWasmPath = DefaultPath.outWasm,
     outWatPath = DefaultPath.outWat,
   } = options
-
-  const outputs: Record<string, string | Uint8Array> = {}
 
   if (compilerServerEndpoint === undefined)
     throw new MissingRequiredOptions('compilerServerEndpoint is required')
@@ -231,7 +230,9 @@ export async function compileServer(
   else {
     const tmpPath = path.join(tmpdir(), randomStr())
     fs.writeFileSync(tmpPath, cleYaml.toString())
-    data.append('wasmFile', fs.createReadStream(outWasmPath))
+    const tmpWasmFile = path.join(tmpdir(), randomStr())
+    fs.writeFileSync(tmpWasmFile, outputs[outWasmPath])
+    data.append('wasmFile', fs.createReadStream(tmpWasmFile))
     data.append('yamlFile', fs.createReadStream(tmpPath))
   }
 

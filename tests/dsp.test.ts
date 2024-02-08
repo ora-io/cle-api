@@ -63,8 +63,8 @@ describe('test dsp: ethereum.unsafe-ethereum', () => {
 
     const result = await zkgapi.compile(sources)
 
-    if (result.stderr.length > 0)
-      throw new Error(result.stderr.toString())
+    if ((result?.stderr as any)?.length > 0)
+      throw new Error(result?.stderr?.toString())
 
     expect(result.error).toBeNull()
     expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
