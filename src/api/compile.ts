@@ -212,11 +212,10 @@ export async function compileServer(
     outWatPath = DefaultPath.outWat,
   } = options
 
-  const outputs: Record<string, string | Uint8Array> = {}
-
   if (compilerServerEndpoint === undefined)
     throw new MissingRequiredOptions('compilerServerEndpoint is required')
 
+  const outputs: Record<string, string | Uint8Array> = {}
   // Set up form data
   const data = new FormData()
   if (__BROWSER__) {
