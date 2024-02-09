@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import BN from 'bn.js'
 import type { CLEYaml } from '../types/zkgyaml'
 import { networks } from './constants'
@@ -191,7 +190,7 @@ export function isNumber(value: any) {
   return (typeof value === 'number' && isFinite(value)) || !isNaN(Number(value))
 }
 
-interface NetworksConfig {
+export interface NetworksConfig {
   mainnet?: any // Optional
   sepolia?: any // Optional
   goerli?: any // Optional

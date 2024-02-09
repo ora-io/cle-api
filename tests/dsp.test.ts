@@ -9,7 +9,7 @@ import { fromHexString, loadConfigByNetwork, toHexString } from '../src/common/u
 import * as zkgapi from '../src/index'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
-// import { getLatestBlocknumber } from './utils/ethers'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
@@ -23,43 +23,12 @@ function createOnNonexist(filePath: string): void {
     fs.mkdirSync(directoryPath, { recursive: true })
 }
 
-const dspname = 'ethereum.unsafe-ethereum'
-const dspExpectedState = '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794' // use event return
+const pathfromfixtures = 'dsp/ethereum(event)'
+const option = fixtures[pathfromfixtures]
 
-// const dspname = 'ethereum' // with storage case
-// const dspExpectedState = 'a60ecf32309539dd84f27a9563754dca818b815e' // storage case
-
-// const dspname = 'ethereum.unsafe' // with event case
-// const dspExpectedState = '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794' // event case
-
-// const dspname = 'ethereum.unsafe-ethereum'
-// const dspExpectedState = '6370902000000003336530047e5ec3da40c000000000068f1888e6eb7036fffe', // unsafe-safe use storage return
-
-// // for storage case
-// const dspBlocknum = {
-//   sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
-//   mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
-// }
-// // for event case
-const dspBlocknum = {
-  sepolia: 2279547, // to test event use 2279547, to test storage use latest blocknum
-  mainnet: 17633573,
-}
-
-// options per dsp
-const execOptionsForDSP = {
-  mappingPath: `tests/fixtures/dsp/${dspname}/mapping.ts`,
-  yamlPath: `tests/fixtures/dsp/${dspname}/cle-event.yaml`,
-  wasmPath: `tests/fixtures/dsp/build/${dspname}.wasm`,
-  watPath: `tests/fixtures/dsp/build/${dspname}.wat`,
-  local: false,
-  expectedState: dspExpectedState,
-  blocknum: dspBlocknum,
-}
-
-describe(`test dsp: ${dspname}`, () => {
+describe(`test dsp: ${pathfromfixtures}`, () => {
   it('test compile', async () => {
-    const { mappingPath, yamlPath, wasmPath, watPath } = execOptionsForDSP
+    const { mappingPath, yamlPath, wasmPath, watPath } = option
     const cleYaml = loadYamlFromPath(yamlPath)
     if (!cleYaml)
       throw new Error('yaml is null')
@@ -122,8 +91,8 @@ describe(`test dsp: ${dspname}`, () => {
      */
   }, { timeout: 100000 })
 
-  it('test_exec', async () => {
-    const { wasmPath, yamlPath, local, expectedState, blocknum } = execOptionsForDSP
+  it('test exec', async () => {
+    const { wasmPath, yamlPath, local, expectedState, blocknum } = option
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
