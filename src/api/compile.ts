@@ -106,7 +106,6 @@ export interface CompileOptions {
 }
 
 export async function compile(
-  // cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
@@ -115,8 +114,8 @@ export async function compile(
     isLocal = false,
     yamlPath = DefaultPath.yaml,
   } = options
-  // const { cleYaml } = cleExecutable
-  const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
+  const cleYamlContent = sources[yamlPath]
+  const cleYaml = CLEYaml.fromYamlContent(cleYamlContent)
   if (onlyAscCompile(cleYaml))
     options.isLocal = true
 
@@ -140,20 +139,18 @@ export async function compile(
   // compile remotely on the compiler server if needed, using final out path
   if (options.isLocal === false) {
     const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
-    const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
+    const innerCLEExecutable = { wasmUint8Array: outWasm }
     options.outWasmPath = finalOutWasmPath
     options.outWatPath = finalOutWatPath
-    return await compileServer(innerCLEExecutable, options)
+    return await compileServer(innerCLEExecutable, cleYamlContent, options)
   }
   return result
 }
 
 export async function compileAsc(
-  // cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  // const { cleYaml } = cleExecutable
   const {
     isLocal = false,
     yamlPath = DefaultPath.yaml,
@@ -203,10 +200,11 @@ export async function compileAsc(
 }
 
 export async function compileServer(
-  innerCLEExecutable: CLEExecutable,
+  innerCLEExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  cleYamlContent: string,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  const { wasmUint8Array, cleYaml } = innerCLEExecutable
+  const { wasmUint8Array } = innerCLEExecutable
 
   const {
     compilerServerEndpoint,
@@ -225,12 +223,12 @@ export async function compileServer(
     const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
     const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
     data.append('wasmFile', wasmFile)
-    const yamlFile = new File([new Blob([cleYaml.toString()], { type: 'text/yaml' })], 'src/zkgraph.yaml', { type: 'text/yaml' })
+    const yamlFile = new File([new Blob([cleYamlContent], { type: 'text/yaml' })], 'src/zkgraph.yaml', { type: 'text/yaml' })
     data.append('yamlFile', yamlFile)
   }
   else {
     const tmpPath = path.join(tmpdir(), randomStr())
-    fs.writeFileSync(tmpPath, cleYaml.toString())
+    fs.writeFileSync(tmpPath, cleYamlContent)
     data.append('wasmFile', fs.createReadStream(outWasmPath))
     data.append('yamlFile', fs.createReadStream(tmpPath))
   }
