@@ -191,4 +191,8 @@ export class CLEYaml {
     //   throw new Error("dataDestinations network must match dataSources network");
     // }
   }
+
+  toString() {
+    return yaml.dump(this)
+  }
 }
