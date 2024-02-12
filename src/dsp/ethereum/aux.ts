@@ -9,22 +9,13 @@ export function genAuxParams(
   let mptInput = new Input()
   mptInput = fillMPTInput(mptInput, cleYaml, dataPrep)
 
-  const adaptorParams = genAdaptorParams(cleYaml, dataPrep)
-
   const auxParams = {
     mpt: {
       private_input: mptInput.getPrivateInputStr(),
       public_input: mptInput.getPublicInputStr(),
       context_input: mptInput.getContextInputStr(),
     },
-    adaptor: {
-      checkpoint_blocknum: adaptorParams.checkpoint_blocknum, // "0x1234"
-      mpt_blocknums: adaptorParams.mpt_blocknums, // ["blocknum1", "blocknum2", ...]
-      mpt_stateroots: adaptorParams.mpt_stateroots, // ["0xstateroot1", "0xstateroot2", ...]
-      // placeholder
-      // "mpt_receiptroots": adaptorParams.mpt_receiptroots,
-      // "mpt_txroots": adaptorParams.mpt_txroots
-    },
+    adaptor: genAdaptorParams(cleYaml, dataPrep),
   }
   return auxParams
 }

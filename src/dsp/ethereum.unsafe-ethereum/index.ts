@@ -4,6 +4,7 @@ import { fillInputBlocksWithoutLatestBlockhash, fillInputEvents, setFillInputEve
 import { unsafePrepareData } from '../ethereum.unsafe'
 import { ExtendableEthereumDataSourcePlugin, safePrepareData } from '../ethereum'
 import { unsafeFillInputEvents } from '../ethereum.unsafe/fill'
+import { dspHooks } from '../hooks'
 import { UnsafeSafeETHDP } from './dataprep'
 
 export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeSafeETHDP> {
@@ -16,10 +17,11 @@ export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeS
   getLibDSPName() { return 'ethereum.unsafe-ethereum' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
-    const { contextBlocknumber, expectedStateStr } = prepareParams
+    const { provider, contextBlocknumber, expectedStateStr } = prepareParams
     const unsafeEthDP = await unsafePrepareData(cleYaml, prepareParams)
     const safeEthDP = await safePrepareData(cleYaml, prepareParams)
-    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, contextBlocknumber, expectedStateStr)
+    const latestBlocknumber = await dspHooks.getBlockNumber(provider) // used to decide recent blocks / bho blocks
+    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, contextBlocknumber, expectedStateStr, latestBlocknumber)
     return dataPrep
   }
 

@@ -5,7 +5,7 @@ import { safeHex, uint8ArrayToHex } from '../../common/utils'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
-  blockPrepMap: Map<number, BlockPrep>
+  blockPrepMap: Map<number, any>
   blocknumberOrder: number[]
   contextBlocknumber: number // the blocknum given by user when exec a cle
   latestBlocknumber: number // the latest blocknum when proving
