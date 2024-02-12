@@ -11,7 +11,7 @@ export function fillInputBlocks(
   cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
-  contextBlocknumber: string,
+  contextBlocknumber: number,
   enableLog = false,
 ) {
   input = fillInputBlocksWithoutLatestBlockhash(
@@ -247,8 +247,8 @@ function calcTxFieldOffset(tx: providers.TransactionResponse, raw: string): numb
   offsets.push(dataOffset)
   offsets.push(dataLen / 2)
 
-  const rOffset = rawTx.indexOf(tx.r?.substring(2)) / 2
-  const sOffset = rawTx.indexOf(tx.s?.substring(2)) / 2
+  const rOffset = tx.r ? rawTx.indexOf(tx.r?.substring(2)) / 2 : 0
+  const sOffset = tx.s ? rawTx.indexOf(tx.s?.substring(2)) / 2 : 0
   offsets.push(rOffset - 1)
   offsets.push(rOffset)
   offsets.push(sOffset)

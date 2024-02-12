@@ -4,20 +4,20 @@ export class Input {
   inputStr = ['', '', '']
   auxParams = {}
 
-  static privateId = 0
-  static publicId = 1
-  static contextId = 2
+  static PrivateId = 0
+  static PublicId = 1
+  static ContextId = 2
 
   getPrivateInputStr() {
-    return this.inputStr[Input.privateId]
+    return this.inputStr[Input.PrivateId]
   }
 
   getPublicInputStr() {
-    return this.inputStr[Input.publicId]
+    return this.inputStr[Input.PublicId]
   }
 
   getContextInputStr() {
-    return this.inputStr[Input.contextId]
+    return this.inputStr[Input.ContextId]
   }
 
   formatIntInput(input: number) {

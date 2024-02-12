@@ -85,12 +85,13 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = true) {
     // set safe func
     setFillInputEventsFunc(fillInputEvents)
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber, enableLog)
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber, enableLog)
+    input.auxParams = genAuxParams(cleYaml, dataPrep)
+    return input
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
     input = super.fillProveInput(input, cleYaml, dataPrep)
-    input.auxParams = genAuxParams(cleYaml, dataPrep)
     return input
   }
 }
