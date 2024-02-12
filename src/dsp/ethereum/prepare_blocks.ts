@@ -13,10 +13,10 @@ export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, c
   // TODO: multi blocks
   const blocknumOrder = [contextBlocknumber]
 
-  blocknumOrder.forEach(async (bn) => {
+  await Promise.all(blocknumOrder.map(async (bn) => {
     const blockPrep = await prepareOneBlockByYaml(provider, bn, cleYaml)
     blockPrepMap.set(bn, blockPrep)
-  })
+  }))
 
   const latestBlocknumber = await dspHooks.getBlockNumber(provider) // used to decide recent blocks / bho blocks
 
