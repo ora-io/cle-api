@@ -17,11 +17,11 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
   getLibDSPName() { return 'ethereum_local' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>): Promise<any> {
-    const { provider, contextBlocknumber, contextBlockhash, expectedStateStr } = prepareParams
+    const { provider, contextBlocknumber, expectedStateStr } = prepareParams
     // set local func
     setPrePareOneBlockFunc(prepareOneBlockLocal)
 
-    const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, contextBlockhash, expectedStateStr || '', cleYaml)
+    const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, expectedStateStr || '', cleYaml)
     return dataPrep
   }
 
@@ -29,7 +29,7 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
     // set local func
     setFillInputEventsFunc(fillInputEvents)
 
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlockhash)
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber)
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumLocalDataPrep) {
@@ -71,8 +71,7 @@ export class EthereumLocalDataSourcePlugin extends DataSourcePlugin<EthereumDSPE
     return {
       provider,
       contextBlocknumber: blockNumber,
-      // contextBlockhash: blockHash,
-      contextBlockhash: '-deprecate-',
+      // contextBlockhash: '-deprecate-',
       expectedStateStr,
     }
   }

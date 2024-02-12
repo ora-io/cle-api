@@ -43,5 +43,6 @@ function isRecentBlock(blocknum: number, latestBlocknumber: number) {
 }
 
 function calcCheckpointBlocknum(_blockNums: number[]) {
+  // TODO: enable later
   return null
 }

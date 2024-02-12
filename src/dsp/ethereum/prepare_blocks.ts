@@ -7,14 +7,16 @@ import type { EthereumDataSource } from '../../types/zkgyaml_eth'
 import { dspHooks } from '../hooks'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
 
-export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, contextBlocknumber: number, _contextBlockhash: string, expectedStateStr: string, cleYaml: CLEYaml) {
-  // TODO: multi blocks
-  const blockPrep = await prepareOneBlockByYaml(provider, contextBlocknumber, cleYaml)
-
+export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, contextBlocknumber: number, expectedStateStr: string, cleYaml: CLEYaml) {
   const blockPrepMap = new Map()
-  blockPrepMap.set(contextBlocknumber, blockPrep)
 
+  // TODO: multi blocks
   const blocknumOrder = [contextBlocknumber]
+
+  blocknumOrder.forEach(async (bn) => {
+    const blockPrep = await prepareOneBlockByYaml(provider, bn, cleYaml)
+    blockPrepMap.set(bn, blockPrep)
+  })
 
   const latestBlocknumber = await dspHooks.getBlockNumber(provider) // used to decide recent blocks / bho blocks
 

@@ -22,10 +22,10 @@ export class EthereumUnsafeDataSourcePlugin extends ExtendableEthereumDataSource
 }
 
 export async function unsafePrepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
-  const { provider, contextBlocknumber, contextBlockhash, expectedStateStr } = prepareParams
+  const { provider, contextBlocknumber, expectedStateStr } = prepareParams
   setPrePareOneBlockFunc(unsafePrepareOneBlock)
 
-  const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, contextBlockhash, expectedStateStr || '', cleYaml)
+  const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, expectedStateStr || '', cleYaml)
   return dataPrep
 }
 

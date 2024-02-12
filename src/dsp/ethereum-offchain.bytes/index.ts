@@ -23,7 +23,7 @@ export interface EthereumOffchainDPDataPrep {
 export interface EthereumOffchainDSPPrepareParams {
   provider: providers.JsonRpcProvider
   contextBlocknumber: number
-  contextBlockhash: string
+  // contextBlockhash: string
   offchainData: any
   expectedStateStr: string
 }
@@ -61,8 +61,8 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
   getLibDSPName() { return 'ethereum-offchain.bytes' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: EthereumOffchainDSPPrepareParams) {
-    const { provider, contextBlocknumber, contextBlockhash, offchainData, expectedStateStr } = prepareParams
-    const ethDP = await prepareBlocksByYaml(provider, contextBlocknumber, contextBlockhash, expectedStateStr || '', cleYaml)
+    const { provider, contextBlocknumber, offchainData, expectedStateStr } = prepareParams
+    const ethDP = await prepareBlocksByYaml(provider, contextBlocknumber, expectedStateStr || '', cleYaml)
     return new EthereumOffchainDP(
       ethDP.blockPrepMap,
       ethDP.blocknumberOrder,
@@ -117,8 +117,7 @@ export class EthereumOffchainDSP extends DataSourcePlugin<EthereumOffchainDSPExe
     return {
       provider,
       contextBlocknumber: blockNumber,
-      // contextBlockhash: blockHash,
-      contextBlockhash: '-deprecate-',
+      // contextBlockhash: '-deprecate-',
       // add offchain data
       offchainData,
       expectedStateStr,
