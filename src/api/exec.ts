@@ -48,9 +48,7 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
 
   input = dsp.fillExecInput(input, cleYaml, dataPrep, enableLog)
 
-  const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
-
-  return await executeOnInputs(cleExecutable, privateInputStr, publicInputStr)
+  return await executeOnInputs(cleExecutable, input)
 }
 
 /**
@@ -60,14 +58,15 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
  * @param {string} publicInputStr
  * @returns
  */
-export async function executeOnInputs(cleExecutable: CLEExecutable, privateInputStr: string, publicInputStr: string) {
+export async function executeOnInputs(cleExecutable: CLEExecutable, input: Input) {
   const { wasmUint8Array } = cleExecutable
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is null')
   const mock = new Simulator(100000000, 2000)
-  mock.set_private_input(privateInputStr)
-  mock.set_public_input(publicInputStr)
+  mock.set_private_input(input.getPrivateInputStr())
+  mock.set_public_input(input.getPublicInputStr())
   setupZKWasmSimulator(mock)
+  console.log('input:', input)
 
   const { asmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error

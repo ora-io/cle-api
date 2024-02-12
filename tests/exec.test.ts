@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import fs from 'node:fs'
 import { providers } from 'ethers'
 import { describe, it } from 'vitest'
@@ -191,9 +190,9 @@ describe('test exec', () => {
      */
 
     dataPrep = dsp?.toProveDataPrep(dataPrep, stateStr)
-    const [privateInputStr, publicInputStr] = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep)
+    const input = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep)
 
-    console.log(`(Prove) Private Input: ${privateInputStr}`)
-    console.log(`(Prove) Public Input: ${publicInputStr}`)
+    console.log(`(Prove) Private Input: ${input.getPrivateInputStr()}`)
+    console.log(`(Prove) Public Input: ${input.getPublicInputStr()}`)
   }, { timeout: 100000 })
 })
