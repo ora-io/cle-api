@@ -15,8 +15,8 @@ export { EthereumDataPrep } from './blockprep'
 
 export interface EthereumDSPPrepareParams {
   provider: providers.JsonRpcProvider
-  latestBlocknumber: number
-  latestBlockhash: string
+  contextBlocknumber: number
+  contextBlockhash: string
   expectedStateStr: string
 }
 
@@ -51,9 +51,9 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
 
     return {
       provider,
-      latestBlocknumber: blockNumber,
-      // latestBlockhash: blockHash,
-      latestBlockhash: '-deprecate-',
+      contextBlocknumber: blockNumber,
+      // contextBlockhash: blockHash,
+      contextBlockhash: '-deprecate-',
       expectedStateStr,
     }
   }
@@ -85,7 +85,7 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = true) {
     // set safe func
     setFillInputEventsFunc(fillInputEvents)
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlocknumber, enableLog)
+    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber, enableLog)
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
@@ -96,9 +96,9 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
 }
 
 export async function safePrepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
-  const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
+  const { provider, contextBlocknumber, contextBlockhash, expectedStateStr } = prepareParams
   setPrePareOneBlockFunc(prepareOneBlock)
 
-  const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
+  const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, contextBlockhash, expectedStateStr || '', cleYaml)
   return dataPrep
 }

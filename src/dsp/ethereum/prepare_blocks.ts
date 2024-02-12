@@ -7,16 +7,16 @@ import type { EthereumDataSource } from '../../types/zkgyaml_eth'
 import { dspHooks } from '../hooks'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
 
-export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, latestBlocknumber: number, _latestBlockhash: string, expectedStateStr: string, cleYaml: CLEYaml) {
+export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, contextBlocknumber: number, _contextBlockhash: string, expectedStateStr: string, cleYaml: CLEYaml) {
   // TODO: multi blocks
-  const blockPrep = await prepareOneBlockByYaml(provider, latestBlocknumber, cleYaml)
+  const blockPrep = await prepareOneBlockByYaml(provider, contextBlocknumber, cleYaml)
 
   const blockPrepMap = new Map()
-  blockPrepMap.set(latestBlocknumber, blockPrep)
+  blockPrepMap.set(contextBlocknumber, blockPrep)
 
-  const blocknumOrder = [latestBlocknumber]
+  const blocknumOrder = [contextBlocknumber]
 
-  return new EthereumDataPrep(blockPrepMap, blocknumOrder, latestBlocknumber, expectedStateStr)
+  return new EthereumDataPrep(blockPrepMap, blocknumOrder, contextBlocknumber, expectedStateStr)
 }
 
 // modularize prepareOneBlockFunc, re-use in eth local dsp.

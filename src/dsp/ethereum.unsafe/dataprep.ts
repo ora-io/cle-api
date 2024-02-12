@@ -4,8 +4,8 @@ import { BlockPrep, EthereumDataPrep } from '../ethereum/blockprep'
 
 export class UnsafeEthereumDataPrep extends EthereumDataPrep {
   blockPrepMap: Map<number, UnsafeBlockPrep>
-  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlocknumber: number, expectedStateStr: string) {
-    super(new Map(), blocknumberOrder, latestBlocknumber, expectedStateStr)
+  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], contextBlocknumber: number, expectedStateStr: string) {
+    super(new Map(), blocknumberOrder, contextBlocknumber, expectedStateStr)
     this.blockPrepMap = blockPrepMap
   }
 }

@@ -16,10 +16,10 @@ export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeS
   getLibDSPName() { return 'ethereum.unsafe-ethereum' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
-    const { latestBlocknumber, expectedStateStr } = prepareParams
+    const { contextBlocknumber, expectedStateStr } = prepareParams
     const unsafeEthDP = await unsafePrepareData(cleYaml, prepareParams)
     const safeEthDP = await safePrepareData(cleYaml, prepareParams)
-    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, latestBlocknumber, expectedStateStr)
+    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, contextBlocknumber, expectedStateStr)
     return dataPrep
   }
 
@@ -32,7 +32,7 @@ export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeS
     setFillInputEventsFunc(fillInputEvents)
     input = fillInputBlocksWithoutLatestBlockhash(input, cleYaml, dataPrep.safeEthDP.blockPrepMap, dataPrep.safeEthDP.blocknumberOrder)
 
-    input.addInt(dataPrep.latestBlocknumber, true)
+    input.addInt(dataPrep.contextBlocknumber, true)
     return input
   }
 }

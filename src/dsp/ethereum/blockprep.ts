@@ -7,14 +7,14 @@ import { safeHex, uint8ArrayToHex } from '../../common/utils'
 export class EthereumDataPrep extends DataPrep {
   blockPrepMap: any
   blocknumberOrder: any
-  // latestBlocknumber: any
-  latestBlocknumber: any
-  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], latestBlocknumber: number, expectedStateStr: string) {
+  // contextBlocknumber: any
+  contextBlocknumber: any
+  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], contextBlocknumber: number, expectedStateStr: string) {
     super(expectedStateStr)
     this.blockPrepMap = blockPrepMap
     this.blocknumberOrder = blocknumberOrder
-    // this.latestBlocknumber = latestBlocknumber
-    this.latestBlocknumber = latestBlocknumber
+    // this.contextBlocknumber = contextBlocknumber
+    this.contextBlocknumber = contextBlocknumber
   }
 }
 

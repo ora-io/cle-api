@@ -11,7 +11,7 @@ export function fillInputBlocks(
   cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
-  latestBlocknumber: string,
+  contextBlocknumber: string,
   enableLog = false,
 ) {
   input = fillInputBlocksWithoutLatestBlockhash(
@@ -23,7 +23,7 @@ export function fillInputBlocks(
   )
   // Optional but easy to handle;
   // Public: blockhash_latest
-  input.addInt(latestBlocknumber, true)
+  input.addInt(contextBlocknumber, true)
   return input
 }
 
