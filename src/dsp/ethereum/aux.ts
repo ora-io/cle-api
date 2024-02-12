@@ -41,10 +41,16 @@ function genAdaptorParams(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
     // placeholder
     // mpt_receiptroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).receiptroots }),
     // mpt_txroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).txroots }),
+    rlp_blockheader: dataPrep.blocknumberOrder.map(
+      (bn: any) => { return isRecentBlock(bn, dataPrep.latestBlocknumber) ? (dataPrep.blockPrepMap.get(bn) as BlockPrep).rlpheader : null }), // ['0xrecentblockheaderrlp', '' for bho blocknum]
   }
   return adaptorParam
 }
 
+function isRecentBlock(blocknum: number, latestBlocknumber: number) {
+  return blocknum > latestBlocknumber - 200 // TODO: fine-tune this.
+}
+
 function calcCheckpointBlocknum(_blockNums: number[]) {
-  return 1234
+  return null
 }

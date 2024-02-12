@@ -1,7 +1,7 @@
 import type { providers } from 'ethers'
 import { getBlock, getBlockWithTxs, getProof, getRawReceipts } from '../common/ethers_helper'
 
-export type DSPHookKeys = 'getBlock' | 'getProof' | 'getRawReceipts' | 'getBlockWithTxs'
+export type DSPHookKeys = 'getBlock' | 'getProof' | 'getRawReceipts' | 'getBlockWithTxs' | 'getBlockNumber'
 export type DSPHooks = Record<DSPHookKeys, (...args: any[]) => any>
 
 /**
@@ -22,6 +22,9 @@ export const dspHooks: DSPHooks = {
   },
   getBlockWithTxs: (ethersProvider: providers.JsonRpcProvider, blockNumber: number) => {
     return getBlockWithTxs(ethersProvider, blockNumber)
+  },
+  getBlockNumber: (ethersProvider: providers.JsonRpcProvider) => {
+    return ethersProvider.getBlockNumber()
   },
 }
 

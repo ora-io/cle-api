@@ -16,7 +16,9 @@ export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, c
 
   const blocknumOrder = [contextBlocknumber]
 
-  return new EthereumDataPrep(blockPrepMap, blocknumOrder, contextBlocknumber, expectedStateStr)
+  const latestBlocknumber = dspHooks.getBlockNumber(provider) // used to decide recent blocks / bho blocks
+
+  return new EthereumDataPrep(blockPrepMap, blocknumOrder, contextBlocknumber, expectedStateStr, latestBlocknumber)
 }
 
 // modularize prepareOneBlockFunc, re-use in eth local dsp.

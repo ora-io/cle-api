@@ -5,16 +5,16 @@ import { safeHex, uint8ArrayToHex } from '../../common/utils'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
-  blockPrepMap: any
-  blocknumberOrder: any
-  // contextBlocknumber: any
-  contextBlocknumber: any
-  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], contextBlocknumber: number, expectedStateStr: string) {
+  blockPrepMap: Map<number, BlockPrep>
+  blocknumberOrder: number[]
+  contextBlocknumber: number // the blocknum given by user when exec a cle
+  latestBlocknumber: number // the latest blocknum when proving
+  constructor(blockPrepMap: Map<any, any>, blocknumberOrder: number[], contextBlocknumber: number, expectedStateStr: string, latestBlocknumber: number) {
     super(expectedStateStr)
     this.blockPrepMap = blockPrepMap
     this.blocknumberOrder = blocknumberOrder
-    // this.contextBlocknumber = contextBlocknumber
     this.contextBlocknumber = contextBlocknumber
+    this.latestBlocknumber = latestBlocknumber
   }
 }
 
