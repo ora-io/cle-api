@@ -232,7 +232,13 @@ export function loadConfigByNetwork(yaml: Partial<CLEYaml>, networksConfig: Netw
   return targetConfig
 }
 
-export function safeHex(rawHex: string) {
+export function safeHex(rawHex: string): string {
+  if (rawHex === undefined)
+    return ''
+
+  if (rawHex === '0x0')
+    return ''
+
   let hex = ''
   if (rawHex.startsWith('0x'))
     hex = rawHex.slice(2)
