@@ -255,14 +255,6 @@ export async function compileServer(
   outputs[outWasmPath] = fromHexString(outWasmHex)
   outputs[outWatPath] = outWat
 
-  if (!__BROWSER__) {
-    createOnNonexist(outWasmPath)
-    fs.writeFileSync(outWasmPath, fromHexString(outWasmHex))
-
-    createOnNonexist(outWatPath)
-    fs.writeFileSync(outWatPath, outWat)
-  }
-
   return {
     outputs,
     error: null,
@@ -286,11 +278,4 @@ export async function compileRequest(endpoint: string, data: any) {
   }
 
   return await axios.request(requestConfig)
-}
-
-function createOnNonexist(filePath: string): void {
-  const directoryPath = path.dirname(filePath)
-
-  if (!fs.existsSync(directoryPath))
-    fs.mkdirSync(directoryPath, { recursive: true })
 }
