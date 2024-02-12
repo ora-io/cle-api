@@ -1,6 +1,7 @@
-import type { BytesLike, providers } from 'ethers'
-import type { Hexable } from 'ethers/lib/utils'
+import type { providers } from 'ethers'
+import { RLP } from '@ethereumjs/rlp'
 import { DataPrep } from '../interface'
+import { safeHex, uint8ArrayToHex } from '../../common/utils'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
@@ -75,6 +76,7 @@ export class AccountPrep {
 
 // name with *Prep to avoid confusion with cle-lib/Block
 export class BlockPrep {
+  rlpheader: string
   number: any
   // rlpHeader: any
   hash: string
@@ -84,15 +86,46 @@ export class BlockPrep {
   accounts: Map<string, AccountPrep>
   rlpreceipts: any[]
   transactions: providers.TransactionResponse[]
-  constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
-    this.number = blocknum
-    this.hash = hash
-    this.stateRoot = stateRoot
-    this.receiptsRoot = receiptsRoot
-    this.transactionsRoot = transactionsRoot
+  // constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
+  constructor(rawblock: Record<string, string>) {
+    this.number = parseInt(rawblock.number, 16)
+    this.hash = rawblock.hash
+    this.stateRoot = rawblock.stateRoot
+    this.receiptsRoot = rawblock.receiptsRoot
+    this.transactionsRoot = rawblock.transactionsRoot
+    this.rlpheader = this.calcHeaderRLP(rawblock)
     this.accounts = new Map() // <string, Account>
     this.rlpreceipts = []
     this.transactions = []
+  }
+
+  calcHeaderRLP(rawblock: Record<string, string>): string {
+    const nestedList = this.formatBlockHeaderForRLP(rawblock)
+    const blockheaderRLP = uint8ArrayToHex(RLP.encode(nestedList))
+    return blockheaderRLP
+  }
+
+  formatBlockHeaderForRLP(rawblock: Record<string, string>): Buffer[] {
+    const nestedList = [
+      Buffer.from(safeHex(rawblock.parentHash), 'hex'),
+      Buffer.from(safeHex(rawblock.sha3Uncles), 'hex'),
+      Buffer.from(safeHex(rawblock.miner), 'hex'),
+      Buffer.from(safeHex(rawblock.stateRoot), 'hex'),
+      Buffer.from(safeHex(rawblock.transactionsRoot), 'hex'),
+      Buffer.from(safeHex(rawblock.receiptsRoot), 'hex'),
+      Buffer.from(safeHex(rawblock.logsBloom), 'hex'),
+      Buffer.from(safeHex(rawblock.difficulty), 'hex'),
+      Buffer.from(safeHex(rawblock.number), 'hex'),
+      Buffer.from(safeHex(rawblock.gasLimit), 'hex'),
+      Buffer.from(safeHex(rawblock.gasUsed), 'hex'),
+      Buffer.from(safeHex(rawblock.timestamp), 'hex'),
+      Buffer.from(safeHex(rawblock.extraData), 'hex'),
+      Buffer.from(safeHex(rawblock.mixHash), 'hex'),
+      Buffer.from(safeHex(rawblock.nonce), 'hex'),
+      Buffer.from(safeHex(rawblock.baseFeePerGas), 'hex'),
+      Buffer.from(safeHex(rawblock.withdrawalsRoot), 'hex'),
+    ]
+    return nestedList
   }
 
   addAccount(address: string, rlpAccount: string, accountProof: any) {

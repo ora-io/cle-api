@@ -43,13 +43,7 @@ export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider,
 export async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
   const rawblock = await dspHooks.getBlock(provider, blockNumber)
-  const block = new BlockPrep(
-    blockNumber,
-    rawblock.hash,
-    rawblock.stateRoot,
-    rawblock.receiptsRoot,
-    rawblock.transactionsRoot,
-  )
+  const block = new BlockPrep(rawblock)
 
   /**
    * prepare storage data
@@ -86,11 +80,7 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
    * prepare raw receipts data
    */
   if (needRLPReceiptList) {
-    const rawreceiptList = await dspHooks.getRawReceipts(provider, blockNumber).catch(
-      (error) => {
-        throw error
-      },
-    )
+    const rawreceiptList = await dspHooks.getRawReceipts(provider, blockNumber)
 
     block.addRLPReceipts(rawreceiptList)
   }
