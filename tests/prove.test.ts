@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
 import fs from 'node:fs'
-import { providers } from 'ethers'
+import { ethers, providers } from 'ethers'
 import { describe, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
 import * as zkgapi from '../src/index'
@@ -67,13 +66,15 @@ describe('test prove', () => {
     // console.log(privateInputStr);
     // console.log("-------------------");
     // console.log(publicInputStr);
+    const userPrivateKey = config.UserPrivateKey
+    const signer = new ethers.Wallet(userPrivateKey, provider)
 
     const result = await zkgapi.prove(
       { wasmUint8Array }, // doesn't care about cleYaml
       privateInputStr,
       publicInputStr,
       zkwasmUrl,
-      config.UserPrivateKey,
+      signer,
       true)
 
     console.log(result)

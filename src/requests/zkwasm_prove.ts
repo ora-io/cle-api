@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import FormData from 'form-data'
-import { Wallet, utils } from 'ethers'
+import type { Signer } from 'ethers'
 import { InputContextType, ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'
 import url from './url'
@@ -9,14 +9,14 @@ import url from './url'
 
 export async function zkwasm_prove(
   zkwasmProverUrl: string,
-  user_privatekey: string,
+  signer: Signer,
   image_md5: string,
   public_inputs: string[],
   private_inputs: string[],
 ): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isSetUpSuccess = true
 
-  const user_address = utils.computeAddress(user_privatekey).toLowerCase()
+  const user_address = (await signer.getAddress()).toLowerCase()
 
   const message = ZkWasmUtil.createProvingSignMessage({
     user_address: user_address.toLowerCase(),
@@ -26,8 +26,7 @@ export async function zkwasm_prove(
     input_context_type: InputContextType.ImageCurrent,
   })
 
-  const wallet = new Wallet(user_privatekey)
-  const signature = await wallet.signMessage(message)
+  const signature = await signer.signMessage(message)
 
   const formData = new FormData()
   formData.append('user_address', user_address.toLowerCase())

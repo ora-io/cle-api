@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
+import type { Signer } from 'ethers'
 import { toHexStringBytes32Reverse } from '../common/utils'
 import { zkwasm_prove } from '../requests/zkwasm_prove'
 import {
@@ -14,7 +14,7 @@ import type { CLEExecutable } from '../types/api'
  * @param {string} privateInputStr - the packed private input in hex string
  * @param {string} publicInputStr - the packed public input in hex string
  * @param {string} zkwasmProverUrl - the url of the zkwasm prover
- * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
+ * @param {string} signer - the signer
  * @param {boolean} enableLog - enable logging or not
  * @returns {object} - proof task details in json
  */
@@ -23,7 +23,7 @@ export async function prove(
   privateInputStr: string,
   publicInputStr: string,
   zkwasmProverUrl: string,
-  userPrivateKey: string,
+  signer: Signer,
   enableLog = true,
 ) {
   const result: {
@@ -49,7 +49,7 @@ export async function prove(
   // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
   const [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
     zkwasmProverUrl,
-    userPrivateKey,
+    signer,
     md5,
     publicInputArray,
     privateInputArray,
