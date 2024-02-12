@@ -48,14 +48,14 @@ export const fixtures: Record<string, OptionType> = {
     zkwasmUrl: '',
   },
   'dsp/ethereum.unsafe': {
-    ...defaultPath('dsp/ethereum'),
+    ...defaultPath('dsp/ethereum.unsafe'),
     local: false,
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // event case
     blocknum: eventblocknum,
     zkwasmUrl: '',
   },
   'dsp/ethereum.unsafe-ethereum': {
-    ...defaultPath('dsp/ethereum'),
+    ...defaultPath('dsp/ethereum.unsafe-ethereum'),
     local: false,
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
     blocknum: eventblocknum,

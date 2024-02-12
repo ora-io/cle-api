@@ -23,7 +23,8 @@ function createOnNonexist(filePath: string): void {
     fs.mkdirSync(directoryPath, { recursive: true })
 }
 
-const pathfromfixtures = 'dsp/ethereum(storage)'
+// const pathfromfixtures = 'dsp/ethereum(storage)'
+const pathfromfixtures = 'dsp/ethereum.unsafe-ethereum'
 const option = fixtures[pathfromfixtures]
 
 describe(`test dsp: ${pathfromfixtures}`, () => {
