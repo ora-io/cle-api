@@ -5,6 +5,7 @@ import { unsafePrepareData } from '../ethereum.unsafe'
 import { ExtendableEthereumDataSourcePlugin, safePrepareData } from '../ethereum'
 import { unsafeFillInputEvents } from '../ethereum.unsafe/fill'
 import { dspHooks } from '../hooks'
+import { genAuxParams } from '../ethereum/aux'
 import { UnsafeSafeETHDP } from './dataprep'
 
 export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeSafeETHDP> {
@@ -26,13 +27,16 @@ export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeS
   }
 
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeSafeETHDP) {
-    // set unsafe func
+    // append unsafe input
     setFillInputEventsFunc(unsafeFillInputEvents)
     input = fillInputBlocksWithoutLatestBlockhash(input, cleYaml, dataPrep.unsafeETHDP.blockPrepMap, dataPrep.unsafeETHDP.blocknumberOrder)
 
-    // set safe func
+    // append safe input
     setFillInputEventsFunc(fillInputEvents)
     input = fillInputBlocksWithoutLatestBlockhash(input, cleYaml, dataPrep.safeEthDP.blockPrepMap, dataPrep.safeEthDP.blocknumberOrder)
+
+    // add aux params, only for safe mode
+    input.auxParams = genAuxParams(cleYaml, dataPrep.safeEthDP)
 
     input.addInt(dataPrep.contextBlocknumber, true)
     return input

@@ -59,6 +59,8 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
  * @returns
  */
 export async function executeOnInputs(cleExecutable: CLEExecutable, input: Input) {
+  // console.log('executeOnInputs input:', input.auxParams)
+
   const { wasmUint8Array } = cleExecutable
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is null')
