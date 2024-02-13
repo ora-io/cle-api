@@ -15,7 +15,7 @@ import { dspHooks } from '../hooks'
 export interface EthereumOffchainDPDataPrep {
   blockPrepMap: Map<number, BlockPrep>
   blocknumberOrder: any[]
-  contextBlocknumber: string
+  contextBlocknumber: number
   offchainData: any
   expectedStateStr: string
 }
