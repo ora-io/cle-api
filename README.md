@@ -1,9 +1,9 @@
-# [@hyperoracle/cle-api](https://www.npmjs.com/package/@hyperoracle/cle-api)
+# [@ora-io/cle-api](https://www.npmjs.com/package/@ora-io/cle-api)
 
 ## Install
 
 ```bash
-npm i @hyperoracle/cle-api
+npm i @ora-io/cle-api
 ```
 
 ## Intro

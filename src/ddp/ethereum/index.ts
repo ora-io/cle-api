@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
 import { ethers } from 'ethers'
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { KeyofToArray } from '@murongg/utils/index'
 import { graph_abi } from '../../common/constants'
 import type { ProofParams } from '../../types'

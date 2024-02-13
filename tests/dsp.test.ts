@@ -3,10 +3,11 @@ import fs from 'fs'
 import FormData from 'form-data'
 import { describe, expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
-import webjson from '@hyperoracle/cle-lib-test/test/weblib/weblib.json'
+import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
 import { providers } from 'ethers'
 import { fromHexString, loadConfigByNetwork, toHexString } from '../src/common/utils'
 import * as zkgapi from '../src/index'
+import { DefaultPath } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
@@ -36,24 +37,19 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
 
     const sources = {
       ...webjson,
-      'mapping.ts': readFile(mappingPath),
+      'src/mapping.ts': readFile(mappingPath),
+      'src/cle.yaml': readFile(yamlPath),
     }
 
-    const cleExecutable = {
-      cleYaml,
-    }
+    const result = await zkgapi.compile(sources)
 
-    // TODO: enrich the args when complate compile func
-    const result = await zkgapi.compile(cleExecutable, sources)
-
-    if (result.stderr.length > 0)
-      throw new Error(result.stderr.toString())
+    if ((result?.stderr as any)?.length > 0)
+      throw new Error(result?.stderr?.toString())
 
     expect(result.error).toBeNull()
     expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
-
-    const wasmContent = result.outputs['inner_pre_pre.wasm']
-    const watContent = result.outputs['inner_pre_pre.wat']
+    const wasmContent = result.outputs[DefaultPath.outWasm]
+    const watContent = result.outputs[DefaultPath.outWat]
     expect(wasmContent).toBeDefined()
     expect(watContent).toBeDefined()
 

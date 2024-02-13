@@ -2,9 +2,10 @@ import path from 'path'
 import fs from 'fs'
 import { expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
-import webjson from '@hyperoracle/cle-lib-test/test/weblib/weblib.json'
+import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
 import { compile } from '../src/api/compile'
 import { loadYamlFromPath } from './utils/yaml'
+import { config } from './config'
 
 (global as any).__BROWSER__ = false
 
@@ -23,16 +24,23 @@ it('test compile', async () => {
     'cle.yaml': readFile(path.join(__dirname, 'fixtures/compile/cle.yaml')),
   }
 
-  const cleExecutable = {
-    cleYaml: yaml,
-  }
+  const outWasmPath = path.join(__dirname, 'fixtures/build/cle-compiletest.wasm')
+  const outWatPath = path.join(__dirname, 'fixtures/build/cle-compiletest.wat')
 
-  const result = await compile(cleExecutable, sources)
+  const result = await compile(sources, {
+    yamlPath: 'cle.yaml',
+    outWasmPath,
+    outWatPath,
+    compilerServerEndpoint: config.CompilerServerEndpoint,
+    isLocal: false,
+  })
+  if ((result?.stderr as any)?.length > 0)
+    throw new Error(result?.stderr?.toString())
   expect(result.error).toBeNull()
   expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
 
-  const wasmContent = result.outputs['inner_pre_pre.wasm']
-  const watContent = result.outputs['inner_pre_pre.wat']
+  const wasmContent = result.outputs[outWasmPath]
+  const watContent = result.outputs[outWatPath]
   expect(wasmContent).toBeDefined()
   expect(watContent).toBeDefined()
 

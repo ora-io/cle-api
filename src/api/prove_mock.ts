@@ -1,5 +1,4 @@
-// @ts-expect-error non-types
-import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain'
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@ora-io/zkwasm-toolchain'
 import { CLERequireFailed } from '../common/error'
 import type { CLEExecutable } from '../types/api'
 import type { Input } from '../common'

@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { zkwasm_setup } from '../requests/zkwasm_setup'
 import {
   waitTaskStatus,

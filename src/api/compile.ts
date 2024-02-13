@@ -1,12 +1,20 @@
-import { hasOwnProperty, randomStr } from '@murongg/utils'
+import fs from 'node:fs'
+import path from 'node:path'
+import { tmpdir } from 'node:os'
+import type { Nullable } from '@murongg/utils'
+import { hasOwnProperty, randomStr, to } from '@murongg/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
+import FormData from 'form-data'
 import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
-import { DSPNotFound } from '../common/error'
-import type { CLEYaml } from '../types'
+import { DSPNotFound, MissingRequiredOptions } from '../common/error'
+import { CLEYaml } from '../types'
+import { DefaultPath } from '../common/constants'
+import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
+
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
-import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
+import { zkmain_lib, asmain_lib, registerHandle } from "@ora-io/cle-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
 
 declare function __call_as_start(): void;
@@ -26,7 +34,7 @@ function abort(a: usize, b: usize, c: u32, d: u32): void {}
 `
 // TODO: merge codegen_local & codegen into 1 var
 const codegen_local = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
-import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
+import { zkmain_lib, asmain_lib, registerHandle } from "@ora-io/cle-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
 
 export function zkmain(): void {
@@ -63,13 +71,18 @@ const getCompilerOptions = (isLocal = false) => {
 export interface CompileResult {
   outputs: Record<string, string | Uint8Array>
   /** Encountered error, if any. */
-  error: Error | null
+  error: Nullable<Error>
   /** Standard output stream. */
-  stdout: any
+  stdout: Nullable<OutputStream>
   /** Standard error stream.  */
-  stderr: any
+  stderr: Nullable<OutputStream>
   /** Statistics. */
   stats: any
+}
+
+export interface OutputStream {
+  /** Writes a chunk of data to the stream. */
+  write(chunk: Uint8Array | string): void
 }
 
 export function onlyAscCompile(yaml: CLEYaml) {
@@ -85,54 +98,90 @@ export function onlyAscCompile(yaml: CLEYaml) {
 }
 
 export interface CompileOptions {
+  yamlPath?: string
   isLocal?: boolean
+  outWatPath?: string
+  outWasmPath?: string
+  outInnerWasmPath?: string
+  compilerServerEndpoint?: string
 }
 
 export async function compile(
-  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
+  // cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
-  // endpoint: string,
 ): Promise<CompileResult> {
-  // TODO: complete this func
-  const { cleYaml } = cleExecutable
+  // Decide if only need to compile locally by yaml config
+  const {
+    isLocal = false,
+    yamlPath = DefaultPath.yaml,
+  } = options
+  // const { cleYaml } = cleExecutable
+  const cleYamlContent = sources[yamlPath]
+  const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
   if (onlyAscCompile(cleYaml))
     options.isLocal = true
 
-  const result = await compileAsc(cleExecutable, sources, options)
+  // cache final out path
+  const {
+    outWasmPath = DefaultPath.outWasm,
+    outWatPath = DefaultPath.outWat,
+  } = options
+  const finalOutWasmPath = outWasmPath
+  const finalOutWatPath = outWatPath
+
+  // compile locally with asc, use inner path if isLocal
+  if (isLocal) {
+    options.outWasmPath = DefaultPath.outInnerWasm
+    options.outWatPath = DefaultPath.outInnerWat
+  }
+  const result = await compileAsc(sources, options)
+  if (result.error)
+    return result
+
+  // compile remotely on the compiler server if needed, using final out path
   if (options.isLocal === false) {
-    // result = compileRequest(...)
+    const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
+    const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
+    options.outInnerWasmPath = options.outWasmPath
+    options.outWasmPath = finalOutWasmPath
+    options.outWatPath = finalOutWatPath
+    return await compileServer(innerCLEExecutable, cleYamlContent, options)
   }
   return result
 }
 
 export async function compileAsc(
-  cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
+  // cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   sources: Record<string, string>,
   options: CompileOptions = {},
 ): Promise<CompileResult> {
-  const { cleYaml } = cleExecutable
-  const { isLocal = false } = options
+  // const { cleYaml } = cleExecutable
+  const {
+    isLocal = false,
+    yamlPath = DefaultPath.yaml,
+    outWasmPath = isLocal ? DefaultPath.outInnerWasm : DefaultPath.outWasm,
+    outWatPath = isLocal ? DefaultPath.outInnerWat : DefaultPath.outWat,
+  } = options
 
-  // const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  // TODO: complete this func
+  const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
   const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false }) // deprecating isLocal, 'false' for compatible
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const libDSPName = dsp.getLibDSPName()
-  const mappingFileName = cleYaml.mapping.file
+  const mappingFileName = getPrefixPath(yamlPath) + trimPrefix(cleYaml.mapping.file, './')
   const handleFuncName = cleYaml.mapping.handler
 
-  const tsModule = `entry_${randomStr()}.ts`
-  const textModule = 'inner_pre_pre.wat'
-  const wasmModule = 'inner_pre_pre.wasm'
-  const abortPath = getAbortTsFilepath(tsModule)
+  const entryFilePath = `entry_${randomStr()}.ts`
+  const abortPath = getAbortTsFilepath(entryFilePath)
   const asc = await import('assemblyscript/dist/asc.js')
   const stdout = asc.createMemoryStream()
   const outputs: Record<string, string | Uint8Array> = {}
   sources = {
     ...sources,
-    [tsModule]: isLocal ? codegen_local(libDSPName, mappingFileName, handleFuncName) : codegen(libDSPName, mappingFileName, handleFuncName),
+    [entryFilePath]: isLocal ? codegen_local(libDSPName, mappingFileName, handleFuncName) : codegen(libDSPName, mappingFileName, handleFuncName),
   }
   const config = {
     stdout,
@@ -142,17 +191,76 @@ export async function compileAsc(
     listFiles: () => [],
   }
   const compileOptions = [
-    tsModule,
+    entryFilePath,
     '--path', 'node_modules',
     '--use', `abort=${abortPath}`,
-    '--textFile', textModule,
-    '--outFile', wasmModule,
+    '--textFile', outWatPath,
+    '--outFile', outWasmPath,
     ...getCompilerOptions(isLocal),
   ]
   const ascResult = await asc.main(compileOptions, config)
   return {
     outputs,
     ...ascResult,
+  }
+}
+
+export async function compileServer(
+  innerCLEExecutable: Omit<CLEExecutable, 'cleYaml' >,
+  cleYamlContent: string,
+  options: CompileOptions = {},
+): Promise<CompileResult> {
+  const { wasmUint8Array } = innerCLEExecutable
+
+  const {
+    compilerServerEndpoint,
+    outWasmPath = DefaultPath.outWasm,
+    outWatPath = DefaultPath.outWat,
+    outInnerWasmPath = DefaultPath.outWasm,
+  } = options
+
+  if (compilerServerEndpoint === undefined)
+    throw new MissingRequiredOptions('compilerServerEndpoint is required')
+
+  const outputs: Record<string, string | Uint8Array> = {}
+  // Set up form data
+  const data = new FormData()
+  if (__BROWSER__) {
+    const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
+    const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
+    data.append('wasmFile', wasmFile)
+    const yamlFile = new File([new Blob([cleYamlContent], { type: 'text/yaml' })], 'src/zkgraph.yaml', { type: 'text/yaml' })
+    data.append('yamlFile', yamlFile)
+  }
+  else {
+    const tmpPath = path.join(tmpdir(), `cle_${randomStr()}.yaml`)
+    fs.writeFileSync(tmpPath, cleYamlContent)
+    fs.writeFileSync(outInnerWasmPath, wasmUint8Array)
+
+    data.append('wasmFile', fs.createReadStream(outInnerWasmPath))
+    data.append('yamlFile', fs.createReadStream(tmpPath))
+  }
+
+  const [requestErr, response] = await to(compileRequest(compilerServerEndpoint, data))
+  if (requestErr)
+    throw requestErr
+
+  if (!response) {
+    // rarely happen
+    throw new Error('ERROR WHEN COMPILING. invalid response')
+  }
+  const outWasmHex = response.data.wasmModuleHex
+  const outWat = response.data.wasmWat
+
+  outputs[outWasmPath] = fromHexString(outWasmHex)
+  outputs[outWatPath] = outWat
+
+  return {
+    outputs,
+    error: null,
+    stdout: null,
+    stderr: null,
+    stats: null,
   }
 }
 

@@ -1,4 +1,4 @@
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { Contract, ethers, utils } from 'ethers'
 import {
   AddressZero,

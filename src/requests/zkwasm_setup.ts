@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
 import FormData from 'form-data'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { Wallet, utils } from 'ethers'
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { ImageAlreadyExists, PaymentError } from '../common/error'
 import { handleAxiosError } from './error_handle'
 import url from './url'
