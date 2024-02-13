@@ -2,7 +2,7 @@ import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import FormData from 'form-data'
 import type { Signer } from 'ethers'
-import { InputContextType, ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 // import { sign } from "crypto";

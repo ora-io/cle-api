@@ -14,7 +14,7 @@ const external = [
   'ethers',
   'bn.js',
   'js-yaml',
-  '@hyperoracle/zkwasm-service-helper',
+  '@ora-io/zkwasm-service-helper',
   'web3-eth-contract',
   'semver',
   'axios',

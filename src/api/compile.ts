@@ -14,7 +14,7 @@ import { DefaultPath } from '../common/constants'
 import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
 
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
-import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
+import { zkmain_lib, asmain_lib, registerHandle } from "@ora-io/cle-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
 
 declare function __call_as_start(): void;
@@ -34,7 +34,7 @@ function abort(a: usize, b: usize, c: u32, d: u32): void {}
 `
 // TODO: merge codegen_local & codegen into 1 var
 const codegen_local = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
-import { zkmain_lib, asmain_lib, registerHandle } from "@hyperoracle/cle-lib-test/dsp/${libDSPName}"
+import { zkmain_lib, asmain_lib, registerHandle } from "@ora-io/cle-lib/dsp/${libDSPName}"
 import { ${handleFuncName} } from "./${mappingFileName}"
 
 export function zkmain(): void {

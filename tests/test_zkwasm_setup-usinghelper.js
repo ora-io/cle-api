@@ -11,7 +11,7 @@ import {
   // WithSignature,
   ZkWasmServiceHelper,
   ZkWasmUtil,
-} from '@hyperoracle/zkwasm-service-helper'
+} from '@ora-io/zkwasm-service-helper'
 
 async function signMessage(message, sk) {
   const wallet = new Wallet(sk)

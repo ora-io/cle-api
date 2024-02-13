@@ -1,4 +1,4 @@
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
 import type { Signer } from 'ethers'
 import { toHexStringBytes32Reverse } from '../common/utils'

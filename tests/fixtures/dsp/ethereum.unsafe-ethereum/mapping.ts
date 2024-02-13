@@ -1,5 +1,5 @@
-import { Block, ByteArray } from '@hyperoracle/cle-lib-test'
-import { Bytes } from '@hyperoracle/cle-lib-test'
+import { Block, ByteArray } from '@ora-io/cle-lib'
+import { Bytes } from '@ora-io/cle-lib'
 
 export function handleBlocks(blocksUnsafe: Block[], blocks: Block[]): Bytes {
   return blocksUnsafe[0].events[0].address.concat(ByteArray.fromI32(0)).concat(blocks[0].events[0].address) as Bytes

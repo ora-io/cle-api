@@ -1,4 +1,4 @@
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import Web3EthContract from 'web3-eth-contract'
 import type { NullableObject } from '@murongg/utils'
 import {
@@ -9,7 +9,7 @@ import { ProveTaskNotReady } from '../common/error'
 import { loadConfigByNetwork } from '../common/utils'
 import type { CLEYaml } from '../types/zkgyaml'
 import type { CLEExecutable, ProofParams as VerifyProofParams } from '../types/api'
-// import { VerifyProofParams } from '@hyperoracle/zkwasm-service-helper'
+// import { VerifyProofParams } from '@ora-io/zkwasm-service-helper'
 
 export async function verify(
   cleExecutable: NullableObject<CLEExecutable>,
