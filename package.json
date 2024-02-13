@@ -1,5 +1,5 @@
 {
-  "name": "@hyperoracle/cle-api-test",
+  "name": "@ora-io/cle-api",
   "type": "module",
   "version": "1.0.3-alpha.5",
   "description": "API for interacting with Hyper Oracle CLEs",
@@ -65,8 +65,8 @@
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
     "@hyperoracle/zkwasm-service-helper": "^1.0.2",
-    "@hyperoracle/zkwasm-toolchain": "^0.0.4",
     "@murongg/utils": "^0.1.18",
+    "@ora-io/zkwasm-toolchain": "^0.0.4",
     "assemblyscript": "^0.27.22",
     "axios": "^1.6.2",
     "axios-retry": "^3.9.1",

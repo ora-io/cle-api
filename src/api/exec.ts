@@ -1,5 +1,5 @@
 // @ts-expect-error non-types
-import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@hyperoracle/zkwasm-toolchain'
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@ora-io/zkwasm-toolchain'
 // import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
 
 import { DSPNotFound } from '../common/error'
