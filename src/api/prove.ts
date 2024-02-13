@@ -2,7 +2,7 @@ import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
 import type { Signer } from 'ethers'
 import { toHexStringBytes32Reverse } from '../common/utils'
-import { ora_prove_sk } from '../requests/ora_prove'
+import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
@@ -42,7 +42,7 @@ export async function prove(
   result.md5 = md5
 
   // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
-  const [response, isSetUpSuccess, errorMessage] = await ora_prove_sk(
+  const [response, isSetUpSuccess, errorMessage] = await ora_prove(
     zkwasmProverUrl,
     signer,
     md5,

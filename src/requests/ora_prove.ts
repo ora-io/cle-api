@@ -9,7 +9,7 @@ import { handleAxiosError } from './error_handle'
 /**
  * send prove request to ora prover with user_privatekey, should be compatible to zkwasmhub
  */
-export async function ora_prove_sk(
+export async function ora_prove(
   proverUrl: string,
   signer: Signer,
   image_md5: string,
