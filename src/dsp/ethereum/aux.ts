@@ -1,7 +1,7 @@
 import { Input } from '../../common'
 import type { CLEYaml } from '../../types'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
-import { MptInputPrep } from './mpt_data_prep'
+import { MptInput } from './mpt_data_prep'
 
 export function genAuxParams(
   cleYaml: CLEYaml,
@@ -21,18 +21,18 @@ export function genAuxParams(
   return auxParams
 }
 
-function fillMPTInput(input: any, _cleYaml: CLEYaml, _dataPrep: EthereumDataPrep) {
-  const mptIpt = new MptInputPrep(_dataPrep.blocknumberOrder.length)
+function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+  const mptIpt = new MptInput(dataPrep.blocknumberOrder.length)
 
-  for (const blockNum of _dataPrep.blocknumberOrder) {
+  for (const blockNum of dataPrep.blocknumberOrder) {
     // console.log("block number:", blockNum)
-    const blcokPrepData = _dataPrep.blockPrepMap.get(blockNum)
+    const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
     // console.log("ctx:", mptIpt.getCtx())
     // console.log("private input:", mptIpt.getPriIpt())
   }
-  input.addFormattedHexString(mptIpt.getCtx(), 2)
-  input.addFormattedHexString(mptIpt.getPriIpt(), 0)
+  input.append(mptIpt.getCtx(), 2)
+  input.append(mptIpt.getPriIpt(), 0)
   return input
 }
 
