@@ -1,7 +1,7 @@
 import { Input } from '../../common'
 import type { CLEYaml } from '../../types'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
-import { MptInput } from './mpt_data_prep'
+import { MptInput } from './mpt_input'
 
 export function genAuxParams(
   cleYaml: CLEYaml,
