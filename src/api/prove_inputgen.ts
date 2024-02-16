@@ -33,7 +33,7 @@ export function proveInputGenOnDataPrep(
   cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   dataPrep: DataPrep,
   isLocal = false,
-): [string, string] {
+): Input {
   const { cleYaml } = cleExecutable
 
   let input = new Input()
@@ -44,5 +44,6 @@ export function proveInputGenOnDataPrep(
 
   input = dsp.fillProveInput(input, cleYaml, dataPrep)
 
-  return [input.getPrivateInputStr(), input.getPublicInputStr()]
+  // return [input.getPrivateInputStr(), input.getPublicInputStr()]
+  return input
 }

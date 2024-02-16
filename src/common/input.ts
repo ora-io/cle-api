@@ -1,17 +1,23 @@
 import { trimPrefix } from './utils'
 
 export class Input {
-  inputStr = ['', '']
+  inputStr = ['', '', '']
+  auxParams = {}
 
-  static privateId = 0
-  static publicId = 1
+  static PrivateId = 0
+  static PublicId = 1
+  static ContextId = 2
 
   getPrivateInputStr() {
-    return this.inputStr[Input.privateId]
+    return this.inputStr[Input.PrivateId]
   }
 
   getPublicInputStr() {
-    return this.inputStr[Input.publicId]
+    return this.inputStr[Input.PublicId]
+  }
+
+  getContextInputStr() {
+    return this.inputStr[Input.ContextId]
   }
 
   formatIntInput(input: number) {
@@ -30,22 +36,23 @@ export class Input {
     return formatted
   }
 
-  addInt(input: number, isPublic = false) {
-    this.inputStr[isPublic ? Input.publicId : Input.privateId] += this.formatIntInput(input)
+  // '+': convert boolean to number, for compatible
+  addInt(input: number, inputChanId = 0) {
+    this.inputStr[+inputChanId] += this.formatIntInput(input)
   }
 
-  addHexString(input: string, isPublic = false) {
-    this.inputStr[isPublic ? Input.publicId : Input.privateId] += this.formatHexStringInput(input)
+  addHexString(input: string, inputChanId = 0) {
+    this.inputStr[+inputChanId] += this.formatHexStringInput(input)
   }
 
-  addVarLenHexString(input: string, isPublic = false) {
-    this.inputStr[isPublic ? Input.publicId : Input.privateId] += this.formatVarLenInput(input)
+  addVarLenHexString(input: string, inputChanId = 0) {
+    this.inputStr[+inputChanId] += this.formatVarLenInput(input)
   }
 
   // ['0xaa', '0xbbbb', '0xcccccc']
-  addVarLenHexStringArray(input: string, isPublic = false) {
-    this.inputStr[isPublic ? Input.publicId : Input.privateId] += this.formatIntInput(input.length)
+  addVarLenHexStringArray(input: string, inputChanId = 0) {
+    this.inputStr[+inputChanId] += this.formatIntInput(input.length)
     for (let i = 0; i < input.length; i++)
-      this.inputStr[isPublic ? Input.publicId : Input.privateId] += this.formatVarLenInput(input[i])
+      this.inputStr[+inputChanId] += this.formatVarLenInput(input[i])
   }
 }

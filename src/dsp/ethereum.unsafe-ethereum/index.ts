@@ -4,6 +4,8 @@ import { fillInputBlocksWithoutLatestBlockhash, fillInputEvents, setFillInputEve
 import { unsafePrepareData } from '../ethereum.unsafe'
 import { ExtendableEthereumDataSourcePlugin, safePrepareData } from '../ethereum'
 import { unsafeFillInputEvents } from '../ethereum.unsafe/fill'
+import { dspHooks } from '../hooks'
+import { genAuxParams } from '../ethereum/aux'
 import { UnsafeSafeETHDP } from './dataprep'
 
 export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeSafeETHDP> {
@@ -16,23 +18,27 @@ export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeS
   getLibDSPName() { return 'ethereum.unsafe-ethereum' }
 
   async prepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
-    const { latestBlockhash, expectedStateStr } = prepareParams
+    const { provider, contextBlocknumber, expectedStateStr } = prepareParams
     const unsafeEthDP = await unsafePrepareData(cleYaml, prepareParams)
     const safeEthDP = await safePrepareData(cleYaml, prepareParams)
-    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, latestBlockhash, expectedStateStr)
+    const latestBlocknumber = await dspHooks.getBlockNumber(provider) // used to decide recent blocks / bho blocks
+    const dataPrep = new UnsafeSafeETHDP(unsafeEthDP, safeEthDP, contextBlocknumber, expectedStateStr, latestBlocknumber)
     return dataPrep
   }
 
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: UnsafeSafeETHDP) {
-    // set unsafe func
+    // append unsafe input
     setFillInputEventsFunc(unsafeFillInputEvents)
     input = fillInputBlocksWithoutLatestBlockhash(input, cleYaml, dataPrep.unsafeETHDP.blockPrepMap, dataPrep.unsafeETHDP.blocknumberOrder)
 
-    // set safe func
+    // append safe input
     setFillInputEventsFunc(fillInputEvents)
     input = fillInputBlocksWithoutLatestBlockhash(input, cleYaml, dataPrep.safeEthDP.blockPrepMap, dataPrep.safeEthDP.blocknumberOrder)
 
-    input.addHexString(dataPrep.latestBlockhash, true)
+    // add aux params, only for safe mode
+    input.auxParams = genAuxParams(cleYaml, dataPrep.safeEthDP)
+
+    input.addInt(dataPrep.contextBlocknumber, true)
     return input
   }
 }

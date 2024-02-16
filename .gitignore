@@ -10,3 +10,4 @@ dist
 .DS_Store
 
 tests/fixtures/compile/build/*
+tests/fixtures/build

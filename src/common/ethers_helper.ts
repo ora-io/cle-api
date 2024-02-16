@@ -109,8 +109,8 @@ export async function getBlockBasic(provider: providers.JsonRpcProvider, block: 
   }
   const result = await retry(fn, 3)
   if (result === null) {
-    const latestBlock = await provider.getBlockNumber()
-    throw new BlockNotFound(`Invalid blocknum ${block}, please check the given blocknum or the chain network specified in yaml. Block must be within 100000 blocks of the head block number (currently ${latestBlock})`)
+    const latestBlocknumber = await provider.getBlockNumber()
+    throw new BlockNotFound(`Invalid blocknum ${block}, please check the given blocknum or the chain network specified in yaml. Block must be within 100000 blocks of the head block number (currently ${latestBlocknumber})`)
   }
 
   else { return result }
@@ -128,7 +128,7 @@ export async function getBlockByHash(ethersProvider: providers.JsonRpcProvider, 
   return await getBlockBasic(ethersProvider, blockHash, 'hash')
 }
 
-export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string) {
+export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string | number) {
   let parsedBlockid: number | string = blockid
   // accept latest as blockid
   if (blockid === 'latest')

@@ -2,11 +2,12 @@ import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
 import type { Signer } from 'ethers'
 import { toHexStringBytes32Reverse } from '../common/utils'
-import { zkwasm_prove } from '../requests/zkwasm_prove'
+import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { CLEExecutable } from '../types/api'
+import type { Input } from '../common'
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.
@@ -20,8 +21,7 @@ import type { CLEExecutable } from '../types/api'
  */
 export async function prove(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
-  privateInputStr: string,
-  publicInputStr: string,
+  input: Input,
   zkwasmProverUrl: string,
   signer: Signer,
   enableLog = true,
@@ -37,25 +37,31 @@ export async function prove(
   }
   const { wasmUint8Array } = cleExecutable
 
-  // Prove mode
-  const privateInputArray = privateInputStr.trim().split(' ')
-  const publicInputArray = publicInputStr.trim().split(' ')
-
-  // Message and form data
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
 
   result.md5 = md5
 
   // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
-  const [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
+  const [response, isSetUpSuccess, errorMessage] = await ora_prove(
     zkwasmProverUrl,
     signer,
     md5,
-    publicInputArray,
-    privateInputArray,
+    input,
   ).catch((error) => {
     throw error
   })
+
+  // const privateInputArray = input.getPrivateInputStr().trim().split(' ')
+  // const publicInputArray = input.getPublicInputStr().trim().split(' ')
+  // const [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
+  //   zkwasmProverUrl,
+  //   userPrivateKey,
+  //   md5,
+  //   publicInputArray,
+  //   privateInputArray,
+  // ).catch((error) => {
+  //   throw error
+  // })
 
   if (enableLog)
     console.log(`[*] IMAGE MD5: ${md5}`, '\n')

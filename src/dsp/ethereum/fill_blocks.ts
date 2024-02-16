@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { providers } from 'ethers'
 import { filterEvents } from '../../common/api_helper'
 import { getRawTransaction } from '../../common/ethers_helper'
@@ -12,7 +11,7 @@ export function fillInputBlocks(
   cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
-  latestBlockhash: string,
+  contextBlocknumber: number,
   enableLog = false,
 ) {
   input = fillInputBlocksWithoutLatestBlockhash(
@@ -24,8 +23,7 @@ export function fillInputBlocks(
   )
   // Optional but easy to handle;
   // Public: blockhash_latest
-  input.addHexString(latestBlockhash, true)
-
+  input.addInt(contextBlocknumber, true)
   return input
 }
 
@@ -37,7 +35,7 @@ export function fillInputBlocksWithoutLatestBlockhash(
   enableLog = false,
 ) {
   const blockCount = blocknumOrder.length
-  input.addInt(blockCount, false) // block count
+  input.addInt(blockCount, 0) // block count
 
   blocknumOrder.forEach((bn: any) => {
     if (!blockPrepMap.has(bn))
@@ -68,12 +66,14 @@ export function setFillInputTxsFunc(_func: any) {
 
 // blockPrep: class BlockPrep, used for prepare data & interface params.
 export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: BlockPrep, enableLog = false) {
-  input.addInt(blockPrep.number, false)
+  input.addInt(blockPrep.number, 0)
 
-  input.addVarLenHexString(
-    blockPrep?.rlpHeader,
-    false,
-  )
+  // TODO: adjust this with lib
+  // input.addVarLenHexString(
+  //   // blockPrep?.rlpHeader,
+  //   '00',
+  //   false,
+  // )
 
   /**
    * Fill storage
@@ -153,17 +153,11 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
 export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrList: string[], stateDSSlotsList: string[][]) {
   for (let i = 0; i < stateDSAddrList.length; i++) {
     input.addHexString(stateDSAddrList[i], false) // address
-    // let ethproof = await getProof(
-    //   provider,
-    //   stateDSAddrList[i],
-    //   stateDSSlotsList[i],
-    //   ethers.utils.hexValue(blockNumber)
-    // );
 
     const acctPrep = blockPrep?.getAccount(stateDSAddrList[i])
 
     input.addVarLenHexString(acctPrep?.rlpNode, false) // account rlp
-    input.addVarLenHexStringArray(acctPrep?.accountProof, false) // account proof
+    // input.addVarLenHexStringArray(acctPrep?.accountProof, false) // account proof
 
     const sourceSlots = stateDSSlotsList[i]
     input.addInt(sourceSlots.length, false) // slot count
@@ -176,7 +170,7 @@ export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrLi
 
       input.addHexString(sourceSlots[j], false)
       input.addVarLenHexString(slotPrep.value, false)
-      input.addVarLenHexStringArray(slotPrep.storageProof, false)
+      // input.addVarLenHexStringArray(slotPrep.storageProof, false)
     }
   }
 }
@@ -253,8 +247,8 @@ function calcTxFieldOffset(tx: providers.TransactionResponse, raw: string): numb
   offsets.push(dataOffset)
   offsets.push(dataLen / 2)
 
-  const rOffset = rawTx.indexOf(tx.r?.substring(2)) / 2
-  const sOffset = rawTx.indexOf(tx.s?.substring(2)) / 2
+  const rOffset = tx.r ? rawTx.indexOf(tx.r?.substring(2)) / 2 : 0
+  const sOffset = tx.s ? rawTx.indexOf(tx.s?.substring(2)) / 2 : 0
   offsets.push(rOffset - 1)
   offsets.push(rOffset)
   offsets.push(sOffset)

@@ -7,11 +7,8 @@ import { dspHooks } from '../hooks'
 
 export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
-  const block = new BlockPrep(
-    blockNumber,
-    // header rlp
-    '0x00',
-  )
+  const rawblock = await dspHooks.getBlock(provider, blockNumber)
+  const block = new BlockPrep(rawblock)
 
   /**
    * prepare storage data

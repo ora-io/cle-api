@@ -9,13 +9,14 @@ import { dspHooks } from '../hooks'
 import type { EthereumDataPrep } from './blockprep'
 import { fillInputBlocks, fillInputEvents, setFillInputEventsFunc } from './fill_blocks'
 import { prepareBlocksByYaml, prepareOneBlock, setPrePareOneBlockFunc } from './prepare_blocks'
+import { genAuxParams } from './aux'
 
 export { EthereumDataPrep } from './blockprep'
 
 export interface EthereumDSPPrepareParams {
   provider: providers.JsonRpcProvider
-  latestBlocknumber: number
-  latestBlockhash: string
+  contextBlocknumber: number
+  // contextBlockhash: string
   expectedStateStr: string
 }
 
@@ -46,12 +47,12 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
     // TODO: optimize: no need to getblock if blockId is block num
     const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
-    const blockHash = rawblock.hash
+    // const blockHash = rawblock.hash
 
     return {
       provider,
-      latestBlocknumber: blockNumber,
-      latestBlockhash: blockHash,
+      contextBlocknumber: blockNumber,
+      // contextBlockhash: '-deprecate-',
       expectedStateStr,
     }
   }
@@ -83,14 +84,21 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
   fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = true) {
     // set safe func
     setFillInputEventsFunc(fillInputEvents)
-    return fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash, enableLog)
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber, enableLog)
+    input.auxParams = genAuxParams(cleYaml, dataPrep)
+    return input
+  }
+
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+    input = super.fillProveInput(input, cleYaml, dataPrep)
+    return input
   }
 }
 
 export async function safePrepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
-  const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
+  const { provider, contextBlocknumber, expectedStateStr } = prepareParams
   setPrePareOneBlockFunc(prepareOneBlock)
 
-  const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', cleYaml)
+  const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, expectedStateStr || '', cleYaml)
   return dataPrep
 }

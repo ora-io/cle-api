@@ -229,7 +229,7 @@ export async function compileServer(
     const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
     const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
     data.append('wasmFile', wasmFile)
-    const yamlFile = new File([new Blob([cleYamlContent], { type: 'text/yaml' })], 'src/zkgraph.yaml', { type: 'text/yaml' })
+    const yamlFile = new File([new Blob([cleYamlContent], { type: 'text/yaml' })], 'src/cle.yaml', { type: 'text/yaml' })
     data.append('yamlFile', yamlFile)
   }
   else {

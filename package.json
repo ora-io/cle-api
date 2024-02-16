@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
-    "@murongg/utils": "^0.1.18",
+    "@murongg/utils": "^0.1.20",
     "@ora-io/zkwasm-service-helper": "^1.0.2",
     "@ora-io/zkwasm-toolchain": "^0.0.4",
     "assemblyscript": "^0.27.22",
@@ -79,7 +79,7 @@
   },
   "devDependencies": {
     "@murongg/eslint-config": "^0.2.1",
-    "@ora-io/cle-lib": "^1.0.1-alpha.2",
+    "@ora-io/cle-lib": "^1.0.1-alpha.4",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",

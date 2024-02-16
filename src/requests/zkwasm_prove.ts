@@ -1,22 +1,25 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import FormData from 'form-data'
-import type { Signer } from 'ethers'
+import { Wallet, utils } from 'ethers'
 import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 // import { sign } from "crypto";
 
+/**
+ * send prove request to zkwasmhub
+ */
 export async function zkwasm_prove(
   zkwasmProverUrl: string,
-  signer: Signer,
+  user_privatekey: string,
   image_md5: string,
   public_inputs: string[],
   private_inputs: string[],
 ): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isSetUpSuccess = true
 
-  const user_address = (await signer.getAddress()).toLowerCase()
+  const user_address = utils.computeAddress(user_privatekey).toLowerCase()
 
   const message = ZkWasmUtil.createProvingSignMessage({
     user_address: user_address.toLowerCase(),
@@ -26,7 +29,8 @@ export async function zkwasm_prove(
     input_context_type: InputContextType.ImageCurrent,
   })
 
-  const signature = await signer.signMessage(message)
+  const wallet = new Wallet(user_privatekey)
+  const signature = await wallet.signMessage(message)
 
   const formData = new FormData()
   formData.append('user_address', user_address.toLowerCase())
