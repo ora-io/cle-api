@@ -1,6 +1,3 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { tmpdir } from 'node:os'
 import type { Nullable } from '@murongg/utils'
 import { hasOwnProperty, randomStr, to } from '@murongg/utils'
 import type { AxiosRequestConfig } from 'axios'
@@ -12,6 +9,7 @@ import { DSPNotFound, MissingRequiredOptions } from '../common/error'
 import { CLEYaml } from '../types'
 import { DefaultPath } from '../common/constants'
 import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
+import { createFileStream } from '../common/compatible'
 
 const codegen = (libDSPName: string, mappingFileName: string, handleFuncName: string) => `
 import { zkmain_lib, asmain_lib, registerHandle } from "@ora-io/cle-lib/dsp/${libDSPName}"
@@ -225,21 +223,26 @@ export async function compileServer(
   const outputs: Record<string, string | Uint8Array> = {}
   // Set up form data
   const data = new FormData()
-  if (__BROWSER__) {
-    const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
-    const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
-    data.append('wasmFile', wasmFile)
-    const yamlFile = new File([new Blob([cleYamlContent], { type: 'text/yaml' })], 'src/cle.yaml', { type: 'text/yaml' })
-    data.append('yamlFile', yamlFile)
-  }
-  else {
-    const tmpPath = path.join(tmpdir(), `cle_${randomStr()}.yaml`)
-    fs.writeFileSync(tmpPath, cleYamlContent)
-    fs.writeFileSync(outInnerWasmPath, wasmUint8Array)
 
-    data.append('wasmFile', fs.createReadStream(outInnerWasmPath))
-    data.append('yamlFile', fs.createReadStream(tmpPath))
-  }
+  data.append('wasmFile', createFileStream(wasmUint8Array, { fileType: 'application/wasm', fileName: 'inner.wasm', tmpPath: outInnerWasmPath }))
+  data.append('yamlFile', createFileStream(cleYamlContent, { fileType: 'text/yaml', fileName: 'src/cle.yaml' }))
+  // if (__BROWSER__) {
+
+  //   // const blob = new Blob([wasmUint8Array], { type: 'application/wasm' })
+  //   // const wasmFile = new File([blob], 'inner.wasm', { type: 'application/wasm' })
+  //   data.append('wasmFile', createFileStream(wasmUint8Array, 'application/wasm', 'inner.wasm'))
+  //   data.append('yamlFile', createFileStream(cleYamlContent, 'text/yaml', 'src/cle.yaml'))
+  //   // const yamlFile = new File([new Blob([cleYamlContent], { type: 'text/yaml' })], 'src/cle.yaml', { type: 'text/yaml' })
+  //   // data.append('yamlFile', yamlFile)
+  // }
+  // else {
+  //   const tmpPath = path.join(tmpdir(), `cle_${randomStr()}.yaml`)
+  //   fs.writeFileSync(tmpPath, cleYamlContent)
+  //   fs.writeFileSync(outInnerWasmPath, wasmUint8Array)
+
+  //   data.append('wasmFile', fs.createReadStream(outInnerWasmPath))
+  //   data.append('yamlFile', fs.createReadStream(tmpPath))
+  // }
 
   const [requestErr, response] = await to(compileRequest(compilerServerEndpoint, data))
   if (requestErr)
