@@ -1,31 +1,32 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
-import { zkwasm_setup } from '../requests/zkwasm_setup'
+import type { Signer } from 'ethers'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
 import type { CLEExecutable } from '../types/api'
+import { ora_setup } from '../requests'
+import { createFileStream } from '../common/compatible'
 
+export interface SetupOptions {
+  circuitSize?: number
+  enableLog?: boolean
+}
 /**
  * Set up zkwasm image with given wasm file.
- * @param {string} wasmName
- * @param {string} wasmUint8Array
- * @param {number} circuitSize
- * @param {string} userPrivateKey
- * @param {string} ZkwasmProviderUrl
- * @param {boolean} isLocal
- * @param {boolean} enableLog
- * @returns {{string, string, boolean}} - {'md5': md5, 'taskId': taskId, 'success': success}
  */
 export async function setup(
-  cleExecutable: Omit<CLEExecutable, 'cleYaml'> & { image: any },
-  circuitSize: number,
-  userPrivateKey: string,
-  ZkwasmProviderUrl: string,
-  enableLog = true,
+  // cleExecutable: Omit<CLEExecutable, 'cleYaml'> & { image: any },
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  options: SetupOptions = {},
+  signer: Signer,
+  ProverProviderUrl: string,
 ) {
-  const { wasmUint8Array, image } = cleExecutable
+  const { wasmUint8Array } = cleExecutable
+  const { circuitSize = 22, enableLog = true } = options
+  const image = createFileStream(wasmUint8Array, { fileType: 'application/wasm', fileName: 'cle.wasm' })
+
   let cirSz
   if (circuitSize >= 18 && circuitSize <= 24)
     cirSz = circuitSize
@@ -46,12 +47,12 @@ export async function setup(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let setupStatus
 
-  await zkwasm_setup(
-    ZkwasmProviderUrl,
+  await ora_setup(
+    ProverProviderUrl,
     'poc.wasm', // only use in zkwasm, can diff from local files
     md5,
     image,
-    userPrivateKey,
+    signer,
     description_url_encoded,
     avator_url,
     circuit_size,
@@ -67,10 +68,10 @@ export async function setup(
       // return the last status if exists
       if (error instanceof ImageAlreadyExists) {
         // check if there's any "Reset" task before
-        let res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Reset')
+        let res = await zkwasm_imagetask(ProverProviderUrl, md5, 'Reset')
         // if no "Reset", check "Setup"
         if (res.data.result.total === 0)
-          res = await zkwasm_imagetask(ZkwasmProviderUrl, md5, 'Setup')
+          res = await zkwasm_imagetask(ProverProviderUrl, md5, 'Setup')
 
         taskDetails = res.data.result.data[0]
         taskId = res.data.result.data[0]._id.$oid
@@ -89,11 +90,11 @@ export async function setup(
     })
 }
 
-export async function waitSetup(ZkwasmProviderUrl: string, taskId: string) {
+export async function waitSetup(ProverProviderUrl: string, taskId: string) {
   const result: { taskId: string | null; success: boolean; taskDetails: any } = { taskId: null, success: false, taskDetails: null }
 
   const taskDetails = await waitTaskStatus(
-    ZkwasmProviderUrl,
+    ProverProviderUrl,
     taskId,
     ['Done', 'Fail'],
     3000,
