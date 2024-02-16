@@ -22,11 +22,11 @@ export function genAuxParams(
 }
 
 function fillMPTInput(input: any, _cleYaml: CLEYaml, _dataPrep: EthereumDataPrep) {
-  let mptIpt = new MptInputPrep(_dataPrep.blocknumberOrder.length)
+  const mptIpt = new MptInputPrep(_dataPrep.blocknumberOrder.length)
 
-  for(var blockNum of _dataPrep.blocknumberOrder) {
+  for (const blockNum of _dataPrep.blocknumberOrder) {
     // console.log("block number:", blockNum)
-    let blcokPrepData = _dataPrep.blockPrepMap.get(blockNum)
+    const blcokPrepData = _dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
     // console.log("ctx:", mptIpt.getCtx())
     // console.log("private input:", mptIpt.getPriIpt())
@@ -42,12 +42,19 @@ function genAdaptorParams(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
     mpt_blocknums: dataPrep.blocknumberOrder, // ["blocknum1", "blocknum2", ...]
     mpt_stateroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).stateRoot }), // ["0xstateroot1", "0xstateroot2", ...]
     // placeholder
-    // mpt_receiptroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).receiptroots }),
-    // mpt_txroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).txroots }),
+    mpt_receiptroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).receiptsRoot }),
+    mpt_txroots: dataPrep.blocknumberOrder.map((bn: any) => { return (dataPrep.blockPrepMap.get(bn) as BlockPrep).transactionsRoot }),
+    rlp_blockheader: dataPrep.blocknumberOrder.map(
+      (bn: any) => { return isRecentBlock(bn, dataPrep.latestBlocknumber) ? (dataPrep.blockPrepMap.get(bn) as BlockPrep).rlpheader : null }), // ['0xrecentblockheaderrlp', '' for bho blocknum]
   }
   return adaptorParam
 }
 
+function isRecentBlock(blocknum: number, latestBlocknumber: number) {
+  return blocknum > latestBlocknumber - 200 // TODO: fine-tune this.
+}
+
 function calcCheckpointBlocknum(_blockNums: number[]) {
-  return 1234
+  // TODO: enable later
+  return null
 }
