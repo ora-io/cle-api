@@ -15,7 +15,7 @@ import type { CLEExecutable } from '../types/api'
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false, enableLog = false) {
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false, enableLog = false): Promise<Uint8Array> {
   const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
@@ -36,7 +36,7 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
  * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false, enableLog = false) {
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false, enableLog = false): Promise<Uint8Array> {
   const { cleYaml } = cleExecutable
 
   let input = new Input()
@@ -57,7 +57,7 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
  * @param {string} publicInputStr
  * @returns
  */
-export async function executeOnInputs(cleExecutable: CLEExecutable, input: Input) {
+export async function executeOnInputs(cleExecutable: CLEExecutable, input: Input): Promise<Uint8Array> {
   // console.log('executeOnInputs input:', input.auxParams)
 
   const { wasmUint8Array } = cleExecutable

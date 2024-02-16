@@ -19,7 +19,8 @@ import { fixtures } from './fixureoptions'
 //   mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
 // }
 
-const pathfromfixtures = 'prove(event)'
+// const pathfromfixtures = 'prove(event)'
+const pathfromfixtures = 'prove(storage)'
 const option = fixtures[pathfromfixtures]
 
 describe(`test prove ${pathfromfixtures}`, () => {

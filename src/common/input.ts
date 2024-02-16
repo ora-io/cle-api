@@ -24,6 +24,10 @@ export class Input {
     return `0x${input.toString(16)}:i64 `
   }
 
+  append(input: string, inputChanId = 0) {
+    this.inputStr[+inputChanId] += input
+  }
+
   formatHexStringInput(input: string) {
     return `0x${trimPrefix(input, '0x')}:bytes-packed `
   }
