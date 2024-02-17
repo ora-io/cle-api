@@ -4,6 +4,7 @@ import type { KeyofToArray } from '@murongg/utils/index'
 import { cle_abi } from '../../common/constants'
 import type { ProofParams } from '../../types'
 import { DataDestinationPlugin } from '../interface'
+import { logger } from '../../common'
 
 export interface EthereumDDPGoParams {
   signer: ethers.Wallet
@@ -26,13 +27,13 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
 
     if (enableLog) {
       // logger.info("transaction submitted, tx hash: " + tx.hash);
-      console.log(`transaction submitted, tx hash: ${tx.hash}`)
+      logger.log(`transaction submitted, tx hash: ${tx.hash}`)
     }
     const receipt = await tx.wait()
     // await tx.wait()
     if (enableLog) {
       // logger.info("transaction confirmed, block number: " + receipt.blockNumber);
-      console.log(`transaction confirmed, block number: ${receipt.blockNumber}`)
+      logger.log(`transaction confirmed, block number: ${receipt.blockNumber}`)
     }
     // this.status == 'off';
     // this.senderIdx = (this.senderIdx + 1) % config.UserPrivateKey.length;

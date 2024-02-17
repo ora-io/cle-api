@@ -5,6 +5,7 @@ import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { ImageAlreadyExists, PaymentError } from '../common/error'
 import type { SetupOptions } from '../api/setup'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL } from '../common/constants'
+import { logger } from '../common'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 
@@ -81,7 +82,7 @@ export async function ora_setup(
       else {
         // console.error("Error in zkwasm_setup. Please retry.");
         // throw error;
-        console.log(error.message)
+        logger.log(error.message)
       }
       // errorMessage = error.response.data;
     })
@@ -89,7 +90,7 @@ export async function ora_setup(
       break
 
     // for debug purpose, can delete after stable.
-    console.log(errorMessage, 'retrying..')
+    logger.log(errorMessage, 'retrying..')
   }
   return response as AxiosResponse<any>
 }

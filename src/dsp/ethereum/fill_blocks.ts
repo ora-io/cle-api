@@ -4,6 +4,7 @@ import { getRawTransaction } from '../../common/ethers_helper'
 import { toHexString } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
 import type { EthereumDataSource } from '../../types/zkgyaml_eth'
+import { logger } from '../../common'
 import type { BlockPrep } from './blockprep'
 
 export function fillInputBlocks(
@@ -85,12 +86,12 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
 
     // TODO: move this to cli
     if (enableLog)
-      console.log('[*] Defined Data Sources - Storage:')
+      logger.log('[*] Defined Data Sources - Storage:')
 
     for (let i = 0; i < stateDSAddrList.length; i++) {
       // TODO move log to cli
       if (enableLog) {
-        console.log(
+        logger.log(
           `    (${i}) Address:`,
           stateDSAddrList[i],
           '\n        Slot keys:',
@@ -103,7 +104,7 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
   }
   else {
     if (enableLog)
-      console.log('[*] No storage DS provided, skip...') // can rm
+      logger.log('[*] No storage DS provided, skip...') // can rm
 
     input.addInt(0, false) // account count
   }
@@ -117,18 +118,18 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
 
     // TODO: move this to cli
     if (enableLog)
-      console.log('[*] Defined Data Sources - Event:')
+      logger.log('[*] Defined Data Sources - Event:')
 
     for (let i = 0; i < eventDSAddrList.length; i++) {
       if (enableLog)
-        console.log(`    (${i}) Address:`, eventDSAddrList[i], '\n        Event Sigs:', eventDSEsigsList[i], '\n')
+        logger.log(`    (${i}) Address:`, eventDSAddrList[i], '\n        Event Sigs:', eventDSEsigsList[i], '\n')
     }
 
     fillInputEventsFunc(input, blockPrep, eventDSAddrList, eventDSEsigsList, enableLog)
   }
   else {
     if (enableLog)
-      console.log('[*] No event DS provided, skip...') // can rm
+      logger.log('[*] No event DS provided, skip...') // can rm
 
     input.addInt(0, false) // source contract count; meaning: no source contract
   }
@@ -136,13 +137,13 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
   if (ds.transaction) {
     // TODO: move this to cli
     if (enableLog)
-      console.log('[*] Defined Data Sources - Transaction.')
+      logger.log('[*] Defined Data Sources - Transaction.')
 
     fillInputTxsFunc(input, blockPrep, ds.transaction)
   }
   else {
     if (enableLog)
-      console.log('[*] No transaction DS provided, skip...')
+      logger.log('[*] No transaction DS provided, skip...')
 
     input.addInt(0, false) // tx count
   }
@@ -206,9 +207,9 @@ export function fillInputTxs(input: any, blockPrep: BlockPrep, txDSList: any[]) 
   })
 
   // TODO: move this to cli
-  console.log(`[*] ${filteredTransactions.length} transaction matched.`)
+  logger.log(`[*] ${filteredTransactions.length} transaction matched.`)
   for (let i = 0; i < filteredTransactions.length; i++)
-    console.log(`    (${i}) Hash:`, filteredTransactions[i].hash)
+    logger.log(`    (${i}) Hash:`, filteredTransactions[i].hash)
 
   input.addInt(filteredTransactions.length, false) // tx count
   for (const tx of filteredTransactions) {

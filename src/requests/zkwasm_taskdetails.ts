@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
+import { logger } from '../common'
 import url from './url'
 import { handleAxiosError } from './error_handle'
 
@@ -57,7 +57,7 @@ export async function waitTaskStatus(
       if (error !== null) {
         const [errMsg, isRetry] = handleAxiosError(error)
         if (isRetry) {
-          console.log(errMsg, 'Retry.')
+          logger.log(errMsg, 'Retry.')
           setTimeout(checkStatus, interval)
         }
         else {
@@ -93,16 +93,16 @@ function millToHumanReadable(mill: number) {
 }
 
 export function taskPrettyPrint(resData: { submit_time: string | number | Date; process_started: number; process_finished: number }, prefix = '') {
-  console.log(`${prefix}Task submit time: ${resData.submit_time}`)
-  console.log(`${prefix}Process started: ${resData.process_started}`)
-  console.log(`${prefix}Process finished: ${resData.process_finished}`)
-  console.log(
+  logger.log(`${prefix}Task submit time: ${resData.submit_time}`)
+  logger.log(`${prefix}Process started: ${resData.process_started}`)
+  logger.log(`${prefix}Process finished: ${resData.process_finished}`)
+  logger.log(
     `${prefix}Pending time: ${millToHumanReadable(
       // @ts-expect-error TODO: fix this, it's incorrect, should new Date().getTime() or other
       new Date(resData.process_started) - new Date(resData.submit_time),
     )}`,
   )
-  console.log(
+  logger.log(
     `${prefix}Running time: ${millToHumanReadable(
       // @ts-expect-error TODO: fix this, it's incorrect, should new Date().getTime() or other
       new Date(resData.process_finished) - new Date(resData.process_started),

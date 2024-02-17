@@ -7,6 +7,7 @@ import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { CLEExecutable } from '../types/api'
+import { logger } from '../common'
 import type { SingableProver } from './setup'
 
 // when remove enableLog: keep ProveOptions = SingableProver for future scalability
@@ -61,7 +62,7 @@ export async function prove(
   // })
 
   if (enableLog)
-    console.log(`[*] IMAGE MD5: ${md5}`, '\n')
+    logger?.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
   if (isSetUpSuccess) {
     const taskId = response.data.result.id

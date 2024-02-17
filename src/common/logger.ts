@@ -3,6 +3,7 @@ export abstract class CLELogger {
   abstract info(...args: any[]): void
   abstract warn(...args: any[]): void
   abstract error(...args: any[]): void
+  abstract log(...args: any[]): void
 }
 
 // eslint-disable-next-line import/no-mutable-exports
