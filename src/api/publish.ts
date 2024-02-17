@@ -127,8 +127,8 @@ export async function getImageCommitment(
 ) {
   const { wasmUint8Array } = cleExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const deatails = await zkwasm_imagedetails(proverUrl, md5)
-  const result = deatails[0]?.data.result[0]
+  const details = await zkwasm_imagedetails(proverUrl, md5)
+  const result = details[0]?.data.result[0]
   if (result === null)
     throw new Error('Can\'t find zkWasm image details, please finish setup before publish.')
 
