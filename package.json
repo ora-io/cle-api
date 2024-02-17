@@ -1,7 +1,7 @@
 {
   "name": "@ora-io/cle-api",
   "type": "module",
-  "version": "1.0.3-alpha.6",
+  "version": "1.0.3-alpha.7",
   "description": "API for interacting with Hyper Oracle CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
