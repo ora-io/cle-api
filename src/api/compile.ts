@@ -5,9 +5,9 @@ import axios from 'axios'
 import FormData from 'form-data'
 import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
-import { DSPNotFound, MissingRequiredOptions } from '../common/error'
+import { DSPNotFound } from '../common/error'
 import { CLEYaml } from '../types'
-import { DEFAULT_PATH } from '../common/constants'
+import { DEFAULT_PATH, DEFAULT_URL } from '../common/constants'
 import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
 import { createFileStream } from '../common/compatible'
 
@@ -110,10 +110,7 @@ export async function compile(
   options: CompileOptions = {},
 ): Promise<CompileResult> {
   // Decide if only need to compile locally by yaml config
-  const {
-    isLocal = false,
-    yamlPath = DEFAULT_PATH.YAML,
-  } = options
+  const { yamlPath = DEFAULT_PATH.YAML } = options
   // const { cleYaml } = cleExecutable
   const cleYamlContent = sources[yamlPath]
   const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
@@ -122,6 +119,7 @@ export async function compile(
 
   // cache final out path
   const {
+    isLocal = false,
     outWasmPath = DEFAULT_PATH.OUT_WASM,
     outWatPath = DEFAULT_PATH.OUT_WAT,
   } = options
@@ -138,7 +136,7 @@ export async function compile(
     return result
 
   // compile remotely on the compiler server if needed, using final out path
-  if (options.isLocal === false) {
+  if (isLocal === false) {
     const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
     const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
     options.outInnerWasmPath = options.outWasmPath
@@ -164,7 +162,7 @@ export async function compileAsc(
 
   // TODO: complete this func
   const cleYaml = CLEYaml.fromYamlContent(sources[yamlPath])
-  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false }) // deprecating isLocal, 'false' for compatible
+  const dsp = dspHub.getDSPByYaml(cleYaml) // deprecating isLocal, 'false' for compatible
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
@@ -181,6 +179,7 @@ export async function compileAsc(
     ...sources,
     [entryFilePath]: isLocal ? codegen_local(libDSPName, mappingFileName, handleFuncName) : codegen(libDSPName, mappingFileName, handleFuncName),
   }
+  // console.log('sources',Object.keys(sources))
   const config = {
     stdout,
     stderr: stdout,
@@ -209,16 +208,12 @@ export async function compileServer(
   options: CompileOptions = {},
 ): Promise<CompileResult> {
   const { wasmUint8Array } = innerCLEExecutable
-
   const {
-    compilerServerEndpoint,
+    compilerServerEndpoint = DEFAULT_URL.COMPILER_SERVER,
     outWasmPath = DEFAULT_PATH.OUT_WASM,
     outWatPath = DEFAULT_PATH.OUT_WAT,
     outInnerWasmPath = DEFAULT_PATH.OUT_WASM,
   } = options
-
-  if (compilerServerEndpoint === undefined)
-    throw new MissingRequiredOptions('compilerServerEndpoint is required')
 
   const outputs: Record<string, string | Uint8Array> = {}
   // Set up form data

@@ -1,4 +1,3 @@
-import path from 'path'
 import fs from 'fs'
 import FormData from 'form-data'
 import { describe, expect, it } from 'vitest'
@@ -11,17 +10,12 @@ import { DEFAULT_PATH } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
+import { createOnNonexist } from './utils/file'
 
 (global as any).__BROWSER__ = false
 
 function readFile(filepath: string) {
   return fs.readFileSync(filepath, 'utf-8')
-}
-function createOnNonexist(filePath: string): void {
-  const directoryPath = path.dirname(filePath)
-
-  if (!fs.existsSync(directoryPath))
-    fs.mkdirSync(directoryPath, { recursive: true })
 }
 
 // const pathfromfixtures = 'dsp/ethereum(storage)'
@@ -95,7 +89,8 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { })
+    // const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
