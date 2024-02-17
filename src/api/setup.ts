@@ -11,7 +11,7 @@ import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
 
 export interface SingableProver {
-  proverUrl?: string
+  proverUrl: string
   signer: Signer
 }
 export interface BasicSetupParams {
