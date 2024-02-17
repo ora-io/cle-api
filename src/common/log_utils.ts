@@ -1,11 +1,12 @@
-/* eslint-disable no-console */
+import { logger } from './logger'
+
 export function currentNpmScriptName() {
   return process.env.npm_lifecycle_event
 }
 
 export function logDivider() {
   const line = '='.repeat(process.stdout.columns)
-  console.log(line)
+  logger.log(line)
 }
 
 export function logReceiptAndEvents(
@@ -14,14 +15,14 @@ export function logReceiptAndEvents(
   matchedEventOffsets: string | any[],
   filteredEventList: any,
 ) {
-  console.log(
+  logger.log(
     '[*]',
     rawreceiptList.length,
     rawreceiptList.length > 1
       ? 'receipts fetched'
       : 'receipt fetched',
   )
-  console.log(
+  logger.log(
     '[*]',
     matchedEventOffsets.length / 7,
     matchedEventOffsets.length / 7 > 1 ? 'events matched' : 'event matched',

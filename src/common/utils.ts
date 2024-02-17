@@ -1,6 +1,7 @@
 import BN from 'bn.js'
 import type { CLEYaml } from '../types/zkgyaml'
 import { networks } from './constants'
+import { logger } from './logger'
 
 /**
  * Convert hex string to Uint8Array
@@ -96,7 +97,7 @@ function parseArg(input: string) {
 
   // Check if value is a number
   if (!(re1.test(value.slice(2)) || re2.test(value))) {
-    console.log('Error: input value is not an interger number')
+    logger.log('Error: input value is not an interger number')
     return null
   }
 
@@ -113,14 +114,14 @@ function parseArg(input: string) {
   }
   else if (type === 'bytes' || type === 'bytes-packed') {
     if (value.slice(0, 2) !== '0x') {
-      console.log('Error: bytes input need start with 0x')
+      logger.log('Error: bytes input need start with 0x')
       return null
     }
     const bytes = hexToBNs(value.slice(2))
     return bytes
   }
   else {
-    console.log('Unsupported input data type: %s', type)
+    logger.log('Unsupported input data type: %s', type)
     return null
   }
 }

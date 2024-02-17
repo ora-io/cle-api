@@ -9,6 +9,7 @@ import type { CLEExecutable } from '../types/api'
 import { ora_setup } from '../requests'
 import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
+import { logger } from '../common'
 
 export interface SingableProver {
   proverUrl: string
@@ -60,7 +61,7 @@ export async function setup(
       taskId = response.data.result.id
 
       if (enableLog)
-        console.log(`[+] SET UP TASK STARTED. TASK ID: ${taskId}`, '\n')
+        logger.log(`[+] SET UP TASK STARTED. TASK ID: ${taskId}`, '\n')
     })
     .catch(async (error) => {
       // return the last status if exists
@@ -76,7 +77,7 @@ export async function setup(
         setupStatus = res.data.result.data[0].status
 
         if (enableLog) {
-          console.log(
+          logger.log(
             `[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`,
             '\n',
           )

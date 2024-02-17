@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 import type { AxiosError } from 'axios'
+import { logger } from '../common'
 
 export function handleAxiosError(error: AxiosError): [string, boolean] {
   let errMsg = ''
@@ -29,8 +29,8 @@ export function handleAxiosError(error: AxiosError): [string, boolean] {
       errMsg = `ERR_BAD_REQUEST: ${error.response?.status} ${error.response?.statusText}.`
       break
     default:
-      console.log('in handleAxiosError:')
-      console.log(error)
+      logger.log('in handleAxiosError:')
+      logger.log(error)
       errMsg = `HTTP ERROR: ${error.response?.status} ${error.response?.statusText}.`
       break
   }
