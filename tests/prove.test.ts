@@ -88,9 +88,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const result = await zkgapi.prove(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
-      zkwasmUrl,
-      signer,
-      true)
+      { proverUrl: zkwasmUrl, signer, enableLog: true })
 
     console.log(result)
   })

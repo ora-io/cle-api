@@ -1,22 +1,23 @@
 import FormData from 'form-data'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import type { Signer } from 'ethers'
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { ImageAlreadyExists, PaymentError } from '../common/error'
+import type { SetupOptions } from '../api/setup'
+import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL } from '../common/constants'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 
 export async function ora_setup(
-  ProverProviderUrl: string,
-  name: string,
   image_md5: string,
   image: any,
-  signer: Signer,
-  description_url: string,
-  avator_url: string,
-  circuit_size: number,
+  options: SetupOptions,
 ) {
+  const {
+    proverUrl = DEFAULT_URL.PROVER, signer,
+    circuitSize: circuit_size = DEFAULT_CIRCUIT_SIZE,
+    imageName: name = 'cle.wasm', descriptionUrl: description_url = '', avatorUrl: avator_url = '',
+  } = options
   const user_address = (await signer.getAddress()).toLowerCase()
 
   // Create Signning Message
@@ -51,7 +52,7 @@ export async function ora_setup(
   const requestConfig = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: url.postNewWasmImage(ProverProviderUrl).url,
+    url: url.postNewWasmImage(proverUrl).url,
     headers: {
       ...formData.getHeaders(),
       ...zkwasmHeaders,

@@ -3,6 +3,8 @@ import axios from 'axios'
 import type { Signer } from 'ethers'
 import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Input } from '../common'
+import type { SingableProver } from '../api/setup'
+import { DEFAULT_URL } from '../common/constants'
 import url from './url'
 import { handleAxiosError } from './error_handle'
 
@@ -10,11 +12,12 @@ import { handleAxiosError } from './error_handle'
  * send prove request to ora prover with user_privatekey, should be compatible to zkwasmhub
  */
 export async function ora_prove(
-  proverUrl: string,
-  signer: Signer,
   image_md5: string,
   input: Input,
+  options: SingableProver,
 ): Promise<[AxiosResponse<any, any>, boolean, string]> {
+  const { proverUrl = DEFAULT_URL.PROVER, signer } = options
+
   let isSetUpSuccess = true
 
   const user_address = (await signer.getAddress()).toLowerCase()

@@ -6,10 +6,9 @@ import type { CLEExecutable } from '../types/api'
 
 /**
  * Generate the private and public inputs in hex string format
- * @param {string} yamlContent
+ * @param {object} cleExecutable
  * @param {object} proveParams {"xx": xx}
  * @param {boolean} isLocal
- * @param {boolean} enableLog
  * @returns {[string, string]} - private input string, public input string
  */
 export async function proveInputGen(

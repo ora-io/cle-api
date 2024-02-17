@@ -7,7 +7,7 @@ import type { CLEExecutable } from '../types/api'
 import { dspHub } from '../dsp/hub'
 import { DSPNotFound, MissingRequiredOptions } from '../common/error'
 import { CLEYaml } from '../types'
-import { DefaultPath } from '../common/constants'
+import { DEFAULT_PATH } from '../common/constants'
 import { fromHexString, getPrefixPath, trimPrefix } from '../common/utils'
 import { createFileStream } from '../common/compatible'
 
@@ -112,7 +112,7 @@ export async function compile(
   // Decide if only need to compile locally by yaml config
   const {
     isLocal = false,
-    yamlPath = DefaultPath.yaml,
+    yamlPath = DEFAULT_PATH.YAML,
   } = options
   // const { cleYaml } = cleExecutable
   const cleYamlContent = sources[yamlPath]
@@ -122,16 +122,16 @@ export async function compile(
 
   // cache final out path
   const {
-    outWasmPath = DefaultPath.outWasm,
-    outWatPath = DefaultPath.outWat,
+    outWasmPath = DEFAULT_PATH.OUT_WASM,
+    outWatPath = DEFAULT_PATH.OUT_WAT,
   } = options
   const finalOutWasmPath = outWasmPath
   const finalOutWatPath = outWatPath
 
   // compile locally with asc, use inner path if isLocal
   if (isLocal) {
-    options.outWasmPath = DefaultPath.outInnerWasm
-    options.outWatPath = DefaultPath.outInnerWat
+    options.outWasmPath = DEFAULT_PATH.OUT_INNER_WASM
+    options.outWatPath = DEFAULT_PATH.OUT_INNER_WAT
   }
   const result = await compileAsc(sources, options)
   if (result.error)
@@ -157,9 +157,9 @@ export async function compileAsc(
   // const { cleYaml } = cleExecutable
   const {
     isLocal = false,
-    yamlPath = DefaultPath.yaml,
-    outWasmPath = isLocal ? DefaultPath.outInnerWasm : DefaultPath.outWasm,
-    outWatPath = isLocal ? DefaultPath.outInnerWat : DefaultPath.outWat,
+    yamlPath = DEFAULT_PATH.YAML,
+    outWasmPath = isLocal ? DEFAULT_PATH.OUT_INNER_WASM : DEFAULT_PATH.OUT_WASM,
+    outWatPath = isLocal ? DEFAULT_PATH.OUT_INNER_WAT : DEFAULT_PATH.OUT_WAT,
   } = options
 
   // TODO: complete this func
@@ -212,9 +212,9 @@ export async function compileServer(
 
   const {
     compilerServerEndpoint,
-    outWasmPath = DefaultPath.outWasm,
-    outWatPath = DefaultPath.outWat,
-    outInnerWasmPath = DefaultPath.outWasm,
+    outWasmPath = DEFAULT_PATH.OUT_WASM,
+    outWatPath = DEFAULT_PATH.OUT_WAT,
+    outInnerWasmPath = DEFAULT_PATH.OUT_WASM,
   } = options
 
   if (compilerServerEndpoint === undefined)

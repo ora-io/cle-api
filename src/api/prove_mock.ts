@@ -6,8 +6,7 @@ import type { Input } from '../common'
 /**
  * Mock the zkwasm proving process for pre-test purpose.
  * @param {object} cleExecutable
- * @param {string} privateInputStr
- * @param {string} publicInputStr
+ * @param {Input} input
  * @returns {boolean} - the mock testing result
  */
 export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, input: Input) {

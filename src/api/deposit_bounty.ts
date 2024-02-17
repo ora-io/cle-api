@@ -1,24 +1,30 @@
 import { Contract, ethers } from 'ethers'
 import {
-  graph_abi,
+  cle_abi,
 } from '../common/constants'
 
 /**
- * Publish and register CLE onchain.
- * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {object} signer - the acct for sign tx
- * @param {string} graphContractAddress - the deployed verification contract address
  * @param {number} depositAmount - the deposit amount in ETH
- * @param {boolean} enableLog - enable logging or not
+ */
+interface DepositOptions {
+  depositAmount: string
+}
+/**
+ * Publish and register CLE onchain.
+ * @param {Signer} signer - the acct for sign tx
+ * @param {string} cleContractAddress - the deployed verification contract address
+ * @param options
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function deposit(
+  cleContractAddress: string,
   signer: ethers.Signer,
-  graphContractAddress: string,
-  depositAmount: string,
+  options: DepositOptions,
 ) {
-  const graphContract = new Contract(graphContractAddress, graph_abi, signer)
-  const tx = await graphContract
+  const { depositAmount } = options
+
+  const cleContract = new Contract(cleContractAddress, cle_abi, signer)
+  const tx = await cleContract
     .deposit(
       ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) },
     )

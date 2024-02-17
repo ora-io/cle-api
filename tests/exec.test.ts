@@ -118,7 +118,7 @@ describe('test exec', () => {
 
     const state = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, cleYaml: yaml },
-      dataPrep,
+      dataPrep as zkgapi.DataPrep,
       local,
     )
 
@@ -164,7 +164,7 @@ describe('test exec', () => {
 
     const stateu8a = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, cleYaml: yaml },
-      dataPrep,
+      dataPrep as zkgapi.DataPrep,
       local,
     )
     const stateStr = zkgapi.utils.toHexString(stateu8a)
@@ -190,7 +190,7 @@ describe('test exec', () => {
      */
 
     dataPrep = dsp?.toProveDataPrep(dataPrep, stateStr)
-    const input = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep)
+    const input = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep as zkgapi.DataPrep)
 
     console.log(`(Prove) Private Input: ${input.getPrivateInputStr()}`)
     console.log(`(Prove) Public Input: ${input.getPublicInputStr()}`)

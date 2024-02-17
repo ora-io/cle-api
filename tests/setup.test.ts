@@ -16,10 +16,8 @@ describe('test exec', () => {
     const signer = new ethers.Wallet(config.UserPrivateKey, provider)
     const result = await zkgapi.setup(
       { wasmUint8Array },
-      { circuitSize: 22 },
-      signer,
-      // "https://zkwasm-explorer.delphinuslab.com:8090",
-      'https://rpc.zkwasmhub.com:8090')
+      { circuitSize: 22, proverUrl: 'https://rpc.zkwasmhub.com:8090', signer },
+    )
 
     console.log(result)
   })

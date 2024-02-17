@@ -7,7 +7,7 @@ import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
 import { providers } from 'ethers'
 import { fromHexString, loadConfigByNetwork, toHexString } from '../src/common/utils'
 import * as zkgapi from '../src/index'
-import { DefaultPath } from '../src/common/constants'
+import { DEFAULT_PATH } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
@@ -48,8 +48,8 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
 
     expect(result.error).toBeNull()
     expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
-    const wasmContent = result.outputs[DefaultPath.outWasm]
-    const watContent = result.outputs[DefaultPath.outWat]
+    const wasmContent = result.outputs[DEFAULT_PATH.OUT_WASM]
+    const watContent = result.outputs[DEFAULT_PATH.OUT_WAT]
     expect(wasmContent).toBeDefined()
     expect(watContent).toBeDefined()
 

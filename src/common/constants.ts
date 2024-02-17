@@ -66,7 +66,7 @@ export const AggregatorVerifierABI = {
   ],
 }
 
-export const graph_abi = [
+export const cle_abi = [
   {
     inputs: [
       {
@@ -420,14 +420,20 @@ export const AggregatorVerifierAddress = {
 
 export const AddressZero = '0x0000000000000000000000000000000000000000'
 
-export const DefaultPath = {
-  yaml: 'src/cle.yaml',
-  outWasm: 'build/cle.wasm',
-  outWat: 'build/cle.wat',
-  outInnerWasm: 'build/inner_pre_pre.wasm',
-  outInnerWat: 'build/inner_pre_pre.wat',
+export const DEFAULT_PATH = {
+  YAML: 'src/cle.yaml',
+  OUT_WASM: 'build/cle.wasm',
+  OUT_WAT: 'build/cle.wat',
+  OUT_INNER_WASM: 'build/inner_pre_pre.wasm',
+  OUT_INNER_WAT: 'build/inner_pre_pre.wat',
 }
 
-// export const DefaultEndpoint = {
-//   compilerServer:
-// }
+export const DEFAULT_URL = {
+  PROVER: 'https://rpc.zkwasmhub.com:8090',
+  COMPILER_SERVER: 'http://compiler.hyperoracle.io/compile',
+  PINATA: 'https://api.pinata.cloud/pinning/pinFileToIPFS',
+}
+
+export const DEFAULT_CIRCUIT_SIZE = 22
+export const MIN_CIRCUIT_SIZE = 18
+export const MAX_CIRCUIT_SIZE = 24

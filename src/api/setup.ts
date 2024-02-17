@@ -8,38 +8,41 @@ import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
 import type { CLEExecutable } from '../types/api'
 import { ora_setup } from '../requests'
 import { createFileStream } from '../common/compatible'
+import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
 
-export interface SetupOptions {
-  circuitSize?: number
-  enableLog?: boolean
+export interface SingableProver {
+  proverUrl?: string
+  signer: Signer
 }
+export interface BasicSetupParams {
+  circuitSize?: number
+  imageName?: string // only use in zkwasm, can diff from local files
+  descriptionUrl?: string
+  avatorUrl?: string
+}
+
+export type SetupOptions = SingableProver & BasicSetupParams & { enableLog?: boolean }
 /**
  * Set up zkwasm image with given wasm file.
  */
 export async function setup(
-  // cleExecutable: Omit<CLEExecutable, 'cleYaml'> & { image: any },
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
-  options: SetupOptions = {},
-  signer: Signer,
-  ProverProviderUrl: string,
+  options: SetupOptions,
 ) {
   const { wasmUint8Array } = cleExecutable
-  const { circuitSize = 22, enableLog = true } = options
+  const {
+    circuitSize = DEFAULT_CIRCUIT_SIZE, enableLog = true,
+    proverUrl = DEFAULT_URL.PROVER,
+  } = options
   const image = createFileStream(wasmUint8Array, { fileType: 'application/wasm', fileName: 'cle.wasm' })
 
-  let cirSz
-  if (circuitSize >= 18 && circuitSize <= 24)
-    cirSz = circuitSize
-  else
+  if (circuitSize < MIN_CIRCUIT_SIZE || circuitSize > MAX_CIRCUIT_SIZE)
     throw new CircuitSizeOutOfRange('Circuit size out of range. Please set it between 18 and 24.')
 
-  if (!wasmUint8Array)
-    throw new Error('wasmUint8Array is not defined')
+  // if (!wasmUint8Array)
+  //   throw new Error('wasmUint8Array is not defined')
 
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const description_url_encoded = ''
-  const avator_url = ''
-  const circuit_size = cirSz
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let taskDetails
@@ -48,14 +51,9 @@ export async function setup(
   let setupStatus
 
   await ora_setup(
-    ProverProviderUrl,
-    'poc.wasm', // only use in zkwasm, can diff from local files
     md5,
     image,
-    signer,
-    description_url_encoded,
-    avator_url,
-    circuit_size,
+    options,
   )
     .then(async (response) => {
       // console.log(response.data)
@@ -68,10 +66,10 @@ export async function setup(
       // return the last status if exists
       if (error instanceof ImageAlreadyExists) {
         // check if there's any "Reset" task before
-        let res = await zkwasm_imagetask(ProverProviderUrl, md5, 'Reset')
+        let res = await zkwasm_imagetask(proverUrl, md5, 'Reset')
         // if no "Reset", check "Setup"
         if (res.data.result.total === 0)
-          res = await zkwasm_imagetask(ProverProviderUrl, md5, 'Setup')
+          res = await zkwasm_imagetask(proverUrl, md5, 'Setup')
 
         taskDetails = res.data.result.data[0]
         taskId = res.data.result.data[0]._id.$oid
