@@ -195,4 +195,35 @@ export class CLEYaml {
   toString() {
     return yaml.dump(this)
   }
+
+  decidePublishNetwork(): string | undefined {
+    // 1. if there's ethereum destination use that destination network
+    const ddkinds = this.dataDestinations.map((dataDest: { kind: any }) => { return dataDest.kind })
+    const ddethidx = ddkinds.indexOf('ethereum')
+    if (ddethidx >= 0) {
+      return (this.dataDestinations[ddethidx] as EthereumDataDestination).network
+    }
+    else {
+    // 2. if no eth dd, use DS ethereum network
+      const dskinds = this.dataSources.map((dataSrc: { kind: any; unsafe?: boolean }) => {
+        return dataSrc.kind + (dataSrc.unsafe ? '.unsafe' : '')
+      })
+
+      const dsethidx = dskinds.indexOf('ethereum')
+      if (dsethidx >= 0) {
+        return (this.dataSources[dsethidx] as EthereumDataSource).network
+      }
+      else {
+        // 3. if still nonen then use DS ethereum.unsafe network
+        const dsethunsafeidx = dskinds.indexOf('ethereum.unsafe')
+        if (dsethunsafeidx >= 0) {
+          return (this.dataSources[dsethunsafeidx] as EthereumDataSource).network
+        }
+        else {
+          // 4. else, no network can be used.
+          return undefined
+        }
+      }
+    }
+  }
 }

@@ -1,13 +1,12 @@
-import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@ora-io/zkwasm-toolchain'
+import type { Input } from 'zkwasm-toolchain'
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-toolchain'
 import { CLERequireFailed } from '../common/error'
 import type { CLEExecutable } from '../types/api'
-import type { Input } from '../common'
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
  * @param {object} cleExecutable
- * @param {string} privateInputStr
- * @param {string} publicInputStr
+ * @param {Input} input
  * @returns {boolean} - the mock testing result
  */
 export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, input: Input) {

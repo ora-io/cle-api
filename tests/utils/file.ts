@@ -9,3 +9,9 @@ export function createFileFromUint8Array(array: string | NodeJS.ArrayBufferView,
   return fs.createReadStream(filePath)
 }
 
+export function createOnNonexist(filePath: string): void {
+  const directoryPath = path.dirname(filePath)
+
+  if (!fs.existsSync(directoryPath))
+    fs.mkdirSync(directoryPath, { recursive: true })
+}

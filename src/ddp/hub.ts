@@ -15,7 +15,7 @@ export class DDPHub {
 
   /**
    * @param {string} primaryKey yaml.dataSources[i].kind
-   * @param {object} foreignKeys {"isLocal": boolean}
+   * @param {object} foreignKeys e.g. {"key": value}
    * @returns Combined Key String: Better to be human readable
    */
   toHubKey(primaryKey: string, _foreignKeys: DDPHubForeignKeys) {

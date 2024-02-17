@@ -1,30 +1,27 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
-import type { Signer } from 'ethers'
+import type { Input } from 'zkwasm-toolchain'
 import { toHexStringBytes32Reverse } from '../common/utils'
 import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { CLEExecutable } from '../types/api'
-import type { Input } from '../common'
+import type { SingableProver } from './setup'
 
+// when remove enableLog: keep ProveOptions = SingableProver for future scalability
+export type ProveOptions = SingableProver & { enableLog: boolean }
 /**
  * Submit prove task to a given zkwasm and return the proof details.
  * @param {object} cleExecutable
- * @param {string} privateInputStr - the packed private input in hex string
- * @param {string} publicInputStr - the packed public input in hex string
- * @param {string} zkwasmProverUrl - the url of the zkwasm prover
- * @param {string} signer - the signer
- * @param {boolean} enableLog - enable logging or not
+ * @param {Input} input
+ * @param {string} options
  * @returns {object} - proof task details in json
  */
 export async function prove(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
   input: Input,
-  zkwasmProverUrl: string,
-  signer: Signer,
-  enableLog = true,
+  options: ProveOptions,
 ) {
   const result: {
     md5: Nullable<string>
@@ -36,6 +33,7 @@ export async function prove(
     errorMessage: null,
   }
   const { wasmUint8Array } = cleExecutable
+  const { enableLog } = options
 
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
 
@@ -43,10 +41,9 @@ export async function prove(
 
   // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
   const [response, isSetUpSuccess, errorMessage] = await ora_prove(
-    zkwasmProverUrl,
-    signer,
     md5,
     input,
+    options,
   ).catch((error) => {
     throw error
   })
@@ -75,7 +72,7 @@ export async function prove(
 }
 
 export async function waitProve(
-  zkwasmProverUrl: string,
+  proverUrl: string,
   taskId: string,
 ) {
   const result: {
@@ -99,7 +96,7 @@ export async function waitProve(
   }
 
   const taskDetails = await waitTaskStatus(
-    zkwasmProverUrl,
+    proverUrl,
     taskId,
     ['Done', 'Fail', 'DryRunFailed'],
     3000,

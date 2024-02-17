@@ -1,4 +1,4 @@
-import { Input } from '../../common'
+import { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
 import { MptInput } from './mpt_input'

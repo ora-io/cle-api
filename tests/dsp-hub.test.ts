@@ -12,7 +12,8 @@ describe('DSPHub', () => {
 
   it('should set and get DSPs correctly', () => {
     const primaryKey = 'ethereum'
-    const foreignKeys: DSPHubForeignKeys = { isLocal: false }
+    const foreignKeys: DSPHubForeignKeys = { }
+    // const foreignKeys: DSPHubForeignKeys = { isLocal: false }
     const dsp = new EthereumDataSourcePlugin()
 
     dspHub.setDSP(primaryKey, foreignKeys, dsp)
@@ -22,18 +23,20 @@ describe('DSPHub', () => {
 
   it('should throw an error when getting a non-existent DSP', () => {
     const primaryKey = 'ethereum'
-    const foreignKeys: DSPHubForeignKeys = { isLocal: false }
+    const foreignKeys: DSPHubForeignKeys = { }
+    // const foreignKeys: DSPHubForeignKeys = { isLocal: false }
 
     expect(() => {
       dspHub.getDSP(primaryKey, foreignKeys)
-    }).toThrowError(`Data Source Plugin Hub Key "${primaryKey}:full" doesn't exist.`)
+    }).toThrowError(`Data Source Plugin Hub Key "${primaryKey}" doesn't exist.`)
   })
 
   it('should get DSP by YAML correctly', () => {
     const cleYaml = {
       getSignificantKeys: vi.fn(() => [['ethereum']]),
     }
-    const foreignKeys: DSPHubForeignKeys = { isLocal: false }
+    const foreignKeys: DSPHubForeignKeys = { }
+    // const foreignKeys: DSPHubForeignKeys = { isLocal: false }
     const dsp = new EthereumDataSourcePlugin()
 
     dspHub.setDSP('ethereum', foreignKeys, dsp)

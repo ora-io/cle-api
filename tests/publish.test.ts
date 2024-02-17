@@ -3,7 +3,7 @@ import { Contract, ethers } from 'ethers'
 import { expect, it } from 'vitest'
 import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
-import { abiFactory, addressFactory, graph_abi } from '../src/common/constants'
+import { abiFactory, addressFactory, cle_abi } from '../src/common/constants'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 
@@ -11,25 +11,33 @@ import { loadYamlFromPath } from './utils/yaml'
 
 it('test publish', async () => {
   const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
-  const rpcUrl = config.JsonRpcProviderUrl.sepolia
+  const cleYaml = loadYamlFromPath('tests/testsrc/cle-dirty.yaml') as zkgapi.CLEYaml
+  const network = cleYaml.decidePublishNetwork()
+  console.log('network', network)
+  expect(network).toBeDefined()
+  if (network === undefined)
+    throw new Error('network is undefined')
+
+  const rpcUrl = (config.JsonRpcProviderUrl as any)[network]
+
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
-  const cleYaml = loadYamlFromPath('tests/testsrc/cle-dirty.yaml') as zkgapi.CLEYaml
   const ipfsHash = Math.floor(Math.random() * (100000 - 0 + 1)).toString()
   const newBountyRewardPerTrigger = 0.01
   const wasm = fs.readFileSync('tests/build/cle_full.wasm')
   const wasmUint8Array = new Uint8Array(wasm)
   try {
+  // proverUrl?: string,
+    // ipfsHash: string,
+    // bountyRewardPerTrigger: number,
     const publishTxHash = await zkgapi.publish(
       { wasmUint8Array, cleYaml },
-      ZkwasmProviderUrl,
-      ipfsHash,
-      newBountyRewardPerTrigger,
       signer,
+      { proverUrl: ZkwasmProviderUrl, ipfsHash, bountyRewardPerTrigger: newBountyRewardPerTrigger },
     )
-    // eslint-disable-next-line no-console
-    console.log(publishTxHash)
+
+    console.log('publishTxHash:', publishTxHash)
     // slice the last 40 digits of result.logs[2].data to a ethereum address
     // const address = "0x" + publishTxHash.logs[2].data.slice(-40);
 
@@ -38,7 +46,7 @@ it('test publish', async () => {
     const factoryContract = new Contract(addressFactory.sepolia, abiFactory, signer)
     const deployedAddress = await factoryContract.getGraphBycreator(signer.address)
 
-    const graphContract = new Contract(deployedAddress[deployedAddress.length - 1], graph_abi, provider).connect(signer)
+    const graphContract = new Contract(deployedAddress[deployedAddress.length - 1], cle_abi, provider).connect(signer)
 
     const reward = await graphContract.bountyReward()
     // expect reward is equal to newBountyRewardPerTrigger

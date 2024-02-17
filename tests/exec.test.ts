@@ -42,7 +42,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -69,7 +69,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -96,7 +96,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
     if (!dsp)
       throw new DSPNotFound('DSP not found')
 
@@ -118,7 +118,7 @@ describe('test exec', () => {
 
     const state = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, cleYaml: yaml },
-      dataPrep,
+      dataPrep as zkgapi.DataPrep,
       local,
     )
 
@@ -139,7 +139,7 @@ describe('test exec', () => {
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
     const cleExecutable = { wasmUint8Array, cleYaml: yaml }
     // get dsp
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
     if (!dsp)
       throw new DSPNotFound('DSP not found')
     // get pre-defined test params
@@ -164,7 +164,7 @@ describe('test exec', () => {
 
     const stateu8a = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, cleYaml: yaml },
-      dataPrep,
+      dataPrep as zkgapi.DataPrep,
       local,
     )
     const stateStr = zkgapi.utils.toHexString(stateu8a)
@@ -190,7 +190,7 @@ describe('test exec', () => {
      */
 
     dataPrep = dsp?.toProveDataPrep(dataPrep, stateStr)
-    const input = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep)
+    const input = zkgapi.proveInputGenOnDataPrep(cleExecutable, dataPrep as zkgapi.DataPrep)
 
     console.log(`(Prove) Private Input: ${input.getPrivateInputStr()}`)
     console.log(`(Prove) Public Input: ${input.getPublicInputStr()}`)

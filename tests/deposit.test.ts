@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { it } from 'vitest'
 import { ethers } from 'ethers'
 import * as zkgapi from '../src/index'
@@ -13,7 +12,7 @@ it('test deposit', async () => {
   const depositAmount = '0.001'
   const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
-  const result = await zkgapi.deposit(signer, deployedContractAddress, depositAmount)
+  const result = await zkgapi.deposit(deployedContractAddress, signer, { depositAmount })
 
   console.log(result)
 }, { timeout: 100000 })

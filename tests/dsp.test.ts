@@ -1,4 +1,3 @@
-import path from 'path'
 import fs from 'fs'
 import FormData from 'form-data'
 import { describe, expect, it } from 'vitest'
@@ -7,21 +6,16 @@ import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
 import { providers } from 'ethers'
 import { fromHexString, loadConfigByNetwork, toHexString } from '../src/common/utils'
 import * as zkgapi from '../src/index'
-import { DefaultPath } from '../src/common/constants'
+import { DEFAULT_PATH } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
+import { createOnNonexist } from './utils/file'
 
 (global as any).__BROWSER__ = false
 
 function readFile(filepath: string) {
   return fs.readFileSync(filepath, 'utf-8')
-}
-function createOnNonexist(filePath: string): void {
-  const directoryPath = path.dirname(filePath)
-
-  if (!fs.existsSync(directoryPath))
-    fs.mkdirSync(directoryPath, { recursive: true })
 }
 
 // const pathfromfixtures = 'dsp/ethereum(storage)'
@@ -48,8 +42,8 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
 
     expect(result.error).toBeNull()
     expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
-    const wasmContent = result.outputs[DefaultPath.outWasm]
-    const watContent = result.outputs[DefaultPath.outWat]
+    const wasmContent = result.outputs[DEFAULT_PATH.OUT_WASM]
+    const watContent = result.outputs[DEFAULT_PATH.OUT_WAT]
     expect(wasmContent).toBeDefined()
     expect(watContent).toBeDefined()
 
@@ -95,7 +89,8 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { })
+    // const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)

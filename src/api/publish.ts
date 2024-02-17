@@ -2,6 +2,7 @@ import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { Contract, ethers, utils } from 'ethers'
 import {
   AddressZero,
+  DEFAULT_URL,
   abiFactory,
   addressFactory,
 } from '../common/constants'
@@ -13,47 +14,50 @@ import type { CLEExecutable } from '../types/api'
 import type { CLEYaml } from '../types/zkgyaml'
 
 /**
+ * @param {string} proverUrl - the prover url
+ * @param {string} ipfsHash - the ipfs hash from the 'upload' step
+ * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
+ */
+export interface PublishOptions {
+  proverUrl?: string
+  ipfsHash: string
+  bountyRewardPerTrigger: number
+}
+
+/**
  * Publish and register CLE onchain.
  * @param {object} cleExecutable {wasmUint8Array, cleYaml}
- * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
- * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {string} ipfsHash - the ipfs hash of the CLE
- * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
- * @param {object} signer - the acct for sign tx
- * @param {boolean} enableLog - enable logging or not
- * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
+ * @param {ethers.Signer} signer - the acct for sign tx
+ * @param options
+ * @returns
  */
 export async function publish(
   cleExecutable: CLEExecutable,
-  zkwasmProviderUrl: string,
-  ipfsHash: string,
-  bountyRewardPerTrigger: number,
   signer: ethers.Signer,
+  options: PublishOptions,
 ) {
-  const imgCmt = await getImageCommitment(cleExecutable, zkwasmProviderUrl)
-  return publishByImgCmt(cleExecutable, imgCmt, ipfsHash, bountyRewardPerTrigger, signer)
+  const { proverUrl = DEFAULT_URL.PROVER } = options
+  const imgCmt = await getImageCommitment(cleExecutable, proverUrl)
+  return publishByImgCmt(cleExecutable, signer, options, imgCmt)
 }
 
 /**
  * Publish and register CLE onchain, with code hash provided.
  * @param {object} cleExecutable {cleYaml}
- * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {string} ipfsHash - the ipfs hash of the CLE
- * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
  * @param {object} signer - the acct for sign tx
- * @param {boolean} enableLog - enable logging or not
- * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
+ * @param options
+ * @param imageCommitment
  */
 export async function publishByImgCmt(
   cleExecutable: CLEExecutable,
-  imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
-  ipfsHash: string,
-  bountyRewardPerTrigger: number,
   signer: ethers.Signer,
+  options: PublishOptions,
+  imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
 ) {
+  const { ipfsHash, bountyRewardPerTrigger } = options
   const { cleYaml } = cleExecutable
 
-  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false })
+  const dsp = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
@@ -114,18 +118,17 @@ function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
 /**
  *
  * @param {object} cleExecutable {wasmUint8Array}
- * @param cleExecutable
- * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
+ * @param {string} proverUrl - the prover rpc url
  * @returns
  */
 export async function getImageCommitment(
   cleExecutable: CLEExecutable,
-  zkwasmProviderUrl: string,
+  proverUrl: string,
 ) {
   const { wasmUint8Array } = cleExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
-  const result = deatails[0]?.data.result[0]
+  const details = await zkwasm_imagedetails(proverUrl, md5)
+  const result = details[0]?.data.result[0]
   if (result === null)
     throw new Error('Can\'t find zkWasm image details, please finish setup before publish.')
 

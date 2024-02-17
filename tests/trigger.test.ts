@@ -25,12 +25,12 @@ describe('test trigger', () => {
     const rpcUrl = config.JsonRpcProviderUrl.sepolia
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const signer = new ethers.Wallet(userPrivateKey, provider)
-    const ddpParamsList = { signer, gasLimit: 3000000 }
+    const ddpParams = { signer, gasLimit: 3000000 }
     await zkgapi.trigger(
       { cleYaml: yaml },
       CLEID,
       proofParams,
-      ddpParamsList, // 1 ddpParams per ddp
+      [ddpParams], // 1 ddpParams per ddp
       true,
     )
   }, 100000)

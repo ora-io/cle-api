@@ -32,7 +32,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
     const generalParams = {
@@ -61,7 +61,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const wasmUint8Array = new Uint8Array(wasm)
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
 
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -88,9 +88,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const result = await zkgapi.prove(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
-      zkwasmUrl,
-      signer,
-      true)
+      { proverUrl: zkwasmUrl, signer, enableLog: true })
 
     console.log(result)
   })

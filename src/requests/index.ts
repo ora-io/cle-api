@@ -5,3 +5,4 @@ export { zkwasm_deploy } from './zkwasm_deploy'
 export { zkwasm_imagedetails } from './zkwasm_imagedetails'
 
 export { ora_prove } from './ora_prove'
+export { ora_setup } from './ora_setup'

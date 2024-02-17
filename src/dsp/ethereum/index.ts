@@ -1,6 +1,6 @@
 import type { KeyofToArray } from '@murongg/utils/index'
 import type { providers } from 'ethers'
-import type { Input } from '../../common/input'
+import { Input } from 'zkwasm-toolchain'
 import { trimPrefix } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
 import type { DataPrep } from '../interface'
@@ -61,7 +61,7 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
     this.fillExecInput(input, cleYaml, dataPrep, true)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
-    input.addVarLenHexString(expectedStateStr, true)
+    input.addVarLenHexString(expectedStateStr, Input.PublicId)
     return input
   }
 

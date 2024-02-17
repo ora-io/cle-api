@@ -1,59 +1,79 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
-import Web3EthContract from 'web3-eth-contract'
-import type { NullableObject } from '@murongg/utils'
+import type { providers } from 'ethers'
+import { Contract } from 'ethers'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
+import { AggregatorVerifierABI } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
-import { loadConfigByNetwork } from '../common/utils'
-import type { CLEYaml } from '../types/zkgyaml'
-import type { CLEExecutable, ProofParams as VerifyProofParams } from '../types/api'
+import type { ProofParams as VerifyProofParams } from '../types/api'
 // import { VerifyProofParams } from '@ora-io/zkwasm-service-helper'
 
+export interface OnchainVerifier {
+  provider: providers.JsonRpcProvider
+  verifierAddress: string
+}
+
+export type VerifyOptions = OnchainVerifier
+
 export async function verify(
-  cleExecutable: NullableObject<CLEExecutable>,
-  proofParams: VerifyProofParams,
-  jsonRpcProviderUrl: string,
+  verifyParams: VerifyProofParams,
+  options: VerifyOptions,
+  // jsonRpcProviderUrl: string,
 ) {
-  const { cleYaml } = cleExecutable
-  const verifierContractAddress = loadConfigByNetwork(cleYaml as CLEYaml, AggregatorVerifierAddress, false)
-  return await verifyProof(verifierContractAddress, proofParams, jsonRpcProviderUrl)
+  return await verifyOnchain(verifyParams, options)
 }
 
 /**
  * Verify zk proof with eth call.
- * @param proofParams
- * @param verifierContractAddress
- * @param jsonRpcProviderUrl
+ * @param verifyParams
+ * @param options
  * @returns
  */
-export async function verifyProof(
-  verifierContractAddress: string,
-  proofParams: VerifyProofParams,
-  jsonRpcProviderUrl: string,
+export async function verifyOnchain(
+  verifyParams: VerifyProofParams,
+  options: OnchainVerifier,
+  // jsonRpcProviderUrl: string,
 ) {
-  const proof = ZkWasmUtil.bytesToBigIntArray(proofParams.aggregate_proof)
-  const instances = ZkWasmUtil.bytesToBigIntArray(proofParams.batch_instances)
-  const aux = ZkWasmUtil.bytesToBigIntArray(proofParams.aux)
-  const arg = ZkWasmUtil.bytesToBigIntArray(proofParams.instances)
+  const proof = ZkWasmUtil.bytesToBigIntArray(verifyParams.aggregate_proof)
+  const instances = ZkWasmUtil.bytesToBigIntArray(verifyParams.batch_instances)
+  const aux = ZkWasmUtil.bytesToBigIntArray(verifyParams.aux)
+  const arg = ZkWasmUtil.bytesToBigIntArray(verifyParams.instances)
 
-  Web3EthContract.setProvider(jsonRpcProviderUrl)
+  const { verifierAddress, provider } = options
+  // Web3EthContract.setProvider(jsonRpcProviderUrl)
 
-  const contract = new Web3EthContract(AggregatorVerifierABI.abi as any, verifierContractAddress)
+  // const contract = new Web3EthContract(AggregatorVerifierABI.abi as any, verifierContractAddress)
+  const contract = new Contract(verifierAddress, AggregatorVerifierABI.abi as any, provider)
 
   let verificationResult = true
   // verify success if no err throw
-  await contract.methods
+  await contract
     .verify(proof, instances, aux, [arg])
-    .call()
     .catch((err: any) => {
-      if (err.message.startsWith('Returned error: execution reverted'))
+      if (err.message.startsWith('call revert exception;'))
         verificationResult = false
-
       else
         throw err
     })
+
+  //   console.log('tx', tx)
+  // await tx.wait(1).catch((err: any) => {
+  //   throw err
+  // })
+
+  // let verificationResult = true
+  // // verify success if no err throw
+  // await contract.methods
+  //   .verify(proof, instances, aux, [arg])
+  //   .call()
+  //   .catch((err: any) => {
+  //     if (err.message.startsWith('Returned error: execution reverted'))
+  //       verificationResult = false
+
+  //     else
+  //       throw err
+  //   })
 
   return verificationResult
 }
