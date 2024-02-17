@@ -42,7 +42,7 @@ export class DSPHub {
     this.hub.set(this.toHubKey(primaryKey, foreignKeys), dsp)
   }
 
-  getDSP(primaryKey: string, foreignKeys: DSPHubForeignKeys): InstanceType<typeof DataSourcePlugin> | undefined {
+  getDSP(primaryKey: string, foreignKeys: DSPHubForeignKeys = {}): InstanceType<typeof DataSourcePlugin> | undefined {
     const key = this.toHubKey(primaryKey, foreignKeys)
     if (!this.hub.has(key))
       throw new Error(`Data Source Plugin Hub Key "${key}" doesn't exist.`)
@@ -50,7 +50,7 @@ export class DSPHub {
     return this.hub.get(key)
   }
 
-  getDSPByYaml(cleYaml: CLEYaml, foreignKeys: DSPHubForeignKeys) {
+  getDSPByYaml(cleYaml: CLEYaml, foreignKeys: DSPHubForeignKeys = {}) {
     const sigKeys = cleYaml.getSignificantKeys(true)
     const primaryKey = this.toPrimaryKey(sigKeys) as any
     return this.getDSP(primaryKey, foreignKeys)
