@@ -1,8 +1,7 @@
-import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@ora-io/zkwasm-toolchain'
+import { Input, Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-toolchain'
 // import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
 
 import { DSPNotFound } from '../common/error'
-import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
 import type { CLEExecutable } from '../types/api'

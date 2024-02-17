@@ -3,7 +3,7 @@
 // - prep structure
 
 import type { KeyofToArray } from '@murongg/utils'
-import type { Input } from '../common/input'
+import type { Input } from 'zkwasm-toolchain'
 import { paramsNormalize } from '../common/utils'
 import type { CLEYaml } from '../types/zkgyaml'
 

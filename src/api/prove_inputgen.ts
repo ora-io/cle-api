@@ -1,5 +1,5 @@
+import { Input } from 'zkwasm-toolchain'
 import { DSPNotFound } from '../common/error'
-import { Input } from '../common/input'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
 import type { CLEExecutable } from '../types/api'

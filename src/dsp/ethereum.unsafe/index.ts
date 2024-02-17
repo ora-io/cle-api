@@ -1,4 +1,4 @@
-import type { Input } from '../../common/input'
+import type { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types/zkgyaml'
 import { ExtendableEthereumDataSourcePlugin } from '../ethereum'
 import { fillInputBlocks, setFillInputEventsFunc } from '../ethereum/fill_blocks'

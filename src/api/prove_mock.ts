@@ -1,7 +1,7 @@
-import { Simulator, instantiateWasm, setupZKWasmSimulator } from '@ora-io/zkwasm-toolchain'
+import type { Input } from 'zkwasm-toolchain'
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-toolchain'
 import { CLERequireFailed } from '../common/error'
 import type { CLEExecutable } from '../types/api'
-import type { Input } from '../common'
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.

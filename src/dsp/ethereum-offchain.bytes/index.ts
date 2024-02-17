@@ -1,12 +1,12 @@
 import type { KeyofToArray } from '@murongg/utils/index'
 import type { providers } from 'ethers'
+import type { Input } from 'zkwasm-toolchain'
 import { DataPrep, DataSourcePlugin } from '../interface'
 
 // reuse ethereum dsp for blocks
 import { fillInputBlocks } from '../ethereum/fill_blocks'
 import { prepareBlocksByYaml } from '../ethereum/prepare_blocks'
 
-import type { Input } from '../../common/input'
 import { trimPrefix } from '../../common/utils'
 import type { CLEYaml } from '../../types/zkgyaml'
 import type { BlockPrep } from '../ethereum/blockprep'

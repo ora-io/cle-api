@@ -1,12 +1,12 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
+import type { Input } from 'zkwasm-toolchain'
 import { toHexStringBytes32Reverse } from '../common/utils'
 import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import type { CLEExecutable } from '../types/api'
-import type { Input } from '../common'
 import type { SingableProver } from './setup'
 
 // when remove enableLog: keep ProveOptions = SingableProver for future scalability

@@ -1,4 +1,3 @@
-export { Input } from './input'
 export { getRawReceipts, getBlockByNumber } from './ethers_helper'
 export * as Error from './error'
 export * as constants from './constants'

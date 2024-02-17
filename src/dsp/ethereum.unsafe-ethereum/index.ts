@@ -1,4 +1,4 @@
-import type { Input } from '../../common/input'
+import type { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types/zkgyaml'
 import { fillInputBlocksWithoutLatestBlockhash, fillInputEvents, setFillInputEventsFunc } from '../ethereum/fill_blocks'
 import { unsafePrepareData } from '../ethereum.unsafe'
@@ -38,7 +38,7 @@ export class UnsafeSafeETHDSP extends ExtendableEthereumDataSourcePlugin<UnsafeS
     // add aux params, only for safe mode
     input.auxParams = genAuxParams(cleYaml, dataPrep.safeEthDP)
 
-    input.addInt(dataPrep.contextBlocknumber, true)
+    input.addInt(dataPrep.contextBlocknumber, 1)
     return input
   }
 }
