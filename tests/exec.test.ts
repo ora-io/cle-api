@@ -42,7 +42,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -69,7 +69,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -96,7 +96,7 @@ describe('test exec', () => {
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
     if (!dsp)
       throw new DSPNotFound('DSP not found')
 
@@ -139,7 +139,7 @@ describe('test exec', () => {
     const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
     const cleExecutable = { wasmUint8Array, cleYaml: yaml }
     // get dsp
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
     if (!dsp)
       throw new DSPNotFound('DSP not found')
     // get pre-defined test params

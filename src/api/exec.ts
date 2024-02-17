@@ -10,37 +10,35 @@ import type { CLEExecutable } from '../types/api'
  * Execute the given cleExecutable in the context of execParams
  * @param {object} cleExecutable {'cleYaml': cleYaml}
  * @param {object} execParams
- * @param {boolean} isLocal
  * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, isLocal = false, enableLog = false): Promise<Uint8Array> {
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, enableLog = false): Promise<Uint8Array> {
   const { cleYaml } = cleExecutable
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams) as DataPrep
 
-  return await executeOnDataPrep(cleExecutable, dataPrep, isLocal, enableLog)
+  return await executeOnDataPrep(cleExecutable, dataPrep, enableLog)
 }
 
 /**
  *
  * @param {object} cleExecutable
  * @param {DataPrep} dataPrep
- * @param {boolean} isLocal
  * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, isLocal = false, enableLog = false): Promise<Uint8Array> {
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, enableLog = false): Promise<Uint8Array> {
   const { cleYaml } = cleExecutable
 
   let input = new Input()
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 

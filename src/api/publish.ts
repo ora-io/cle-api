@@ -57,7 +57,7 @@ export async function publishByImgCmt(
   const { ipfsHash, bountyRewardPerTrigger } = options
   const { cleYaml } = cleExecutable
 
-  const dsp = dspHub.getDSPByYaml(cleYaml, { isLocal: false })
+  const dsp = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
