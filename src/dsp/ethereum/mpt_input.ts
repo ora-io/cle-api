@@ -49,7 +49,7 @@ function padHexStringToU64LengthLittleEndian(rawHex: string) {
 }
 
 function hexToLittleEndian(hexString: string) {
-  const result = hexString.match(/../g).reverse().join('')
+  const result = hexString.match(/../g)?.reverse().join('')
   return result
 }
 
@@ -146,4 +146,4 @@ export class MptInput {
   }
 }
 
-module.exports = MptInput
+export default MptInput
