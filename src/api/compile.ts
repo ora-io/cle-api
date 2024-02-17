@@ -97,11 +97,11 @@ export function onlyAscCompile(yaml: CLEYaml) {
 
 export interface CompileOptions {
   yamlPath?: string
-  isLocal?: boolean
   outWatPath?: string
   outWasmPath?: string
   outInnerWasmPath?: string
   compilerServerEndpoint?: string
+  isLocal?: boolean
 }
 
 export async function compile(

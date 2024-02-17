@@ -26,7 +26,7 @@ describe('DSPHub', () => {
 
     expect(() => {
       dspHub.getDSP(primaryKey, foreignKeys)
-    }).toThrowError(`Data Source Plugin Hub Key "${primaryKey}:full" doesn't exist.`)
+    }).toThrowError(`Data Source Plugin Hub Key "${primaryKey}" doesn't exist.`)
   })
 
   it('should get DSP by YAML correctly', () => {

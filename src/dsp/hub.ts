@@ -6,7 +6,7 @@ import type { DataSourcePlugin } from './interface'
 import { UnsafeSafeETHDSP } from './ethereum.unsafe-ethereum'
 
 export interface DSPHubForeignKeys {
-  isLocal?: boolean
+  // isLocal?: boolean
 }
 
 export class DSPHub {
@@ -21,13 +21,14 @@ export class DSPHub {
    * @param {object} foreignKeys {"isLocal": boolean}
    * @returns Combined Key String: Better to be human readable
    */
-  toHubKey(primaryKey: string, foreignKeys: DSPHubForeignKeys) {
-    const { isLocal } = foreignKeys
-    const keyFullLocal = (!isLocal || isLocal == null) ? 'full' : 'local'
-    return `${primaryKey}:${keyFullLocal}`
+  toHubKey(primaryKey: string, _foreignKeys: DSPHubForeignKeys) {
+    // const { isLocal } = foreignKeys
+    // const keyFullLocal = (!isLocal || isLocal == null) ? 'full' : 'local'
+    // return `${primaryKey}:${keyFullLocal}`
+    return primaryKey
   }
 
-  toHubKeyByYaml(cleYaml: CLEYaml, foreignKeys: DSPHubForeignKeys) {
+  toHubKeyByYaml(cleYaml: CLEYaml, foreignKeys: DSPHubForeignKeys = {}) {
     const sigKeys = cleYaml.getSignificantKeys(true)
     const primaryKey = this.toPrimaryKey(sigKeys)
     return this.toHubKey(primaryKey, foreignKeys)
@@ -56,17 +57,18 @@ export class DSPHub {
   }
 
   initialize(): void {
+    const emptyForeignKey = { }
     /**
      * Register DSPs
      */
-    this.setDSP('ethereum', { isLocal: false }, new EthereumDataSourcePlugin())
-    this.setDSP('ethereum-offchain.bytes', { isLocal: false }, new EthereumOffchainDSP())
+    this.setDSP('ethereum', emptyForeignKey, new EthereumDataSourcePlugin())
+    this.setDSP('ethereum-offchain.bytes', emptyForeignKey, new EthereumOffchainDSP())
 
     // compatible purpose, deprecating
     // dspHub.setDSP('ethereum', { isLocal: true }, new EthereumLocalDataSourcePlugin())
 
-    this.setDSP('ethereum.unsafe', { isLocal: false }, new EthereumUnsafeDataSourcePlugin())
-    this.setDSP('ethereum.unsafe-ethereum', { isLocal: false }, new UnsafeSafeETHDSP())
+    this.setDSP('ethereum.unsafe', emptyForeignKey, new EthereumUnsafeDataSourcePlugin())
+    this.setDSP('ethereum.unsafe-ethereum', emptyForeignKey, new UnsafeSafeETHDSP())
   }
 }
 
