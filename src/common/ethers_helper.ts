@@ -4,6 +4,7 @@ import { RLP } from '@ethereumjs/rlp'
 
 import { isMaybeNumber, retry, toNumber } from '@murongg/utils'
 import { BlockNotFound, OldBlockNumber } from './error'
+import { logger } from './logger'
 
 async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -73,7 +74,7 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider: providers.JsonRpcPr
     return await getRawLogsFromBlockReceipts(ethersProvider, blockid, ignoreFailedTx)
   }
   catch {
-    console.warn('The RPC does not support erigon rpc, fetching data may be slow')
+    logger.warn('The RPC does not support erigon rpc, fetching data may be slow')
     return await getRawLogsFromTxsReceipt(ethersProvider, blockid, ignoreFailedTx)
   }
 }

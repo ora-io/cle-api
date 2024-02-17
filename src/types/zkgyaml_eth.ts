@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
+import { logger } from '../common'
 import type { DataDestinationKind, DataSourceKind } from './zkgyaml_def'
 import { DataDestination, DataSource } from './zkgyaml_def'
 
@@ -180,7 +181,7 @@ export class EthereumDataSource extends DataSource {
     }
 
     if (ds.transaction)
-      console.warn('Ethereum transaction section is still EXPERIMENTAL, use at your own risks.')
+      logger.warn('Ethereum transaction section is still EXPERIMENTAL, use at your own risks.')
   }
 }
 
