@@ -1,5 +1,7 @@
 import { utils } from 'ethers'
 import type { BlockPrep } from './blockprep'
+import { safeHex } from '../../common/utils'
+
 
 function i32ToLittleEndianHexStr(value: number) {
   const buffer = Buffer.alloc(8)
@@ -24,18 +26,18 @@ function formatProofPath(rawProofPath: string) {
   return newHexString
 }
 
-function safeHex(rawHex: string) {
-  let hex = ''
-  if (rawHex.startsWith('0x'))
-    hex = rawHex.slice(2)
-  else
-    hex = rawHex
+// function safeHex(rawHex: string) {
+//   let hex = ''
+//   if (rawHex.startsWith('0x'))
+//     hex = rawHex.slice(2)
+//   else
+//     hex = rawHex
 
-  if (hex.length % 2 === 0)
-    return hex
-  else
-    return `0${hex}`
-}
+//   if (hex.length % 2 === 0)
+//     return hex
+//   else
+//     return `0${hex}`
+// }
 
 function padHexStringToU64LengthLittleEndian(rawHex: string) {
   const length = rawHex.length
@@ -49,8 +51,11 @@ function padHexStringToU64LengthLittleEndian(rawHex: string) {
 }
 
 function hexToLittleEndian(hexString: string) {
-  const result = hexString.match(/../g)?.reverse().join('')
-  return result
+  let result = hexString.match(/../g)
+  if (result) {
+      return result.reverse().join('')
+  }
+  return ''
 }
 
 export class MptInput {
