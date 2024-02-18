@@ -59,4 +59,8 @@ export class Input {
     for (let i = 0; i < input.length; i++)
       this.inputStr[+inputChanId] += this.formatVarLenInput(input[i])
   }
+
+  addFormattedHexString(input: string, inputChanId = 0) {
+    this.inputStr[+inputChanId] += input
+  }
 }
