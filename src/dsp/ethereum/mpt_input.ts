@@ -26,19 +26,6 @@ function formatProofPath(rawProofPath: string) {
   return newHexString
 }
 
-// function safeHex(rawHex: string) {
-//   let hex = ''
-//   if (rawHex.startsWith('0x'))
-//     hex = rawHex.slice(2)
-//   else
-//     hex = rawHex
-
-//   if (hex.length % 2 === 0)
-//     return hex
-//   else
-//     return `0${hex}`
-// }
-
 function padHexStringToU64LengthLittleEndian(rawHex: string) {
   const length = rawHex.length
   const remainder = length % 16
@@ -143,7 +130,7 @@ export class MptInput {
   }
 
   getCtx() {
-    return this.ctx
+    return `${this.ctx}:bytes-packed`
   }
 
   getPriIpt() {
