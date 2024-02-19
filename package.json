@@ -66,6 +66,7 @@
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
     "@murongg/utils": "^0.1.20",
+    "@ora-io/cle-api": "^1.0.3-alpha.5",
     "@ora-io/zkwasm-service-helper": "^1.0.2",
     "assemblyscript": "^0.27.22",
     "axios": "^1.6.2",
