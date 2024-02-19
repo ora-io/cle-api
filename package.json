@@ -5,13 +5,13 @@
   "description": "API for interacting with Hyper Oracle CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
-  "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
+  "homepage": "https://github.com/ora-io/cle-api#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hyperoracle/zkgraph-api.git"
+    "url": "git+https://github.com/ora-io/cle-api.git"
   },
   "bugs": {
-    "url": "https://github.com/hyperoracle/zkgraph-api/issues"
+    "url": "https://github.com/ora-io/cle-api/issues"
   },
   "keywords": [
     "cle",
