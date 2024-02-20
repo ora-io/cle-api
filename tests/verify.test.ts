@@ -13,7 +13,7 @@ const yamlPath = 'tests/testsrc/cle-event.yaml'
 // let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
 const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
 // let proveTaskId = "6554584c82ab2c8b29dbc2c2" // true
-const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
+const proveTaskId = '65d1c1edc3e455a0eebd7bb6' // fasle
 
 describe('test verify', () => {
   const cleYaml = loadYamlFromPath(yamlPath)
@@ -37,7 +37,7 @@ describe('test verify', () => {
   // 2nd way to verify proof.
   it('test verify proof params', async () => {
     const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
-    const sepolia_verifier = '0x714C66711F6552D4F388Ec79D4A33FE20173cC34'
+    const sepolia_verifier = '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0'
     expect(await zkgapi.verifyProof(
       proofParams,
       { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
