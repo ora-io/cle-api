@@ -16,16 +16,16 @@ export function logReceiptAndEvents(
   filteredEventList: any,
 ) {
   logger.log(
-    '[*]',
+    '[*] ',
     rawreceiptList.length,
     rawreceiptList.length > 1
       ? 'receipts fetched'
       : 'receipt fetched',
   )
   logger.log(
-    '[*]',
+    '[*] ',
     matchedEventOffsets.length / 7,
-    matchedEventOffsets.length / 7 > 1 ? 'events matched' : 'event matched',
+    matchedEventOffsets.length / 7 > 1 ? ' events matched' : ' event matched',
   )
   for (const i in filteredEventList) {
     for (const j in filteredEventList[i]) {
