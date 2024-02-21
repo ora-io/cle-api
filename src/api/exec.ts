@@ -5,6 +5,7 @@ import { DSPNotFound } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
 import type { CLEExecutable } from '../types/api'
+export { hasDebugOnlyFunc } from 'zkwasm-toolchain'
 
 /**
  * Execute the given cleExecutable in the context of execParams
@@ -63,6 +64,7 @@ export async function executeOnInputs(cleExecutable: CLEExecutable, input: Input
   const mock = new Simulator(100000000, 2000)
   mock.set_private_input(input.getPrivateInputStr())
   mock.set_public_input(input.getPublicInputStr())
+  mock.set_context_input(input.getContextInputStr())
   setupZKWasmSimulator(mock)
 
   const { asmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
