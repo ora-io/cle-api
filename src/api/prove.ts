@@ -27,11 +27,9 @@ export async function prove(
   const result: {
     md5: Nullable<string>
     taskId: Nullable<string>
-    errorMessage: Nullable<string>
   } = {
     md5: null,
     taskId: null,
-    errorMessage: null,
   }
   const { wasmUint8Array } = cleExecutable
   const { enableLog } = options
@@ -40,14 +38,18 @@ export async function prove(
 
   result.md5 = md5
 
-  // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
-  const [response, isSetUpSuccess, errorMessage] = await ora_prove(
+  await ora_prove(
     md5,
     input,
     options,
-  ).catch((error) => {
-    throw error
+  ).then(async (response) => {
+    result.taskId = response.data.result.id
+    logger.log(`[+] PROVING TASK STARTED. TASK ID: ${result.taskId}`, '\n')
   })
+    .catch((error) => {
+    // TODO: other error types need to be handle here? e.g. NoSetup
+      throw error
+    })
 
   // const privateInputArray = input.getPrivateInputStr().trim().split(' ')
   // const publicInputArray = input.getPublicInputStr().trim().split(' ')
@@ -63,12 +65,6 @@ export async function prove(
 
   if (enableLog)
     logger?.log(`[*] IMAGE MD5: ${md5}`, '\n')
-
-  if (isSetUpSuccess) {
-    const taskId = response.data.result.id
-    result.taskId = taskId
-    result.errorMessage = errorMessage
-  }
   return result
 }
 

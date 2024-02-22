@@ -23,8 +23,8 @@ const defaultPath = (pathFromFixtures: string) => {
   }
 }
 const latestblocknum = {
-  sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
-  mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
+  sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia) - 1, // -1: allow a cache time on rpc side
+  mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet) - 1,
 }
 // for event case
 const eventblocknum = {
