@@ -54,7 +54,7 @@ export async function publishByImgCmt(
   options: PublishOptions,
   imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
 ) {
-  const { ipfsHash, bountyRewardPerTrigger } = options
+  const { ipfsHash, bountyRewardPerTrigger = 0.05 } = options
   const { cleYaml } = cleExecutable
 
   const dsp = dspHub.getDSPByYaml(cleYaml)
