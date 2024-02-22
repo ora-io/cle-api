@@ -1,5 +1,6 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Signer } from 'ethers'
+import type { Nullable } from '@murongg/utils/index'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
@@ -30,6 +31,14 @@ export async function setup(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
   options: SetupOptions,
 ) {
+  const result: {
+    md5: Nullable<string>
+    taskId: Nullable<string>
+  } = {
+    md5: null,
+    taskId: null,
+  }
+
   const { wasmUint8Array } = cleExecutable
   const {
     circuitSize = DEFAULT_CIRCUIT_SIZE, enableLog = true,
@@ -47,7 +56,6 @@ export async function setup(
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let taskDetails
-  let taskId
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let setupStatus
 
@@ -58,10 +66,11 @@ export async function setup(
   )
     .then(async (response) => {
       // console.log(response.data)
-      taskId = response.data.result.id
+      result.taskId = response.data.result.id
+      // result.status = response.data.result.data[0].status
 
       if (enableLog)
-        logger.log(`[+] SET UP TASK STARTED. TASK ID: ${taskId}`, '\n')
+        logger.log(`[+] SET UP TASK STARTED. TASK ID: ${result.taskId}`, '\n')
     })
     .catch(async (error) => {
       // return the last status if exists
@@ -73,12 +82,12 @@ export async function setup(
           res = await zkwasm_imagetask(proverUrl, md5, 'Setup')
 
         taskDetails = res.data.result.data[0]
-        taskId = res.data.result.data[0]._id.$oid
+        result.taskId = res.data.result.data[0]._id.$oid
         setupStatus = res.data.result.data[0].status
 
         if (enableLog) {
           logger.log(
-            `[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`,
+            `[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${result.taskId}`,
             '\n',
           )
         }
@@ -87,6 +96,7 @@ export async function setup(
         throw error
       }
     })
+  return result
 }
 
 export async function waitSetup(ProverProviderUrl: string, taskId: string) {
