@@ -1,4 +1,4 @@
-export { execute, executeOnDataPrep, executeOnInputs } from './exec'
+export { execute, executeOnDataPrep, executeOnInputs, hasDebugOnlyFunc } from './exec'
 export { proveInputGen, proveInputGenOnDataPrep } from './prove_inputgen'
 export { proveMock } from './prove_mock'
 export { prove, waitProve } from './prove'
