@@ -77,6 +77,7 @@ export async function waitProve(
     batch_instances: Nullable<string>
     proof: Nullable<string>
     aux: Nullable<string>
+    extra: Nullable<string>
     md5: Nullable<string>
     taskId: Nullable<string>
     status: Nullable<string>
@@ -86,6 +87,7 @@ export async function waitProve(
     batch_instances: null,
     proof: null,
     aux: null,
+    extra: null,
     md5: null,
     taskId: null,
     status: '',
@@ -103,16 +105,20 @@ export async function waitProve(
   }) // TODO: timeout
 
   if (taskDetails.status === 'Done') {
+    // TODO: checkout how oraprover returns 2 demensional instances
     const instances = toHexStringBytes32Reverse(taskDetails.instances)
     const batch_instances = toHexStringBytes32Reverse(
       taskDetails.batch_instances,
     )
     const proof = toHexStringBytes32Reverse(taskDetails.proof)
     const aux = toHexStringBytes32Reverse(taskDetails.aux)
+    const extra = taskDetails.extra ? toHexStringBytes32Reverse(taskDetails.extra) : null
+
     result.instances = instances
     result.batch_instances = batch_instances
     result.proof = proof
     result.aux = aux
+    result.extra = extra
     result.taskId = taskId
     result.status = taskDetails.status
   }

@@ -9,5 +9,6 @@ export interface ProofParams {
   aggregate_proof: Uint8Array
   batch_instances: Uint8Array
   aux: Uint8Array
-  instances: Uint8Array
+  instances: Uint8Array[] // for multi proof batch
+  extra?: Uint8Array
 }

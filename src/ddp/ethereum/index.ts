@@ -18,12 +18,15 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
     const proof = ZkWasmUtil.bytesToBigIntArray(proofParams.aggregate_proof)
     const instances = ZkWasmUtil.bytesToBigIntArray(proofParams.batch_instances)
     const aux = ZkWasmUtil.bytesToBigIntArray(proofParams.aux)
-    const arg = ZkWasmUtil.bytesToBigIntArray(proofParams.instances)
+    // const arg = ZkWasmUtil.bytesToBigIntArray(proofParams.instances)
+    const arg = proofParams.instances.map((ins) => { return ZkWasmUtil.bytesToBigIntArray(ins) })
+    const extra = proofParams.extra ? ZkWasmUtil.bytesToBigIntArray(proofParams.extra) : [0n]
 
     // try {
     const graph = new ethers.Contract(cleId, cle_abi, goParams.signer)
 
-    const tx = await graph.trigger(proof, instances, aux, [arg], [0n], { gasLimit: goParams.gasLimit })
+    // const tx = await graph.trigger(proof, instances, aux, [arg], extra, { gasLimit: goParams.gasLimit })
+    const tx = await graph.trigger(proof, instances, aux, arg, extra, { gasLimit: goParams.gasLimit })
 
     if (enableLog) {
       // logger.info("transaction submitted, tx hash: " + tx.hash);

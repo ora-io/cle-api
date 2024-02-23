@@ -4,22 +4,23 @@ import { Contract } from 'ethers'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import { AggregatorVerifierABI } from '../common/constants'
+import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
 import type { ProofParams as VerifyProofParams } from '../types/api'
+import type { BatchOption } from './setup'
+import { BatchStyle } from './setup'
 // import { VerifyProofParams } from '@ora-io/zkwasm-service-helper'
 
 export interface OnchainVerifier {
   provider: providers.JsonRpcProvider
-  verifierAddress: string
+  verifierAddress?: string
 }
 
-export type VerifyOptions = OnchainVerifier
+export type VerifyOptions = OnchainVerifier & BatchOption
 
 export async function verify(
   verifyParams: VerifyProofParams,
   options: VerifyOptions,
-  // jsonRpcProviderUrl: string,
 ) {
   return await verifyOnchain(verifyParams, options)
 }
@@ -32,24 +33,42 @@ export async function verify(
  */
 export async function verifyOnchain(
   verifyParams: VerifyProofParams,
-  options: OnchainVerifier,
-  // jsonRpcProviderUrl: string,
+  options: VerifyOptions,
 ) {
+  const { batchStyle = BatchStyle.ZKWASMHUB } = options
+  const { provider } = options
+  const defaultVerifierAddress
+    = batchStyle === BatchStyle.ORA
+      ? AggregatorVerifierAddress.Ora[provider.network.name]
+      : AggregatorVerifierAddress.ZKWASMHUB[provider.network.name]
+
+  const { verifierAddress = defaultVerifierAddress } = options
+
   const proof = ZkWasmUtil.bytesToBigIntArray(verifyParams.aggregate_proof)
   const instances = ZkWasmUtil.bytesToBigIntArray(verifyParams.batch_instances)
   const aux = ZkWasmUtil.bytesToBigIntArray(verifyParams.aux)
-  const arg = ZkWasmUtil.bytesToBigIntArray(verifyParams.instances)
+  // const arg = ZkWasmUtil.bytesToBigIntArray(verifyParams.instances)
+  // TODO: cli compatible
+  const arg = verifyParams.instances.map((ins) => { return ZkWasmUtil.bytesToBigIntArray(ins) })
+  const extra = verifyParams.extra ? ZkWasmUtil.bytesToBigIntArray(verifyParams.extra) : undefined
 
-  const { verifierAddress, provider } = options
+  if (batchStyle === BatchStyle.ORA && extra === undefined)
+    throw new Error('missing \'extra\' params under ORA batch style')
+
+  const verifyCallParam
+    = batchStyle === BatchStyle.ORA
+      ? [proof, instances, aux, arg]
+      : [proof, instances, aux, arg, extra]
+
   // Web3EthContract.setProvider(jsonRpcProviderUrl)
-
   // const contract = new Web3EthContract(AggregatorVerifierABI.abi as any, verifierContractAddress)
   const contract = new Contract(verifierAddress, AggregatorVerifierABI.abi as any, provider)
 
   let verificationResult = true
   // verify success if no err throw
+
   await contract
-    .verify(proof, instances, aux, [arg])
+    .verify(...verifyCallParam)
     .catch((err: any) => {
       if (err.message.startsWith('call revert exception;'))
         verificationResult = false
@@ -80,10 +99,10 @@ export async function verifyOnchain(
 
 export async function getVerifyProofParamsByTaskID(
   proveTaskId: string,
-  ZkwasmProviderUrl: string,
+  proverUrl: string,
 ) {
   // Check task status of prove.
-  const task = await waitTaskStatus(ZkwasmProviderUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
+  const task = await waitTaskStatus(proverUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
     throw err
   })
 
@@ -96,6 +115,7 @@ export async function getVerifyProofParamsByTaskID(
     batch_instances: task.batch_instances,
     aux: task.aux,
     instances: task.instances,
+    extra: task?.extra,
   }
 
   return proofParams

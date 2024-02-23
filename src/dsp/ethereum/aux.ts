@@ -17,6 +17,7 @@ export function genAuxParams(
       context_input: mptInput.getContextInputStr(),
     },
     adaptor: genAdaptorParams(cleYaml, dataPrep),
+    extra: genExtra(cleYaml, dataPrep),
   }
   return auxParams
 }
@@ -57,4 +58,13 @@ function isRecentBlock(blocknum: number, latestBlocknumber: number) {
 function calcCheckpointBlocknum(_blockNums: number[]) {
   // TODO: enable later
   return null
+}
+
+// Used in trigger / verify only
+function genExtra(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+  const verifyExtra = {
+    rct_blocknum: dataPrep.blocknumberOrder.map(
+      (bn: any) => { return isRecentBlock(bn, dataPrep.latestBlocknumber) ? (dataPrep.blockPrepMap.get(bn) as BlockPrep).number : null }), // ['0xrecentblockheaderrlp', '' for bho blocknum]
+  }
+  return verifyExtra
 }
