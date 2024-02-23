@@ -12,6 +12,14 @@ import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
 import { logger } from '../common'
 
+export enum BatchStyle {
+  ORA,
+  ZKWASMHUB,
+}
+
+export interface BatchOption {
+  batchStyle?: BatchStyle
+}
 export interface SingableProver {
   proverUrl: string
   signer: Signer
@@ -23,7 +31,7 @@ export interface BasicSetupParams {
   avatorUrl?: string
 }
 
-export type SetupOptions = SingableProver & BasicSetupParams & { enableLog?: boolean }
+export type SetupOptions = SingableProver & BasicSetupParams & BatchOption & { enableLog?: boolean }
 /**
  * Set up zkwasm image with given wasm file.
  */

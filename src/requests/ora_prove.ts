@@ -3,10 +3,11 @@ import axios from 'axios'
 import type { Signer } from 'ethers'
 import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Input } from 'zkwasm-toolchain'
-import type { SingableProver } from '../api/setup'
+import { BatchStyle } from '../api/setup'
 import { DEFAULT_URL } from '../common/constants'
-import { PaymentError } from '../common/error'
+import { BatchStyleUnsupport, PaymentError } from '../common/error'
 import { logger } from '../common'
+import type { ProveOptions } from '../api/prove'
 import url from './url'
 import { handleAxiosError } from './error_handle'
 
@@ -16,9 +17,9 @@ import { handleAxiosError } from './error_handle'
 export async function ora_prove(
   image_md5: string,
   input: Input,
-  options: SingableProver,
+  options: ProveOptions,
 ): Promise<AxiosResponse<any, any>> {
-  const { proverUrl = DEFAULT_URL.PROVER, signer } = options
+  const { proverUrl = DEFAULT_URL.PROVER, signer, batchStyle = BatchStyle.ZKWASMHUB } = options
 
   const user_address = (await signer.getAddress()).toLowerCase()
 
@@ -29,8 +30,13 @@ export async function ora_prove(
   const formData = assembleFormData(user_address, image_md5, publicInputArray, privateInputArray)
 
   // zkwasmhub doesn't accept aux_params
-  if (!proverUrl.startsWith(DEFAULT_URL.ZKWASMHUB))
+
+  if (batchStyle === BatchStyle.ORA) {
+    if (proverUrl.startsWith(DEFAULT_URL.ZKWASMHUB))
+      throw new BatchStyleUnsupport('zkwasmhub doesn\'t support ORA batch style, use ProverType.ZKWASMHUB instead.')
+
     formData.append('aux_params', JSON.stringify(input.auxParams))
+  }
 
   const zkwasmHeaders = {
     'X-Eth-Signature': signature,

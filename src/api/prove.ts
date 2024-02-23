@@ -8,10 +8,10 @@ import {
 } from '../requests/zkwasm_taskdetails'
 import type { CLEExecutable } from '../types/api'
 import { logger } from '../common'
-import type { SingableProver } from './setup'
+import type { BatchOption, SingableProver } from './setup'
 
 // when remove enableLog: keep ProveOptions = SingableProver for future scalability
-export type ProveOptions = SingableProver & { enableLog: boolean }
+export type ProveOptions = SingableProver & BatchOption & { enableLog: boolean }
 /**
  * Submit prove task to a given zkwasm and return the proof details.
  * @param {object} cleExecutable
