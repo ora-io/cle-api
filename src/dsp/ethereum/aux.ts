@@ -1,5 +1,6 @@
 import { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types'
+import { u32ListToUint8Array } from '../../common/utils'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
 import { MptInput } from './mpt_input'
 
@@ -61,10 +62,15 @@ function calcCheckpointBlocknum(_blockNums: number[]) {
 }
 
 // Used in trigger / verify only
-function genExtra(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+function genExtra(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep): Uint8Array {
+  // TODO: double check here
+  const encode = (dict: { [key: string]: any }): Uint8Array => {
+    const u8a = u32ListToUint8Array(dict.rct_blocknum, 32, true)
+    return u8a
+  }
   const verifyExtra = {
     rct_blocknum: dataPrep.blocknumberOrder.map(
       (bn: any) => { return isRecentBlock(bn, dataPrep.latestBlocknumber) ? (dataPrep.blockPrepMap.get(bn) as BlockPrep).number : null }), // ['0xrecentblockheaderrlp', '' for bho blocknum]
   }
-  return verifyExtra
+  return encode(verifyExtra)
 }

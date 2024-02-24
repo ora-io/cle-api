@@ -260,3 +260,22 @@ export function getPrefixPath(filePath: string): string | null {
   const lastSlashIndex = filePath.lastIndexOf('/')
   return filePath.slice(0, lastSlashIndex + 1)
 }
+
+// TODO: optimize
+export function u32ListToUint8Array(u32s: number[], targetEachLength = 0, le = true): Uint8Array {
+  targetEachLength = Math.max(targetEachLength, 4)
+  const totalLength = u32s.length * targetEachLength
+  const buffer = Buffer.alloc(totalLength)
+  if (le) {
+    // let writefunc = buffer.writeUInt32LE
+    // Iterate over each number in the array and write it to the buffer as a little-endian 32-bit unsigned integer
+    for (let i = 0; i < u32s.length; i++)
+      buffer.writeUInt32LE(u32s[i], i * targetEachLength)
+  }
+  else {
+    const padoffset = (targetEachLength - 4)
+    for (let i = 0; i < u32s.length; i++)
+      buffer.writeUInt32BE(u32s[i], i * targetEachLength + padoffset)
+  }
+  return Uint8Array.from(buffer)
+}

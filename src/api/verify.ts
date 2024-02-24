@@ -14,6 +14,7 @@ import { BatchStyle } from './setup'
 export interface OnchainVerifier {
   provider: providers.JsonRpcProvider
   verifierAddress?: string
+  isZKVerifier?: boolean // vs. CLEVerifier
 }
 
 export type VerifyOptions = OnchainVerifier & BatchOption
@@ -35,7 +36,9 @@ export async function verifyOnchain(
   verifyParams: VerifyProofParams,
   options: VerifyOptions,
 ) {
-  const { batchStyle = BatchStyle.ZKWASMHUB } = options
+  const { batchStyle = BatchStyle.ZKWASMHUB, isZKVerifier = true } = options
+  if (isZKVerifier === false)
+    throw new Error('isZKVerifier==false is reserved, not supported yet')
   const { provider } = options
   const defaultVerifierAddress
     = batchStyle === BatchStyle.ORA
@@ -56,9 +59,10 @@ export async function verifyOnchain(
     throw new Error('missing \'extra\' params under ORA batch style')
 
   const verifyCallParam
-    = batchStyle === BatchStyle.ORA
-      ? [proof, instances, aux, arg]
-      : [proof, instances, aux, arg, extra]
+  // = batchStyle === BatchStyle.ORA
+    = isZKVerifier
+      ? [proof, instances, aux, arg] // ZKVerifier doesn't care extra
+      : [proof, instances, aux, arg, extra] // CLEVerifier needs extra
 
   // Web3EthContract.setProvider(jsonRpcProviderUrl)
   // const contract = new Web3EthContract(AggregatorVerifierABI.abi as any, verifierContractAddress)
