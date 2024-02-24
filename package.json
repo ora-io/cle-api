@@ -1,7 +1,7 @@
 {
   "name": "@ora-io/cle-api",
   "type": "module",
-  "version": "1.0.3-alpha.12",
+  "version": "1.0.3-alpha.13",
   "description": "API for interacting with ORA CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
