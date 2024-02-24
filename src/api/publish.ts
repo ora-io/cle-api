@@ -63,8 +63,10 @@ export async function publishByImgCmt(
 
   const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
 
-  const networkName = cleYaml?.dataDestinations[0].network
-  const destinationContractAddress = cleYaml?.dataDestinations[0].address
+  const destinationContractAddress
+    = (cleYaml?.dataDestinations && cleYaml?.dataDestinations.length)
+      ? cleYaml?.dataDestinations[0].address
+      : AddressZero
   const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
   const factoryContract = new Contract(factoryAddress, abiFactory, signer)
   const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
@@ -97,11 +99,9 @@ export async function publishByImgCmt(
   const graphAddress = `0x${logs[0].data.slice(-40)}`
 
   return {
-    networkName,
     graphAddress,
     ...txReceipt,
   } as {
-    networkName: string
     graphAddress: string
     blockNumber: number
     transactionHash: string
