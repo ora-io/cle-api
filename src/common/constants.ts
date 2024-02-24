@@ -414,8 +414,8 @@ export const abiFactory = [
 
 export const AggregatorVerifierAddress = {
   mainnet: 'not support yet',
-  sepolia: '0x714C66711F6552D4F388Ec79D4A33FE20173cC34',
-  goerli: '0x5e6ca2dd26eA8F9A17aEc6e35a8dcD7C5B12FcDF',
+  sepolia: '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0',
+  goerli: '0xbEF9572648284CB63a0DA32a89D3b4F2BeD65a89',
 }
 
 export const AddressZero = '0x0000000000000000000000000000000000000000'
@@ -430,6 +430,7 @@ export const DEFAULT_PATH = {
 
 export const DEFAULT_URL = {
   PROVER: 'https://rpc.zkwasmhub.com:8090',
+  ZKWASMHUB: 'https://rpc.zkwasmhub.com:8090',
   COMPILER_SERVER: 'http://compiler.hyperoracle.io/compile',
   PINATA: 'https://api.pinata.cloud/pinning/pinFileToIPFS',
 }

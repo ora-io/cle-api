@@ -5,6 +5,8 @@ import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Input } from 'zkwasm-toolchain'
 import type { SingableProver } from '../api/setup'
 import { DEFAULT_URL } from '../common/constants'
+import { PaymentError } from '../common/error'
+import { logger } from '../common'
 import url from './url'
 import { handleAxiosError } from './error_handle'
 
@@ -15,10 +17,8 @@ export async function ora_prove(
   image_md5: string,
   input: Input,
   options: SingableProver,
-): Promise<[AxiosResponse<any, any>, boolean, string]> {
+): Promise<AxiosResponse<any, any>> {
   const { proverUrl = DEFAULT_URL.PROVER, signer } = options
-
-  let isSetUpSuccess = true
 
   const user_address = (await signer.getAddress()).toLowerCase()
 
@@ -28,7 +28,9 @@ export async function ora_prove(
   const signature = await signMessage(signer, image_md5, publicInputArray, privateInputArray)
   const formData = assembleFormData(user_address, image_md5, publicInputArray, privateInputArray)
 
-  formData.append('aux_params', JSON.stringify(input.auxParams))
+  // zkwasmhub doesn't accept aux_params
+  if (!proverUrl.startsWith(DEFAULT_URL.ZKWASMHUB))
+    formData.append('aux_params', JSON.stringify(input.auxParams))
 
   const zkwasmHeaders = {
     'X-Eth-Signature': signature,
@@ -47,13 +49,39 @@ export async function ora_prove(
 
   let errorMessage = ''
 
-  const response = await axios.request(requestConfig).catch((error) => {
-    [errorMessage] = handleAxiosError(error)
-    isSetUpSuccess = false
-  })
+  // TODO: should change to setTimeInterval.
+  const retry_time = 1
+  let response
+  let isRetry
+  for (let i = 0; i < retry_time + 1; i++) {
+    response = await axios.request(requestConfig).catch((error) => {
+      [errorMessage, isRetry] = handleAxiosError(error)
+      if (isRetry) {
+        // pass
+      }
+      else if (errorMessage.startsWith('Payment error')) {
+        throw new PaymentError(errorMessage)
+      }
+      else {
+        // console.error("Error in ora_prove. Please retry.");
+        // throw error;
+        logger.error(error.message)
+      }
+      // errorMessage = error.response.data;
+    })
+    if (!isRetry)
+      break
+
+    // for debug purpose, can delete after stable.
+    logger.log(errorMessage, 'retrying..')
+  }
+  // const response = await axios.request(requestConfig).catch((error) => {
+  //   [errorMessage] = handleAxiosError(error)
+  //   throw error
+  // })
 
   // console.log('response:', response)
-  return [response as AxiosResponse<any>, isSetUpSuccess as boolean, errorMessage as string]
+  return response as AxiosResponse<any>
 }
 
 /**

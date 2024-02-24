@@ -1,5 +1,5 @@
 import type { Nullable } from '@murongg/utils'
-import { hasOwnProperty, randomStr, to } from '@murongg/utils'
+import { hasOwnProperty, isFunction, randomStr, to } from '@murongg/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import FormData from 'form-data'
@@ -264,12 +264,13 @@ export async function compileServer(
 
 export async function compileRequest(endpoint: string, data: any) {
   // Set up request config
+  const headers = data && isFunction(data.getHeaders) ? data?.getHeaders() : {}
   const requestConfig: AxiosRequestConfig = {
     method: 'post',
     maxBodyLength: Infinity,
     url: endpoint,
     headers: {
-      ...data?.getHeaders(),
+      ...headers,
     },
     data,
     timeout: 50000,
