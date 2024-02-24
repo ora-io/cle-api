@@ -15,51 +15,60 @@ export class DspHooksDataCache {
     this.blockWithTxsMap = new Map<string, any>()
   }
 
-  setBlock(provider: string, blockid: string, block: any) {
+  setBlock(provider_url: string, blockid: string, block: any) {
+    if (block === undefined)
+      return
+
     this.cleanupExpiredKeys(this.blockMap)
-    const blockKey = `${provider}_${blockid}`
+    const blockKey = `${provider_url}_${blockid}`
     this.blockMap.set(blockKey, block)
   }
 
-  hasBlock(provider: string, blockid: string): boolean {
-    const blockKey = `${provider}_${blockid}`
+  hasBlock(provider_url: string, blockid: string): boolean {
+    const blockKey = `${provider_url}_${blockid}`
     return this.blockMap.has(blockKey)
   }
 
-  getBlock(provider: string, blockid: string): any {
-    const blockKey = `${provider}_${blockid}`
+  getBlock(provider_url: string, blockid: string): any {
+    const blockKey = `${provider_url}_${blockid}`
     return this.blockMap.get(blockKey)
   }
 
-  setRawReceipts(provider: string, blockid: string, useDebugRPC: boolean, rawReceipts: any) {
+  setRawReceipts(provider_url: string, blockid: string, useDebugRPC: boolean, rawReceipts: any) {
+    if (rawReceipts === undefined)
+      return
+
     this.cleanupExpiredKeys(this.rawReceiptsMap)
-    const rawReceiptsKey = `${provider}_${blockid}_${useDebugRPC}`
+    const rawReceiptsKey = `${provider_url}_${blockid}_${useDebugRPC}`
     this.rawReceiptsMap.set(rawReceiptsKey, rawReceipts)
   }
 
-  hasRawReceipts(provider: string, blockid: string, useDebugRPC: boolean): boolean {
-    const rawReceiptsKey = `${provider}_${blockid}_${useDebugRPC}`
+  hasRawReceipts(provider_url: string, blockid: string, useDebugRPC: boolean): boolean {
+    const rawReceiptsKey = `${provider_url}_${blockid}_${useDebugRPC}`
     return this.rawReceiptsMap.has(rawReceiptsKey)
   }
 
-  getRawReceipts(provider: string, blockid: string, useDebugRPC: boolean): any {
-    const rawReceiptsKey = `${provider}_${blockid}_${useDebugRPC}`
+  getRawReceipts(provider_url: string, blockid: string, useDebugRPC: boolean): any {
+    const rawReceiptsKey = `${provider_url}_${blockid}_${useDebugRPC}`
     return this.rawReceiptsMap.get(rawReceiptsKey)
   }
 
-  setBlockWithTxs(provider: string, blockid: string, blockWithTxs: any) {
+  setBlockWithTxs(provider_url: string, blockid: string, blockWithTxs: any) {
+    if (blockWithTxs === undefined)
+      return
+
     this.cleanupExpiredKeys(this.blockWithTxsMap)
-    const blockWithTxsKey = `${provider}_${blockid}`
+    const blockWithTxsKey = `${provider_url}_${blockid}`
     this.blockWithTxsMap.set(blockWithTxsKey, blockWithTxs)
   }
 
-  hasBlockWithTxs(provider: string, blockid: string): boolean {
-    const blockWithTxsKey = `${provider}_${blockid}`
+  hasBlockWithTxs(provider_url: string, blockid: string): boolean {
+    const blockWithTxsKey = `${provider_url}_${blockid}`
     return this.blockWithTxsMap.has(blockWithTxsKey)
   }
 
-  getBlockWithTxs(provider: string, blockid: string): any {
-    const blockWithTxsKey = `${provider}_${blockid}`
+  getBlockWithTxs(provider_url: string, blockid: string): any {
+    const blockWithTxsKey = `${provider_url}_${blockid}`
     return this.blockWithTxsMap.get(blockWithTxsKey)
   }
 
@@ -110,7 +119,7 @@ export const dspHooks: DSPHooks = {
       return Promise.resolve(dspDataCache.getBlockWithTxs(ethersProvider.connection.url, blockNumber.toString()))
 
     return getBlockWithTxs(ethersProvider, blockNumber).then((blockWithTxs: any): any => {
-      dspDataCache.setBlock(ethersProvider.connection.url, blockNumber.toString(), blockWithTxs)
+      dspDataCache.setBlockWithTxs(ethersProvider.connection.url, blockNumber.toString(), blockWithTxs)
       return blockWithTxs
     })
   },
