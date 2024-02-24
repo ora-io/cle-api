@@ -7,11 +7,9 @@ import {
   addressFactory,
 } from '../common/constants'
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
-import { loadConfigByNetwork } from '../common/utils'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
 import type { CLEExecutable } from '../types/api'
-import type { CLEYaml } from '../types/zkgyaml'
 
 /**
  * @param {string} proverUrl - the prover url
@@ -67,7 +65,8 @@ export async function publishByImgCmt(
     = (cleYaml?.dataDestinations && cleYaml?.dataDestinations.length)
       ? cleYaml?.dataDestinations[0].address
       : AddressZero
-  const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
+  const networkName = (await signer.provider?.getNetwork())?.name
+  const factoryAddress = networkName ? (addressFactory as any)[networkName] : AddressZero
   const factoryContract = new Contract(factoryAddress, abiFactory, signer)
   const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
 
