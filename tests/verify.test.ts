@@ -19,7 +19,7 @@ describe('test verify', () => {
   const cleYaml = loadYamlFromPath(yamlPath)
 
   it('test verify CLEExecutable', async () => {
-    const verifyParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
+    const verifyParams = await zkgapi.getVerifyProofParamsByTaskID(ZkwasmProviderUrl, proveTaskId)
 
     const network = cleYaml.decidePublishNetwork()
     console.log('network', network)
@@ -36,7 +36,7 @@ describe('test verify', () => {
   })
   // 2nd way to verify proof.
   it('test verify proof params', async () => {
-    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
+    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(ZkwasmProviderUrl, proveTaskId)
     const sepolia_verifier = '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0'
     expect(await zkgapi.verifyProof(
       proofParams,

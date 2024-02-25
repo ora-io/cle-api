@@ -19,7 +19,7 @@ describe('test trigger', () => {
   const yaml = loadYamlFromPath(yamlPath)
 
   it('test verify proof params', async () => {
-    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
+    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(ZkwasmProviderUrl, proveTaskId)
     const CLEID = '0x870ef9B5DcBB6F71139a5f35D10b78b145853e69'
     const userPrivateKey = config.UserPrivateKey
     const rpcUrl = config.JsonRpcProviderUrl.sepolia

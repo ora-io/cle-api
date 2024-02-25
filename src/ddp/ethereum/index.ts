@@ -20,6 +20,7 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
     const aux = ZkWasmUtil.bytesToBigIntArray(proofParams.aux)
     // const arg = ZkWasmUtil.bytesToBigIntArray(proofParams.instances)
     const arg = proofParams.instances.map((ins) => { return ZkWasmUtil.bytesToBigIntArray(ins) })
+    // const arg = decode2DProofParam(proofParams.instances)
     const extra = proofParams.extra ? ZkWasmUtil.bytesToBigIntArray(proofParams.extra) : [0n]
     // TODO: double check: decoded extra should be uint256[blocknum1, blocknum2]
 

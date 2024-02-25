@@ -1,4 +1,5 @@
 import BN from 'bn.js'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { CLEYaml } from '../types/zkgyaml'
 import { networks } from './constants'
 import { logger } from './logger'
@@ -21,20 +22,6 @@ export function fromHexString(hexString: string) {
  */
 export function toHexString(bytes: string | Uint8Array) {
   return Buffer.from(bytes).toString('hex')
-}
-
-/**
- * Reverse Uint8Array to string
- * @param arr
- * @returns
- */
-export function toHexStringBytes32Reverse(arr: Uint8Array) {
-  let result = ''
-  for (let i = 0; i < arr.length / 32; i++) {
-    result
-      += `0x${toHexString(arr.slice(i * 32, (i + 1) * 32).reverse())}\n`
-  }
-  return result
 }
 
 export function areEqualArrays(first: Uint8Array, second: Uint8Array) {
@@ -278,4 +265,23 @@ export function u32ListToUint8Array(u32s: number[], targetEachLength = 0, le = t
       buffer.writeUInt32BE(u32s[i], i * targetEachLength + padoffset)
   }
   return Uint8Array.from(buffer)
+}
+
+// unused, can remove later
+export function decode2DProofParam(proofParamU8A: Uint8Array): any[][] {
+  const result: any[] = []
+  const readVarBytes = (u8a: Uint8Array, lenidx: number): [datastart: number, dataend: number] => {
+    const buffer = Buffer.from(u8a.buffer)
+    // if(lenidx > u8a.length - 4) err
+    const len = buffer.readUInt32LE(lenidx)
+    return [lenidx + 4, lenidx + 4 + len]
+  }
+  let i = 0
+  while (i < proofParamU8A.length) {
+    const [is, ie] = readVarBytes(proofParamU8A, i)
+    result.push(ZkWasmUtil.bytesToBigIntArray(proofParamU8A.slice(is, ie)))
+    i = ie
+  }
+
+  return result
 }

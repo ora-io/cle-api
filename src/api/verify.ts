@@ -1,14 +1,12 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { providers } from 'ethers'
 import { Contract } from 'ethers'
-import {
-  waitTaskStatus,
-} from '../requests/zkwasm_taskdetails'
 import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
-import type { ProofParams as VerifyProofParams } from '../types/api'
+import type { ProofParams, ProofParams as VerifyProofParams } from '../types/api'
 import type { BatchOption } from './setup'
 import { BatchStyle } from './setup'
+import { waitProve } from './prove'
 // import { VerifyProofParams } from '@ora-io/zkwasm-service-helper'
 
 export interface OnchainVerifier {
@@ -53,6 +51,7 @@ export async function verifyOnchain(
   // const arg = ZkWasmUtil.bytesToBigIntArray(verifyParams.instances)
   // TODO: cli compatible
   const arg = verifyParams.instances.map((ins) => { return ZkWasmUtil.bytesToBigIntArray(ins) })
+  // const arg = decode2DProofParam(verifyParams.instances)
   const extra = verifyParams.extra ? ZkWasmUtil.bytesToBigIntArray(verifyParams.extra) : undefined
 
   if (batchStyle === BatchStyle.ORA && extra === undefined)
@@ -102,32 +101,39 @@ export async function verifyOnchain(
 }
 
 export async function getVerifyProofParamsByTaskID(
-  proveTaskId: string,
   proverUrl: string,
-) {
-  // Check task status of prove.
-  const task = await waitTaskStatus(proverUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
-    throw err
-  })
-
-  // TODO: timeout
-  if (task.status !== 'Done')
+  proveTaskId: string,
+  options: BatchOption = {},
+): Promise<ProofParams> {
+  const result = await waitProve(proverUrl, proveTaskId, options)
+  if (result.status !== 'Done' || !result.proofParams)
     throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
-    // Inputs for verification
-  const proofParams: VerifyProofParams = {
-    aggregate_proof: task.proof,
-    batch_instances: task.batch_instances,
-    aux: task.aux,
-    instances: task.instances,
-    extra: task?.extra,
-  }
-
-  return proofParams
+  return result.proofParams
 }
+//   const { batchStyle=BatchStyle.ZKWASMHUB } = options
+//   // Check task status of prove.
+//   const task = await waitTaskStatus(proverUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
+//     throw err
+//   })
+
+//   // TODO: timeout
+//   if (task.status !== 'Done')
+//     throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
+//     // Inputs for verification
+//   const proofParams: VerifyProofParams = {
+//     aggregate_proof: task.proof,
+//     batch_instances: task.batch_instances,
+//     aux: task.aux,
+//     instances: batchStyle == BatchStyle.ZKWASMHUB ? [task.instances] : task.instances,
+//     extra: task?.extra,
+//   }
+
+//   return proofParams
+// }
 
 // TODO: read proof from local file rather than the zkwasm server (but need compitable to ho node)
-export async function getVerifyProofParamsByFile(
-  _proofFileName: string,
-) {
-  throw new Error('not implemented.')
-}
+// export async function getVerifyProofParamsByFile(
+//   _proofFileName: string,
+// ) {
+//   throw new Error('not implemented.')
+// }

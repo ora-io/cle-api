@@ -1,8 +1,9 @@
 import fs from 'node:fs'
 import { ethers, providers } from 'ethers'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
 import * as zkgapi from '../src/index'
+import { BatchStyle } from '../src/api/setup'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 import { fixtures } from './fixureoptions'
@@ -25,7 +26,7 @@ const option = fixtures[pathfromfixtures]
 
 describe(`test prove ${pathfromfixtures}`, () => {
   // console.log('issued a prove taslk: ', result)
-  it.only('test mock mode', async () => {
+  it('test mock mode', async () => {
     const { yamlPath, wasmPath, blocknum, expectedState } = option
 
     const wasm = fs.readFileSync(wasmPath)
@@ -47,7 +48,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
       proveParams as any,
     )
 
-    // console.log(input)
+    console.log(input.auxParams)
 
     const res = await zkgapi.proveMock(
       { wasmUint8Array },
@@ -91,5 +92,14 @@ describe(`test prove ${pathfromfixtures}`, () => {
       { proverUrl: zkwasmUrl, signer, enableLog: true })
 
     console.log(result)
-  })
+    expect(result.taskId).toBeTypeOf('string')
+  }, { timeout: 100000 })
+
+  it.only('test waitProve', async () => {
+    const { zkwasmUrl } = option
+    const taskId = '65dae256429af08ed922479a'
+    const result = await zkgapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: BatchStyle.ZKWASMHUB })
+    // console.log(result.proofParams?.instances)
+    expect((result.proofParams?.instances as any[])[0]).toBeInstanceOf(Array)
+  }, { timeout: 100000 })
 })

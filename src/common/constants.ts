@@ -445,3 +445,5 @@ export const DEFAULT_URL = {
 export const DEFAULT_CIRCUIT_SIZE = 22
 export const MIN_CIRCUIT_SIZE = 18
 export const MAX_CIRCUIT_SIZE = 24
+
+export const FinishStatusList = ['Done', 'Fail', 'DryRunFailed']
