@@ -3,22 +3,29 @@ import { describe, it } from 'vitest'
 import { ethers, providers } from 'ethers'
 import * as zkgapi from '../src/index'
 import { config } from './config'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
-describe('test exec', () => {
+const pathfromfixtures = 'dsp/ethereum(storage)'
+const option = fixtures[pathfromfixtures]
+
+describe('test setup', () => {
   it('test setup', async () => {
-    const wasm = fs.readFileSync('tests/fixtures/build/dsp/ethereum(storage).wasm')
+    const { wasmPath } = option
+    const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
+    // const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
     // const image = createFileFromUint8Array(wasm, 'poc.wasm')
     // const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
-    const provider = new providers.JsonRpcProvider('http://localhost')
+    // const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const provider = new providers.JsonRpcProvider('http://localhost') // not important
     const signer = new ethers.Wallet(config.UserPrivateKey, provider)
     const result = await zkgapi.setup(
       { wasmUint8Array },
-      { circuitSize: 22, proverUrl: 'https://rpc.zkwasmhub.com:8090', signer },
+      { circuitSize: 22, proverUrl: 'http://localhost:8080', signer },
     )
 
-    console.log(result)
+    console.log('test result', result)
   })
 })

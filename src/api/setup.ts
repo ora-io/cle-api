@@ -73,7 +73,6 @@ export async function setup(
     options,
   )
     .then(async (response) => {
-      // console.log(response.data)
       result.taskId = response.data.result.id
       // result.status = response.data.result.data[0].status
 
