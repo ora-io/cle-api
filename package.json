@@ -53,7 +53,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "nr build",
-    "release": "bumpp && npm publish",
+    "release": "cle-scripts release",
+    "publish": "cle-scripts publish",
     "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
@@ -80,6 +81,7 @@
   "devDependencies": {
     "@murongg/eslint-config": "^0.2.1",
     "@ora-io/cle-lib": "^1.0.1-alpha.4",
+    "@ora-io/release-scripts": "^0.0.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",
