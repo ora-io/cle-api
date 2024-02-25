@@ -1,4 +1,5 @@
 import type { providers } from 'ethers'
+import { isMaybeNumber, toNumber } from '@murongg/utils'
 import { getBlock, getBlockWithTxs, getProof, getRawReceipts } from '../common/ethers_helper'
 
 export type DSPHookKeys = 'getBlock' | 'getProof' | 'getRawReceipts' | 'getBlockWithTxs' | 'getBlockNumber'
@@ -18,7 +19,8 @@ export class DspHooksDataCache {
   setBlock(provider_url: string, blockid: string, block: any) {
     if (block === undefined)
       return
-
+    if (!this.isSupportedBlockTag(blockid))
+      return
     this.cleanupExpiredKeys(this.blockMap)
     const blockKey = `${provider_url}_${blockid}`
     this.blockMap.set(blockKey, block)
@@ -37,7 +39,8 @@ export class DspHooksDataCache {
   setRawReceipts(provider_url: string, blockid: string, useDebugRPC: boolean, rawReceipts: any) {
     if (rawReceipts === undefined)
       return
-
+    if (!this.isSupportedBlockTag(blockid))
+      return
     this.cleanupExpiredKeys(this.rawReceiptsMap)
     const rawReceiptsKey = `${provider_url}_${blockid}_${useDebugRPC}`
     this.rawReceiptsMap.set(rawReceiptsKey, rawReceipts)
@@ -56,7 +59,8 @@ export class DspHooksDataCache {
   setBlockWithTxs(provider_url: string, blockid: string, blockWithTxs: any) {
     if (blockWithTxs === undefined)
       return
-
+    if (!this.isSupportedBlockTag(blockid))
+      return
     this.cleanupExpiredKeys(this.blockWithTxsMap)
     const blockWithTxsKey = `${provider_url}_${blockid}`
     this.blockWithTxsMap.set(blockWithTxsKey, blockWithTxs)
@@ -82,6 +86,17 @@ export class DspHooksDataCache {
       const key = keys.next().value
       map.delete(key)
     }
+  }
+
+  // Do not cache BlockTags that representing dynamic block number.
+  isSupportedBlockTag(blockid: string): boolean {
+    if (blockid === 'latest' || blockid === 'pending')
+      return false
+
+    if (isMaybeNumber(blockid) && toNumber(blockid) < 0)
+      return false
+
+    return true
   }
 }
 
