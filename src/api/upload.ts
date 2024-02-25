@@ -52,9 +52,7 @@ export async function upload(
   // const directoryName = `${directoryTag.graphName}-${directoryTag.userAddress}`
   const formData = new FormData()
   objectMap(files, (key: string, value: File | fs.ReadStream) => {
-    formData.append('file', value, {
-      filepath: `${directoryName}/src/${key}`,
-    })
+    formData.append('file', value, `${directoryName}/${key}`)
     return undefined
   })
   const metadata = JSON.stringify({
