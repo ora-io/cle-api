@@ -83,7 +83,7 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
   }, { timeout: 100000 })
 
   it('test exec', async () => {
-    const { wasmPath, yamlPath, local, expectedState, blocknum } = option
+    const { wasmPath, yamlPath, expectedState, blocknum } = option
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -105,7 +105,6 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
     const state = await zkgapi.execute(
       { wasmUint8Array, cleYaml: yaml },
       execParams as any,
-      local,
     )
     // console.log(toHexString(state))
 

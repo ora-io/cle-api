@@ -23,7 +23,7 @@ export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, c
   return new EthereumDataPrep(blockPrepMap, blocknumOrder, contextBlocknumber, expectedStateStr, latestBlocknumber)
 }
 
-// modularize prepareOneBlockFunc, re-use in eth local dsp.
+// modularize prepareOneBlockFunc, re-use in other dsp.
 let prepareOneBlockFunc = prepareOneBlock
 export function setPrePareOneBlockFunc(_func: any) {
   prepareOneBlockFunc = _func

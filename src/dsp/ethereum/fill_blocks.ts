@@ -44,19 +44,19 @@ export function fillInputBlocksWithoutLatestBlockhash(
   return input
 }
 
-// modularize, re-use in eth local dsp.
+// modularize, re-use in other dsp.
 let fillInputStorageFunc = fillInputStorage
 export function setFillInputStorageFunc(_func: any) {
   fillInputStorageFunc = _func
 }
 
-// modularize, re-use in eth local dsp.
+// modularize, re-use in other dsp.
 let fillInputEventsFunc = fillInputEvents
 export function setFillInputEventsFunc(_func: any) {
   fillInputEventsFunc = _func
 }
 
-// modularize, re-use in eth local dsp.
+// modularize, re-use in other dsp.
 let fillInputTxsFunc = fillInputTxs
 export function setFillInputTxsFunc(_func: any) {
   fillInputTxsFunc = _func

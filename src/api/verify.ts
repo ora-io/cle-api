@@ -66,35 +66,17 @@ export async function verifyOnchain(
   // const contract = new Web3EthContract(AggregatorVerifierABI.abi as any, verifierContractAddress)
   const contract = new Contract(verifierAddress, AggregatorVerifierABI.abi as any, provider)
 
-  let verificationResult = true
   // verify success if no err throw
-
+  let verificationResult = true
   await contract
     .verify(...verifyCallParam)
     .catch((err: any) => {
       if (err.message.startsWith('call revert exception;'))
+      // if (err.message.startsWith('Returned error: execution reverted'))
         verificationResult = false
       else
         throw err
     })
-
-  //   console.log('tx', tx)
-  // await tx.wait(1).catch((err: any) => {
-  //   throw err
-  // })
-
-  // let verificationResult = true
-  // // verify success if no err throw
-  // await contract.methods
-  //   .verify(proof, instances, aux, [arg])
-  //   .call()
-  //   .catch((err: any) => {
-  //     if (err.message.startsWith('Returned error: execution reverted'))
-  //       verificationResult = false
-
-  //     else
-  //       throw err
-  //   })
 
   return verificationResult
 }
@@ -109,30 +91,3 @@ export async function getVerifyProofParamsByTaskID(
     throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
   return result.proofParams
 }
-//   const { batchStyle=BatchStyle.ZKWASMHUB } = options
-//   // Check task status of prove.
-//   const task = await waitTaskStatus(proverUrl, proveTaskId, ['Done', 'Fail'], 3000, 0).catch((err) => {
-//     throw err
-//   })
-
-//   // TODO: timeout
-//   if (task.status !== 'Done')
-//     throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
-//     // Inputs for verification
-//   const proofParams: VerifyProofParams = {
-//     aggregate_proof: task.proof,
-//     batch_instances: task.batch_instances,
-//     aux: task.aux,
-//     instances: batchStyle == BatchStyle.ZKWASMHUB ? [task.instances] : task.instances,
-//     extra: task?.extra,
-//   }
-
-//   return proofParams
-// }
-
-// TODO: read proof from local file rather than the zkwasm server (but need compitable to ho node)
-// export async function getVerifyProofParamsByFile(
-//   _proofFileName: string,
-// ) {
-//   throw new Error('not implemented.')
-// }
