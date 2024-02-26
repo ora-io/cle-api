@@ -18,7 +18,8 @@ describe('test utils', () => {
     const provider = new ethers.providers.JsonRpcProvider(config.JsonRpcProviderUrl.sepolia)
 
     const res = await zkgapi.getRawReceipts(provider, 4818711, false)
-    console.log(res)
+    res
+    // console.log(res)
   }, { timeout: 100000 })
 
   it('u32ListToUint8Array', async () => {
