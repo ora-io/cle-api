@@ -88,7 +88,7 @@ export function formatVarLenInput(input: string) {
   return formatted
 }
 
-export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[], enableLog: any = false): [Uint8Array, Uint32Array] {
+export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[]): [Uint8Array, Uint32Array] {
   // RLP Decode and Filter
   const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
     rawreceiptList,
@@ -103,14 +103,12 @@ export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], ra
     filteredEventList,
   )
 
-  if (enableLog) {
-    // Log
-    logReceiptAndEvents(
-      rawreceiptList,
-      _matchedEventOffsets as any,
-      filteredEventList,
-    )
-  }
+  // Log
+  logReceiptAndEvents(
+    rawreceiptList,
+    _matchedEventOffsets as any,
+    filteredEventList,
+  )
 
   // may remove
   const matchedEventOffsets = Uint32Array.from(_matchedEventOffsets) as any

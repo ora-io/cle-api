@@ -11,10 +11,9 @@ export { hasDebugOnlyFunc } from 'zkwasm-toolchain'
  * Execute the given cleExecutable in the context of execParams
  * @param {object} cleExecutable {'cleYaml': cleYaml}
  * @param {object} execParams
- * @param {boolean} enableLog
  * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>, enableLog = false): Promise<Uint8Array> {
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>): Promise<Uint8Array> {
   const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)
@@ -24,17 +23,16 @@ export async function execute(cleExecutable: CLEExecutable, execParams: Record<s
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
   const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams) as DataPrep
 
-  return await executeOnDataPrep(cleExecutable, dataPrep, enableLog)
+  return await executeOnDataPrep(cleExecutable, dataPrep)
 }
 
 /**
  *
  * @param {object} cleExecutable
  * @param {DataPrep} dataPrep
- * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep, enableLog = false): Promise<Uint8Array> {
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep): Promise<Uint8Array> {
   const { cleYaml } = cleExecutable
 
   let input = new Input()
@@ -43,7 +41,7 @@ export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: 
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp.fillExecInput(input, cleYaml, dataPrep, enableLog)
+  input = dsp.fillExecInput(input, cleYaml, dataPrep)
 
   return await executeOnInputs(cleExecutable, input)
 }

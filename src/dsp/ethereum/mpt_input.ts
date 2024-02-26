@@ -72,7 +72,7 @@ export class MptInput {
   addBlock2Ctx(blockPrep: BlockPrep) {
     let currCtx = ''
     // block number
-    currCtx += padHexStringToU64LengthLittleEndian(hexToLittleEndian(safeHex(blockPrep.number.toString(16))))
+    currCtx += padHexStringToU64LengthLittleEndian(hexToLittleEndian(safeHex(blockPrep.number.toString(16))) || '')
     // account count
     const accCnt = blockPrep.accounts.size
     currCtx += padHexStringToU64LengthLittleEndian(safeHex(accCnt.toString(16)))

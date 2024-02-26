@@ -31,9 +31,5 @@ export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, i
     throw e
   }
 
-  // if (enableLog){
-  //     console.log("[+] ZKWASM MOCK EXECUTION SUCCESS!", "\n");
-  // }
-
   return true
 }
