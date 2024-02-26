@@ -12,6 +12,14 @@ import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
 import { logger } from '../common'
 
+export enum BatchStyle {
+  ORA,
+  ZKWASMHUB,
+}
+
+export interface BatchOption {
+  batchStyle?: BatchStyle
+}
 export interface SingableProver {
   proverUrl: string
   signer: Signer
@@ -65,7 +73,6 @@ export async function setup(
     options,
   )
     .then(async (response) => {
-      // console.log(response.data)
       result.taskId = response.data.result.id
       // result.status = response.data.result.data[0].status
 

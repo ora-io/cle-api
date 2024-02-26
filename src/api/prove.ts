@@ -1,14 +1,14 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Nullable } from '@murongg/utils'
 import type { Input } from 'zkwasm-toolchain'
-import { toHexStringBytes32Reverse } from '../common/utils'
 import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable, ProofParams } from '../types/api'
 import { logger } from '../common'
-import type { SingableProver } from './setup'
+import { FinishStatusList } from '../common/constants'
+import { type BatchOption, BatchStyle, type SingableProver } from './setup'
 
 export type ProveOptions = SingableProver
 /**
@@ -67,56 +67,36 @@ export async function prove(
 
 export async function waitProve(
   proverUrl: string,
-  taskId: string,
+  proveTaskId: string,
+  options: BatchOption = {},
 ) {
+  const { batchStyle = BatchStyle.ZKWASMHUB } = options
+  const task = await waitTaskStatus(proverUrl, proveTaskId, FinishStatusList, 3000, 0)
+  // .catch((err) => {
+  //   throw err
+  // }) // TODO: timeout
+
   const result: {
-    instances: Nullable<string>
-    batch_instances: Nullable<string>
-    proof: Nullable<string>
-    aux: Nullable<string>
-    md5: Nullable<string>
-    taskId: Nullable<string>
     status: Nullable<string>
-    taskDetails: Nullable<any>
+    proofParams: Nullable<ProofParams>
+    taskDetails: Nullable<any> // optional
   } = {
-    instances: null,
-    batch_instances: null,
-    proof: null,
-    aux: null,
-    md5: null,
-    taskId: null,
-    status: '',
-    taskDetails: null,
+    status: task.status,
+    proofParams: null,
+    taskDetails: task,
   }
 
-  const taskDetails = await waitTaskStatus(
-    proverUrl,
-    taskId,
-    ['Done', 'Fail', 'DryRunFailed'],
-    3000,
-    0,
-  ).catch((err) => {
-    throw err
-  }) // TODO: timeout
-
-  if (taskDetails.status === 'Done') {
-    const instances = toHexStringBytes32Reverse(taskDetails.instances)
-    const batch_instances = toHexStringBytes32Reverse(
-      taskDetails.batch_instances,
-    )
-    const proof = toHexStringBytes32Reverse(taskDetails.proof)
-    const aux = toHexStringBytes32Reverse(taskDetails.aux)
-    result.instances = instances
-    result.batch_instances = batch_instances
-    result.proof = proof
-    result.aux = aux
-    result.taskId = taskId
-    result.status = taskDetails.status
-  }
-  else {
-    result.taskId = taskId
+  if (task.status === 'Done') {
+    const proofParams: ProofParams = {
+      aggregate_proof: task.proof,
+      batch_instances: task.batch_instances,
+      aux: task.aux,
+      // 2-dim, ZKWASMHUB-compatible
+      instances: batchStyle === BatchStyle.ZKWASMHUB ? [task.instances] : task.instances,
+      extra: task?.extra,
+    }
+    result.proofParams = proofParams
   }
 
-  result.taskDetails = taskDetails
   return result
 }

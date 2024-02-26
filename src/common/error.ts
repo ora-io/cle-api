@@ -86,7 +86,7 @@ export class CircuitSizeOutOfRange extends Error {
   }
 }
 
-export class MissingRequiredOptions extends Error {
+export class BatchStyleUnsupport extends Error {
   constructor(message: string | undefined) {
     super(message)
   }

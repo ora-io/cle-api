@@ -412,10 +412,17 @@ export const abiFactory = [
   'function getGraphInfoByAddress(address graph) external view returns (address creator, uint256 bountyReward, address verifier, string memory graphURI)',
 ]
 
-export const AggregatorVerifierAddress = {
-  mainnet: 'not support yet',
-  sepolia: '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0',
-  goerli: '0xbEF9572648284CB63a0DA32a89D3b4F2BeD65a89',
+export const AggregatorVerifierAddress: { [key: string]: { [key: string]: string } } = {
+  ZkWasmHub: {
+    mainnet: 'not support yet',
+    sepolia: '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0',
+    goerli: '0xbEF9572648284CB63a0DA32a89D3b4F2BeD65a89',
+  },
+  Ora: {
+    mainnet: 'not support yet',
+    sepolia: '0xf48dC1e1AaA6bB8cA43b03Ca0695973a2F440090',
+    goerli: 'not support yet',
+  },
 }
 
 export const AddressZero = '0x0000000000000000000000000000000000000000'
@@ -438,3 +445,5 @@ export const DEFAULT_URL = {
 export const DEFAULT_CIRCUIT_SIZE = 22
 export const MIN_CIRCUIT_SIZE = 18
 export const MAX_CIRCUIT_SIZE = 24
+
+export const FinishStatusList = ['Done', 'Fail', 'DryRunFailed']

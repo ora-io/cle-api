@@ -73,7 +73,8 @@ export async function ora_setup(
       if (isRetry) {
         // pass
       }
-      else if (errorMessage === 'Error: Image already exists!') {
+      else if (errorMessage === 'Error: Image already exists!'
+        || (errorMessage.startsWith('Image with md5') && errorMessage.endsWith('already exists'))) {
         throw new ImageAlreadyExists(errorMessage)
       }
       else if (errorMessage.startsWith('Payment error')) {
@@ -82,7 +83,8 @@ export async function ora_setup(
       else {
         // console.error("Error in zkwasm_setup. Please retry.");
         // throw error;
-        logger.log(error.message)
+        // logger.error('Network Error:', error.message)
+        throw new Error(`Network Error:${error.message}`)
       }
       // errorMessage = error.response.data;
     })
