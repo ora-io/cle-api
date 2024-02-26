@@ -85,7 +85,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const userPrivateKey = config.UserPrivateKey
     const signer = new ethers.Wallet(userPrivateKey, provider)
 
-    const result = await zkgapi.prove(
+    const result = await zkgapi.requestProve(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
       { proverUrl: zkwasmUrl, signer })

@@ -1,12 +1,11 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Signer } from 'ethers'
-import type { Nullable } from '@murongg/utils/index'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable, RequestSetupResult, SetupResult } from '../types/api'
 import { ora_setup } from '../requests'
 import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
@@ -26,27 +25,29 @@ export interface SingableProver {
 }
 export interface BasicSetupParams {
   circuitSize?: number
-  imageName?: string // only use in zkwasm, can diff from local files
+  imageName?: string // optional, can diff from local files
   descriptionUrl?: string
   avatorUrl?: string
 }
 
 export type SetupOptions = SingableProver & BasicSetupParams
-/**
- * Set up zkwasm image with given wasm file.
- */
+
 export async function setup(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
   options: SetupOptions,
-) {
-  const result: {
-    md5: Nullable<string>
-    taskId: Nullable<string>
-  } = {
-    md5: null,
-    taskId: null,
-  }
+): Promise<SetupResult> {
+  const rsResult = await requestSetup(cleExecutable, options)
+  const wsResult = await waitSetup(options.proverUrl, rsResult.taskId)
+  return wsResult
+}
 
+/**
+ * Set up zkwasm image with given wasm file.
+ */
+export async function requestSetup(
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  options: SetupOptions,
+): Promise<RequestSetupResult> {
   const { wasmUint8Array } = cleExecutable
   const {
     circuitSize = DEFAULT_CIRCUIT_SIZE,
@@ -57,15 +58,11 @@ export async function setup(
   if (circuitSize < MIN_CIRCUIT_SIZE || circuitSize > MAX_CIRCUIT_SIZE)
     throw new CircuitSizeOutOfRange('Circuit size out of range. Please set it between 18 and 24.')
 
-  // if (!wasmUint8Array)
-  //   throw new Error('wasmUint8Array is not defined')
-
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let taskDetails
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let setupStatus
+  let taskId = ''
+  // let setupStatus
 
   await ora_setup(
     md5,
@@ -73,10 +70,11 @@ export async function setup(
     options,
   )
     .then(async (response) => {
-      result.taskId = response.data.result.id
+      taskId = response.data.result.id
+      taskDetails = response.data.result.data[0]
       // result.status = response.data.result.data[0].status
 
-      logger.log(`[+] SET UP TASK STARTED. TASK ID: ${result.taskId}`, '\n')
+      logger.log(`[+] SET UP TASK STARTED. TASK ID: ${taskId}`, '\n')
     })
     .catch(async (error) => {
       // return the last status if exists
@@ -88,35 +86,37 @@ export async function setup(
           res = await zkwasm_imagetask(proverUrl, md5, 'Setup')
 
         taskDetails = res.data.result.data[0]
-        result.taskId = res.data.result.data[0]._id.$oid
-        setupStatus = res.data.result.data[0].status
-
-        logger.log(
-            `[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${result.taskId}`,
-            '\n',
-        )
+        taskId = res.data.result.data[0]._id.$oid
+        // setupStatus = res.data.result.data[0].status
+        
+        logger.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`,'\n')
       }
       else {
         throw error
       }
     })
+
+  const result: RequestSetupResult = {
+    md5,
+    taskId,
+    taskDetails,
+  }
   return result
 }
 
-export async function waitSetup(ProverProviderUrl: string, taskId: string) {
-  const result: { taskId: string | null; success: boolean; taskDetails: any } = { taskId: null, success: false, taskDetails: null }
-
+export async function waitSetup(proverUrl: string, taskId: string): Promise<SetupResult> {
   const taskDetails = await waitTaskStatus(
-    ProverProviderUrl,
+    proverUrl,
     taskId,
     ['Done', 'Fail'],
     3000,
     0,
   ) // TODO: timeout
-  const setupStatus = taskDetails.status
 
-  result.success = setupStatus === 'Done'
-  result.taskId = taskId
-  result.taskDetails = taskDetails
+  const result: SetupResult = {
+    success: taskDetails.status === 'Done',
+    status: taskDetails.status,
+    taskDetails,
+  }
   return result
 }
