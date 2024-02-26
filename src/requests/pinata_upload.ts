@@ -1,6 +1,7 @@
 import type FormData from 'form-data'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import { isFunction } from '@murongg/utils'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 
@@ -10,6 +11,7 @@ export async function pinata_upload(
   pinataJWT: string,
 ): Promise<[AxiosResponse<any, any>, boolean, string]> {
   let isUploadSuccess = true
+  const headers = formData && isFunction(formData.getHeaders) ? formData.getHeaders() : {}
 
   const requestConfig = {
     method: 'post',
@@ -17,7 +19,7 @@ export async function pinata_upload(
     url: url.uploadToPinata(pinataEndpoint).url,
     headers: {
       Authorization: `Bearer ${pinataJWT}`,
-      ...formData.getHeaders(),
+      ...headers,
     },
     data: formData,
   }

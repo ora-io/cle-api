@@ -31,7 +31,7 @@ export interface BasicSetupParams {
   avatorUrl?: string
 }
 
-export type SetupOptions = SingableProver & BasicSetupParams & BatchOption & { enableLog?: boolean }
+export type SetupOptions = SingableProver & BasicSetupParams
 /**
  * Set up zkwasm image with given wasm file.
  */
@@ -49,7 +49,7 @@ export async function setup(
 
   const { wasmUint8Array } = cleExecutable
   const {
-    circuitSize = DEFAULT_CIRCUIT_SIZE, enableLog = true,
+    circuitSize = DEFAULT_CIRCUIT_SIZE,
     proverUrl = DEFAULT_URL.PROVER,
   } = options
   const image = createFileStream(wasmUint8Array, { fileType: 'application/wasm', fileName: 'cle.wasm' })
@@ -76,8 +76,7 @@ export async function setup(
       result.taskId = response.data.result.id
       // result.status = response.data.result.data[0].status
 
-      if (enableLog)
-        logger.log(`[+] SET UP TASK STARTED. TASK ID: ${result.taskId}`, '\n')
+      logger.log(`[+] SET UP TASK STARTED. TASK ID: ${result.taskId}`, '\n')
     })
     .catch(async (error) => {
       // return the last status if exists
@@ -92,12 +91,10 @@ export async function setup(
         result.taskId = res.data.result.data[0]._id.$oid
         setupStatus = res.data.result.data[0].status
 
-        if (enableLog) {
-          logger.log(
+        logger.log(
             `[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${result.taskId}`,
             '\n',
-          )
-        }
+        )
       }
       else {
         throw error

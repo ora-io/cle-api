@@ -10,8 +10,7 @@ import { logger } from '../common'
 import { FinishStatusList } from '../common/constants'
 import { type BatchOption, BatchStyle, type SingableProver } from './setup'
 
-// when remove enableLog: keep ProveOptions = SingableProver for future scalability
-export type ProveOptions = SingableProver & BatchOption & { enableLog: boolean }
+export type ProveOptions = SingableProver
 /**
  * Submit prove task to a given zkwasm and return the proof details.
  * @param {object} cleExecutable
@@ -32,7 +31,6 @@ export async function prove(
     taskId: null,
   }
   const { wasmUint8Array } = cleExecutable
-  const { enableLog } = options
 
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
 
@@ -63,8 +61,7 @@ export async function prove(
   //   throw error
   // })
 
-  if (enableLog)
-    logger?.log(`[*] IMAGE MD5: ${md5}`, '\n')
+  logger?.log(`[*] IMAGE MD5: ${md5}`, '\n')
   return result
 }
 

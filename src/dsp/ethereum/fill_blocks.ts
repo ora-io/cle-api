@@ -13,14 +13,12 @@ export function fillInputBlocks(
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
   contextBlocknumber: number,
-  enableLog = false,
 ) {
   input = fillInputBlocksWithoutLatestBlockhash(
     input,
     cleYaml,
     blockPrepMap,
     blocknumOrder,
-    enableLog,
   )
   // Optional but easy to handle;
   // Public: blockhash_latest
@@ -33,7 +31,6 @@ export function fillInputBlocksWithoutLatestBlockhash(
   cleYaml: CLEYaml,
   blockPrepMap: Map<number, BlockPrep>, // Map<blocknum: i32, BlockPrep>
   blocknumOrder: any[], // i32[]
-  enableLog = false,
 ) {
   const blockCount = blocknumOrder.length
   input.addInt(blockCount, 0) // block count
@@ -42,7 +39,7 @@ export function fillInputBlocksWithoutLatestBlockhash(
     if (!blockPrepMap.has(bn))
       throw new Error(`Lack blockPrep for block (${bn})`)
 
-    fillInputOneBlock(input, cleYaml, blockPrepMap.get(bn) as BlockPrep, enableLog)
+    fillInputOneBlock(input, cleYaml, blockPrepMap.get(bn) as BlockPrep)
   })
   return input
 }
@@ -66,7 +63,7 @@ export function setFillInputTxsFunc(_func: any) {
 }
 
 // blockPrep: class BlockPrep, used for prepare data & interface params.
-export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: BlockPrep, enableLog = false) {
+export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: BlockPrep) {
   input.addInt(blockPrep.number, 0)
 
   // TODO: adjust this with lib
@@ -85,26 +82,22 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
     input.addInt(stateDSAddrList.length, false) // account count
 
     // TODO: move this to cli
-    if (enableLog)
-      logger.log('[*] Defined Data Sources - Storage:')
+    logger.log('[*] Defined Data Sources - Storage:')
 
     for (let i = 0; i < stateDSAddrList.length; i++) {
       // TODO move log to cli
-      if (enableLog) {
-        logger.log(
+      logger.log(
           `    (${i}) Address:`,
           stateDSAddrList[i],
           '\n        Slot keys:',
           stateDSSlotsList[i],
           '\n',
-        )
-      }
+      )
     }
     fillInputStorageFunc(input, blockPrep, stateDSAddrList, stateDSSlotsList)
   }
   else {
-    if (enableLog)
-      logger.log('[*] No storage DS provided, skip...') // can rm
+    logger.log('[*] No storage DS provided, skip...') // can rm
 
     input.addInt(0, false) // account count
   }
@@ -116,34 +109,26 @@ export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: Block
   if (ds.event) {
     const [eventDSAddrList, eventDSEsigsList] = ds.getEventLists()
 
-    // TODO: move this to cli
-    if (enableLog)
-      logger.log('[*] Defined Data Sources - Event:')
+    logger.log('[*] Defined Data Sources - Event:')
 
-    for (let i = 0; i < eventDSAddrList.length; i++) {
-      if (enableLog)
-        logger.log(`    (${i}) Address:`, eventDSAddrList[i], '\n        Event Sigs:', eventDSEsigsList[i], '\n')
-    }
+    for (let i = 0; i < eventDSAddrList.length; i++)
+      logger.log(`    (${i}) Address:`, eventDSAddrList[i], '\n        Event Sigs:', eventDSEsigsList[i], '\n')
 
-    fillInputEventsFunc(input, blockPrep, eventDSAddrList, eventDSEsigsList, enableLog)
+    fillInputEventsFunc(input, blockPrep, eventDSAddrList, eventDSEsigsList)
   }
   else {
-    if (enableLog)
-      logger.log('[*] No event DS provided, skip...') // can rm
+    logger.log('[*] No event DS provided, skip...') // can rm
 
     input.addInt(0, false) // source contract count; meaning: no source contract
   }
 
   if (ds.transaction) {
-    // TODO: move this to cli
-    if (enableLog)
-      logger.log('[*] Defined Data Sources - Transaction.')
+    logger.log('[*] Defined Data Sources - Transaction.')
 
     fillInputTxsFunc(input, blockPrep, ds.transaction)
   }
   else {
-    if (enableLog)
-      logger.log('[*] No transaction DS provided, skip...')
+    logger.log('[*] No transaction DS provided, skip...')
 
     input.addInt(0, false) // tx count
   }
@@ -176,7 +161,7 @@ export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrLi
   }
 }
 
-export function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][], enableLog = true) {
+export function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][]) {
   const rawreceiptList = blockPrep?.getRLPReceipts()
 
   // TODO: return list rather than appending string.
@@ -185,7 +170,6 @@ export function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrLis
     eventDSAddrList,
     eventDSEsigsList,
     rawreceiptList as any,
-    enableLog,
   )
 
   // TODO: calc receipt count from filterEvents

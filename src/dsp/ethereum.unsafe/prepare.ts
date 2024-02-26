@@ -46,7 +46,7 @@ export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider,
    */
   if (needRLPReceiptList) {
     const rawreceiptList = await dspHooks.getRawReceipts(provider, blockNumber).catch(
-      (error) => {
+      (error: any) => {
         throw error
       },
     )

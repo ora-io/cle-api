@@ -14,7 +14,7 @@ export interface EthereumDDPGoParams {
 export class EthereumDataDestinationPlugin extends DataDestinationPlugin<EthereumDDPGoParams> {
   goParams: KeyofToArray<EthereumDDPGoParams> = ['signer']
 
-  async go(cleId: string, proofParams: ProofParams, goParams: EthereumDDPGoParams, enableLog = false): Promise<void> {
+  async go(cleId: string, proofParams: ProofParams, goParams: EthereumDDPGoParams): Promise<void> {
     const proof = ZkWasmUtil.bytesToBigIntArray(proofParams.aggregate_proof)
     const instances = ZkWasmUtil.bytesToBigIntArray(proofParams.batch_instances)
     const aux = ZkWasmUtil.bytesToBigIntArray(proofParams.aux)
@@ -30,16 +30,12 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
     // const tx = await graph.trigger(proof, instances, aux, [arg], extra, { gasLimit: goParams.gasLimit })
     const tx = await graph.trigger(proof, instances, aux, arg, extra, { gasLimit: goParams.gasLimit })
 
-    if (enableLog) {
-      // logger.info("transaction submitted, tx hash: " + tx.hash);
-      logger.log(`transaction submitted, tx hash: ${tx.hash}`)
-    }
+    // logger.info("transaction submitted, tx hash: " + tx.hash);
+    logger.log(`transaction submitted, tx hash: ${tx.hash}`)
     const receipt = await tx.wait()
     // await tx.wait()
-    if (enableLog) {
-      // logger.info("transaction confirmed, block number: " + receipt.blockNumber);
-      logger.log(`transaction confirmed, block number: ${receipt.blockNumber}`)
-    }
+    // logger.info("transaction confirmed, block number: " + receipt.blockNumber);
+    logger.log(`transaction confirmed, block number: ${receipt.blockNumber}`)
     // this.status == 'off';
     // this.senderIdx = (this.senderIdx + 1) % config.UserPrivateKey.length;
     // }

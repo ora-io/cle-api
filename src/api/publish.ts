@@ -7,11 +7,9 @@ import {
   addressFactory,
 } from '../common/constants'
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
-import { loadConfigByNetwork } from '../common/utils'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
 import type { CLEExecutable } from '../types/api'
-import type { CLEYaml } from '../types/zkgyaml'
 
 /**
  * @param {string} proverUrl - the prover url
@@ -63,9 +61,12 @@ export async function publishByImgCmt(
 
   const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
 
-  const networkName = cleYaml?.dataDestinations[0].network
-  const destinationContractAddress = cleYaml?.dataDestinations[0].address
-  const factoryAddress = loadConfigByNetwork(cleYaml as CLEYaml, addressFactory, false)
+  const destinationContractAddress
+    = (cleYaml?.dataDestinations && cleYaml?.dataDestinations.length)
+      ? cleYaml?.dataDestinations[0].address
+      : AddressZero
+  const networkName = (await signer.provider?.getNetwork())?.name
+  const factoryAddress = networkName ? (addressFactory as any)[networkName] : AddressZero
   const factoryContract = new Contract(factoryAddress, abiFactory, signer)
   const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
 
@@ -97,11 +98,9 @@ export async function publishByImgCmt(
   const graphAddress = `0x${logs[0].data.slice(-40)}`
 
   return {
-    networkName,
     graphAddress,
     ...txReceipt,
   } as {
-    networkName: string
     graphAddress: string
     blockNumber: number
     transactionHash: string

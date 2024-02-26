@@ -58,7 +58,7 @@ export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> ext
   }
 
   fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: X) {
-    this.fillExecInput(input, cleYaml, dataPrep, true)
+    this.fillExecInput(input, cleYaml, dataPrep)
     // add expected State Str
     const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
     input.addVarLenHexString(expectedStateStr, Input.PublicId)
@@ -81,10 +81,10 @@ export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin
     return safePrepareData(cleYaml, prepareParams)
   }
 
-  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep, enableLog = true) {
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
     // set safe func
     setFillInputEventsFunc(fillInputEvents)
-    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber, enableLog)
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber)
     input.auxParams = genAuxParams(cleYaml, dataPrep)
     return input
   }

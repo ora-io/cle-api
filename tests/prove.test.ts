@@ -77,7 +77,6 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const input = await zkgapi.proveInputGen(
       { cleYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
-      false,
     )
 
     // console.log(privateInputStr);
@@ -89,7 +88,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const result = await zkgapi.prove(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
-      { proverUrl: zkwasmUrl, signer, enableLog: true })
+      { proverUrl: zkwasmUrl, signer })
 
     console.log(result)
     expect(result.taskId).toBeTypeOf('string')
