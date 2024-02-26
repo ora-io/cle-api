@@ -3,14 +3,13 @@ import { Contract, ethers } from 'ethers'
 import { expect, it } from 'vitest'
 import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
-import { abiFactory, addressFactory, cle_abi } from '../src/common/constants'
+import { DEFAULT_URL, abiFactory, addressFactory, cle_abi } from '../src/common/constants'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
 it('test publish', async () => {
-  const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
   const cleYaml = loadYamlFromPath('tests/testsrc/cle-dirty.yaml') as zkgapi.CLEYaml
   const network = cleYaml.decidePublishNetwork()
   console.log('network', network)
@@ -34,7 +33,7 @@ it('test publish', async () => {
     const publishTxHash = await zkgapi.publish(
       { wasmUint8Array, cleYaml },
       signer,
-      { proverUrl: ZkwasmProviderUrl, ipfsHash, bountyRewardPerTrigger: newBountyRewardPerTrigger },
+      { proverUrl: DEFAULT_URL.ZKWASMHUB, ipfsHash, bountyRewardPerTrigger: newBountyRewardPerTrigger },
     )
 
     console.log('publishTxHash:', publishTxHash)

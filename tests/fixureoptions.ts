@@ -1,3 +1,4 @@
+import { DEFAULT_URL } from '../src/common/constants'
 import type { NetworksConfig } from '../src/common/utils'
 import { config } from './config'
 // for storage case
@@ -67,7 +68,7 @@ export const fixtures: Record<string, OptionType> = {
     // wasmPath: 'tests/build/cle-event.wasm',
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
     blocknum: eventblocknum,
-    zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
+    zkwasmUrl: DEFAULT_URL.ZKWASMHUB,
     // watPath: '',
     // mappingPath: '',
     local: false,
@@ -78,7 +79,7 @@ export const fixtures: Record<string, OptionType> = {
     // wasmPath: 'tests/build/cle-storage.wasm',
     expectedState: 'a60ecf32309539dd84f27a9563754dca818b815e', // use event return
     blocknum: latestblocknum,
-    zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
+    zkwasmUrl: DEFAULT_URL.ZKWASMHUB,
     // watPath: '',
     // mappingPath: '',
     local: false,
