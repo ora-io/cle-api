@@ -24,17 +24,24 @@ export interface PinataOptions {
   directoryName: string
 }
 export type UploadOptions = PinataOptions & UploadRequiredFiles
+
+export interface UploadResult {
+  success: boolean
+  isUploadSuccess?: boolean // deprecating. == success
+  errorMessage?: string
+}
+
 /**
  * Uploads files to a specified directory.
  *
  * @param {Record<string, File | fs.ReadStream>} files - The files to be uploaded.
  * @param {UploadOptions} opitons
- * @returns {Promise<{ response: any, isUploadSuccess: boolean, errorMessage: string }>} - An object containing the response, upload success status, and error message (if any).
+ * @returns {Promise<UploadResult>} - An object containing the response, upload success status, and error message (if any).
  */
 export async function upload(
   files: Record<string, any>,
   options: UploadOptions,
-) {
+): Promise<UploadResult> {
   const { pinataEndpoint, pinataJWT, directoryName } = options
 
   const {
@@ -64,7 +71,7 @@ export async function upload(
   })
   formData.append('pinataMetadata', metadata)
   // upload
-  const [response, isUploadSuccess, errorMessage] = await pinata_upload(
+  const pinataresult = await pinata_upload(
     formData,
     pinataEndpoint,
     pinataJWT,
@@ -72,9 +79,5 @@ export async function upload(
     throw error
   })
 
-  return {
-    response,
-    isUploadSuccess,
-    errorMessage,
-  }
+  return pinataresult
 }

@@ -9,7 +9,10 @@ import type { CLEExecutable } from '../types/api'
  * @param {Input} input
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, input: Input) {
+export async function proveMock(
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  input: Input,
+): Promise<boolean> {
   const { wasmUint8Array } = cleExecutable
 
   const mock = new Simulator()

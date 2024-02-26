@@ -3,9 +3,8 @@ import type { providers } from 'ethers'
 import { Contract } from 'ethers'
 import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
-import type { ProofParams, ProofParams as VerifyProofParams } from '../types/api'
-import type { BatchOption } from './setup'
-import { BatchStyle } from './setup'
+import type { BatchOption, ProofParams, ProofParams as VerifyProofParams } from '../types/api'
+import { BatchStyle } from '../types/api'
 import { waitProve } from './prove'
 // import { VerifyProofParams } from '@ora-io/zkwasm-service-helper'
 
@@ -33,7 +32,7 @@ export async function verify(
 export async function verifyOnchain(
   verifyParams: VerifyProofParams,
   options: VerifyOptions,
-) {
+): Promise<boolean> {
   const { batchStyle = BatchStyle.ZKWASMHUB, isZKVerifier = true } = options
   if (isZKVerifier === false)
     throw new Error('isZKVerifier==false is reserved, not supported yet')

@@ -9,7 +9,7 @@ export async function trigger(
   cleId: string,
   proofParams: ProofParams,
   ddpParamsList: Record<string, any>[], // 1 ddpParams per ddp
-) {
+): Promise<void> {
   const { cleYaml } = cleExecutable
   const ddps = ddpHub.getDDPsByYaml(cleYaml)
   for (const ddp of ddps)

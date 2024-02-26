@@ -13,7 +13,7 @@ import type { CLEExecutable } from '../types/api'
 export async function proveInputGen(
   cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   proveParams: Record<string, any>,
-) {
+): Promise<Input> {
   const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)
