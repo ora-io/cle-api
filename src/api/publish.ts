@@ -9,17 +9,20 @@ import {
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable } from '../types'
 
-/**
- * @param {string} proverUrl - the prover url
- * @param {string} ipfsHash - the ipfs hash from the 'upload' step
- * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
- */
 export interface PublishOptions {
   proverUrl?: string
-  ipfsHash: string
-  bountyRewardPerTrigger: number
+  ipfsHash: string // the ipfs hash from the 'upload' step
+  bountyRewardPerTrigger: number // the bounty reward per verified trigger (ETH)
+}
+
+export interface PublishResult {
+  graphAddress?: string // deprecating. == cleAddress
+  cleAddress: string
+  blockNumber: number
+  transactionHash: string
+  networkName: string
 }
 
 /**
@@ -33,7 +36,7 @@ export async function publish(
   cleExecutable: CLEExecutable,
   signer: ethers.Signer,
   options: PublishOptions,
-) {
+): Promise<PublishResult> {
   const { proverUrl = DEFAULT_URL.PROVER } = options
   const imgCmt = await getImageCommitment(cleExecutable, proverUrl)
   return publishByImgCmt(cleExecutable, signer, options, imgCmt)
@@ -51,7 +54,7 @@ export async function publishByImgCmt(
   signer: ethers.Signer,
   options: PublishOptions,
   imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
-) {
+): Promise<PublishResult> {
   const { ipfsHash, bountyRewardPerTrigger = 0.05 } = options
   const { cleYaml } = cleExecutable
 
@@ -95,16 +98,13 @@ export async function publishByImgCmt(
   )
 
   // Extract the graph address from the event
-  const graphAddress = `0x${logs[0].data.slice(-40)}`
+  const cleAddress = `0x${logs[0].data.slice(-40)}`
 
   return {
-    graphAddress,
+    cleAddress,
+    graphAddress: cleAddress, // for backward compatible only, rm when deprecate
     ...txReceipt,
-  } as {
-    graphAddress: string
-    blockNumber: number
-    transactionHash: string
-  }
+  } as PublishResult
 }
 
 function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {

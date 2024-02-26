@@ -1,10 +1,10 @@
 import yaml from 'js-yaml'
 import semver from 'semver'
 import { YamlHealthCheckFailed, YamlInvalidFormat } from '../common/error'
-import { EthereumDataDestination, EthereumDataSource } from './zkgyaml_eth'
-import type { DataDestination, DataSource, DataSourceKind } from './zkgyaml_def'
-import { Mapping } from './zkgyaml_def'
-import { OffchainDataSource } from './zkgyaml_off'
+import { EthereumDataDestination, EthereumDataSource } from './cleyaml_eth'
+import type { DataDestination, DataSource, DataSourceKind } from './interface'
+import { Mapping } from './interface'
+import { OffchainDataSource } from './cleyaml_off'
 
 export type DataSourceClassType = 'ethereum' | 'offchain'
 export type DataSourceClassMap<T = DataSourceClassType> = Map<T, typeof EthereumDataSource | typeof OffchainDataSource>

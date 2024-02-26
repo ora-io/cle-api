@@ -2,8 +2,7 @@ import type { providers } from 'ethers'
 import { filterEvents } from '../../common/api_helper'
 import { getRawTransaction } from '../../common/ethers_helper'
 import { toHexString } from '../../common/utils'
-import type { CLEYaml } from '../../types/zkgyaml'
-import type { EthereumDataSource } from '../../types/zkgyaml_eth'
+import type { CLEYaml, EthereumDataSource } from '../../types'
 import { logger } from '../../common'
 import type { BlockPrep } from './blockprep'
 
@@ -44,19 +43,19 @@ export function fillInputBlocksWithoutLatestBlockhash(
   return input
 }
 
-// modularize, re-use in eth local dsp.
+// modularize, re-use in other dsp.
 let fillInputStorageFunc = fillInputStorage
 export function setFillInputStorageFunc(_func: any) {
   fillInputStorageFunc = _func
 }
 
-// modularize, re-use in eth local dsp.
+// modularize, re-use in other dsp.
 let fillInputEventsFunc = fillInputEvents
 export function setFillInputEventsFunc(_func: any) {
   fillInputEventsFunc = _func
 }
 
-// modularize, re-use in eth local dsp.
+// modularize, re-use in other dsp.
 let fillInputTxsFunc = fillInputTxs
 export function setFillInputTxsFunc(_func: any) {
   fillInputTxsFunc = _func

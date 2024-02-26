@@ -2,7 +2,7 @@ import { Input } from 'zkwasm-toolchain'
 import { DSPNotFound } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable } from '../types'
 
 /**
  * Generate the private and public inputs in hex string format
@@ -13,7 +13,7 @@ import type { CLEExecutable } from '../types/api'
 export async function proveInputGen(
   cleExecutable: Omit<CLEExecutable, 'wasmUint8Array'>,
   proveParams: Record<string, any>,
-) {
+): Promise<Input> {
   const { cleYaml } = cleExecutable
 
   const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)

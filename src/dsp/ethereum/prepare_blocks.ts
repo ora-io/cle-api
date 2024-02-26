@@ -2,8 +2,7 @@ import type { providers } from 'ethers'
 import { ethers } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
-import type { CLEYaml } from '../../types/zkgyaml'
-import type { EthereumDataSource } from '../../types/zkgyaml_eth'
+import type { CLEYaml, EthereumDataSource } from '../../types'
 import { dspHooks } from '../hooks'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
 
@@ -23,7 +22,7 @@ export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, c
   return new EthereumDataPrep(blockPrepMap, blocknumOrder, contextBlocknumber, expectedStateStr, latestBlocknumber)
 }
 
-// modularize prepareOneBlockFunc, re-use in eth local dsp.
+// modularize prepareOneBlockFunc, re-use in other dsp.
 let prepareOneBlockFunc = prepareOneBlock
 export function setPrePareOneBlockFunc(_func: any) {
   prepareOneBlockFunc = _func

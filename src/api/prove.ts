@@ -1,54 +1,63 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
-import type { Nullable } from '@murongg/utils'
 import type { Input } from 'zkwasm-toolchain'
 import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import type { CLEExecutable, ProofParams } from '../types/api'
+import type { BatchOption, CLEExecutable, ProofParams, SingableProver } from '../types'
+import { BatchStyle } from '../types'
 import { logger } from '../common'
 import { FinishStatusList } from '../common/constants'
-import { type BatchOption, BatchStyle, type SingableProver } from './setup'
 
-export type ProveOptions = SingableProver
+export type ProveOptions = SingableProver & BatchOption
+
+export interface ProveResult {
+  status: string
+  proofParams?: ProofParams
+  taskDetails?: any // optional
+}
+
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {object} cleExecutable
- * @param {Input} input
- * @param {string} options
- * @returns {object} - proof task details in json
  */
 export async function prove(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
   input: Input,
   options: ProveOptions,
-) {
-  const result: {
-    md5: Nullable<string>
-    taskId: Nullable<string>
-  } = {
-    md5: null,
-    taskId: null,
-  }
+): Promise<ProveResult> {
+  const prResult = await requestProve(cleExecutable, input, options)
+  const pwResult = await waitProve(options.proverUrl, prResult.taskId, options)
+  return pwResult
+}
+
+export interface RequestProveResult {
+  md5: string
+  taskId: string
+  taskDetails?: any // optional
+}
+
+export async function requestProve(
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  input: Input,
+  options: ProveOptions,
+): Promise<RequestProveResult> {
   const { wasmUint8Array } = cleExecutable
 
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
+  logger.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
-  result.md5 = md5
-
-  await ora_prove(
-    md5,
-    input,
-    options,
-  ).then(async (response) => {
-    result.taskId = response.data.result.id
-    logger.log(`[+] PROVING TASK STARTED. TASK ID: ${result.taskId}`, '\n')
-  })
-    .catch((error) => {
-    // TODO: other error types need to be handle here? e.g. NoSetup
-      throw error
+  let taskDetails
+  let taskId = '' // taskId must be set to response.data.result.id later
+  await ora_prove(md5, input, options)
+    .then(async (response) => {
+      taskId = response.data.result.id
+      taskDetails = response.data.result.data[0]
+      logger.log(`[+] PROVING TASK STARTED. TASK ID: ${taskId}`, '\n')
     })
+    // TODO: other error types need to be catch here? e.g. NoSetup
 
+  const result: RequestProveResult = { md5, taskId, taskDetails }
+  return result
   // const privateInputArray = input.getPrivateInputStr().trim().split(' ')
   // const publicInputArray = input.getPublicInputStr().trim().split(' ')
   // const [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
@@ -60,29 +69,22 @@ export async function prove(
   // ).catch((error) => {
   //   throw error
   // })
-
-  logger?.log(`[*] IMAGE MD5: ${md5}`, '\n')
-  return result
 }
 
 export async function waitProve(
   proverUrl: string,
   proveTaskId: string,
   options: BatchOption = {},
-) {
+): Promise<ProveResult> {
   const { batchStyle = BatchStyle.ZKWASMHUB } = options
   const task = await waitTaskStatus(proverUrl, proveTaskId, FinishStatusList, 3000, 0)
   // .catch((err) => {
   //   throw err
   // }) // TODO: timeout
 
-  const result: {
-    status: Nullable<string>
-    proofParams: Nullable<ProofParams>
-    taskDetails: Nullable<any> // optional
-  } = {
+  const result: ProveResult = {
     status: task.status,
-    proofParams: null,
+    proofParams: undefined,
     taskDetails: task,
   }
 

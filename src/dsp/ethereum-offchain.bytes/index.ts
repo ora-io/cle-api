@@ -8,7 +8,7 @@ import { fillInputBlocks } from '../ethereum/fill_blocks'
 import { prepareBlocksByYaml } from '../ethereum/prepare_blocks'
 
 import { trimPrefix } from '../../common/utils'
-import type { CLEYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types'
 import type { BlockPrep } from '../ethereum/blockprep'
 import { dspHooks } from '../hooks'
 

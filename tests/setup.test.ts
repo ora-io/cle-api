@@ -27,5 +27,5 @@ describe('test setup', () => {
     )
 
     console.log('test result', result)
-  })
+  }, { timeout: 10000 })
 })

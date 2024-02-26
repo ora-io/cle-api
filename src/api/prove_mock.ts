@@ -1,7 +1,7 @@
 import type { Input } from 'zkwasm-toolchain'
 import { Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-toolchain'
 import { CLERequireFailed } from '../common/error'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable } from '../types'
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
@@ -9,7 +9,10 @@ import type { CLEExecutable } from '../types/api'
  * @param {Input} input
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(cleExecutable: Omit<CLEExecutable, 'cleYaml'>, input: Input) {
+export async function proveMock(
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  input: Input,
+): Promise<boolean> {
   const { wasmUint8Array } = cleExecutable
 
   const mock = new Simulator()

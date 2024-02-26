@@ -23,20 +23,17 @@ const blocknumForStorageTest = {
 const execOptionsForEvent = {
   wasmPath: 'tests/build/cle-event.wasm',
   yamlPath: 'tests/testsrc/cle-event.yaml',
-  local: false,
 }
 
 const execOptionsForStorage = {
   wasmPath: 'tests/build/cle-storage.wasm',
   yamlPath: 'tests/testsrc/cle-storage.yaml',
-  local: false,
 }
 
 describe('test exec', () => {
   it('test_exec', async () => {
     const wasmPath = 'tests/build/cle-latest.wasm'
     const yamlPath = 'tests/testsrc/cle-latest.yaml'
-    const local = false
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -56,14 +53,13 @@ describe('test exec', () => {
     const state = await zkgapi.execute(
       { wasmUint8Array, cleYaml: yaml },
       execParams as any,
-      local,
     )
 
     return state
   }, { timeout: 100000 })
 
   it('test_exec_with_latest', async () => {
-    const { wasmPath, yamlPath, local } = execOptionsForEvent
+    const { wasmPath, yamlPath } = execOptionsForEvent
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -83,14 +79,13 @@ describe('test exec', () => {
     const state = await zkgapi.execute(
       { wasmUint8Array, cleYaml: yaml },
       execParams as any,
-      local,
     )
 
     return state
   }, { timeout: 100000 })
 
   it('test_exec_with_prepare_data', async () => {
-    const { wasmPath, yamlPath, local } = execOptionsForStorage
+    const { wasmPath, yamlPath } = execOptionsForStorage
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -119,14 +114,13 @@ describe('test exec', () => {
     const state = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, cleYaml: yaml },
       dataPrep as zkgapi.DataPrep,
-      local,
     )
 
     return state
   }, { timeout: 100000 })
 
   it('test_exec_then_prove', async () => {
-    const { wasmPath, yamlPath, local } = execOptionsForEvent
+    const { wasmPath, yamlPath } = execOptionsForEvent
 
     /**
      * assemble cleExecutable & get dsp
@@ -165,7 +159,6 @@ describe('test exec', () => {
     const stateu8a = await zkgapi.executeOnDataPrep(
       { wasmUint8Array, cleYaml: yaml },
       dataPrep as zkgapi.DataPrep,
-      local,
     )
     const stateStr = zkgapi.utils.toHexString(stateu8a)
 

@@ -3,7 +3,6 @@ import { ethers, providers } from 'ethers'
 import { describe, expect, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
 import * as zkgapi from '../src/index'
-import { BatchStyle } from '../src/api/setup'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 import { fixtures } from './fixureoptions'
@@ -85,7 +84,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const userPrivateKey = config.UserPrivateKey
     const signer = new ethers.Wallet(userPrivateKey, provider)
 
-    const result = await zkgapi.prove(
+    const result = await zkgapi.requestProve(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
       { proverUrl: zkwasmUrl, signer })
@@ -97,7 +96,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
   it.only('test waitProve', async () => {
     const { zkwasmUrl } = option
     const taskId = '65dae256429af08ed922479a'
-    const result = await zkgapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: BatchStyle.ZKWASMHUB })
+    const result = await zkgapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: zkgapi.BatchStyle.ZKWASMHUB })
     // console.log(result.proofParams?.instances)
     expect((result.proofParams?.instances as any[])[0]).toBeInstanceOf(Array)
   }, { timeout: 100000 })

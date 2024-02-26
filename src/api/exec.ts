@@ -4,7 +4,7 @@ import { Input, Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-
 import { DSPNotFound } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable } from '../types'
 export { hasDebugOnlyFunc } from 'zkwasm-toolchain'
 
 /**

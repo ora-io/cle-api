@@ -1,4 +1,4 @@
-import type { CLEYaml } from '../types/zkgyaml'
+import type { CLEYaml } from '../types'
 import { EthereumDataDestinationPlugin } from './ethereum'
 import type { DataDestinationPlugin } from './interface'
 

@@ -1,4 +1,4 @@
-import type { CLEYaml } from '../types/zkgyaml'
+import type { CLEYaml } from '../types'
 import { EthereumDataSourcePlugin } from './ethereum'
 import { EthereumOffchainDSP } from './ethereum-offchain.bytes'
 import { EthereumUnsafeDataSourcePlugin } from './ethereum.unsafe'
