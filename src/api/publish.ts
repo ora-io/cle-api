@@ -9,7 +9,20 @@ import {
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { CLEExecutable, PublishOptions, PublishResult } from '../types/api'
+import type { CLEExecutable } from '../types/api'
+
+export interface PublishOptions {
+  proverUrl?: string
+  ipfsHash: string // the ipfs hash from the 'upload' step
+  bountyRewardPerTrigger: number // the bounty reward per verified trigger (ETH)
+}
+
+export interface PublishResult {
+  graphAddress?: string // deprecating. == cleAddress
+  cleAddress: string
+  blockNumber: number
+  transactionHash: string
+}
 
 /**
  * Publish and register CLE onchain.

@@ -1,28 +1,15 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
-import type { Signer } from 'ethers'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
 import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
-import type { CLEExecutable, RequestSetupResult, SetupResult } from '../types/api'
+import type { CLEExecutable, SingableProver } from '../types/api'
 import { ora_setup } from '../requests'
 import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
 import { logger } from '../common'
 
-export enum BatchStyle {
-  ORA,
-  ZKWASMHUB,
-}
-
-export interface BatchOption {
-  batchStyle?: BatchStyle
-}
-export interface SingableProver {
-  proverUrl: string
-  signer: Signer
-}
 export interface BasicSetupParams {
   circuitSize?: number
   imageName?: string // optional, can diff from local files
@@ -32,6 +19,12 @@ export interface BasicSetupParams {
 
 export type SetupOptions = SingableProver & BasicSetupParams
 
+export interface SetupResult {
+  status: string
+  success: boolean
+  taskDetails?: any // optional
+}
+
 export async function setup(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
   options: SetupOptions,
@@ -39,6 +32,12 @@ export async function setup(
   const rsResult = await requestSetup(cleExecutable, options)
   const wsResult = await waitSetup(options.proverUrl, rsResult.taskId)
   return wsResult
+}
+
+export interface RequestSetupResult {
+  md5: string
+  taskId: string
+  taskDetails?: any // optional
 }
 
 /**
@@ -88,8 +87,8 @@ export async function requestSetup(
         taskDetails = res.data.result.data[0]
         taskId = res.data.result.data[0]._id.$oid
         // setupStatus = res.data.result.data[0].status
-        
-        logger.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`,'\n')
+
+        logger.log(`[*] IMAGE ALREADY EXISTS. PREVIOUS SETUP TASK ID: ${taskId}`, '\n')
       }
       else {
         throw error

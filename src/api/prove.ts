@@ -4,18 +4,21 @@ import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import type { CLEExecutable, ProofParams, ProveResult, RequestProveResult } from '../types/api'
+import { BatchStyle } from '../types/api'
+import type { type BatchOption, CLEExecutable, ProofParams, type SingableProver } from '../types/api'
 import { logger } from '../common'
 import { FinishStatusList } from '../common/constants'
-import { type BatchOption, BatchStyle, type SingableProver } from './setup'
 
 export type ProveOptions = SingableProver & BatchOption
+
+export interface ProveResult {
+  status: string
+  proofParams?: ProofParams
+  taskDetails?: any // optional
+}
+
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {object} cleExecutable
- * @param {Input} input
- * @param {string} options
- * @returns {object} - proof task details in json
  */
 export async function prove(
   cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
@@ -25,6 +28,12 @@ export async function prove(
   const prResult = await requestProve(cleExecutable, input, options)
   const pwResult = await waitProve(options.proverUrl, prResult.taskId, options)
   return pwResult
+}
+
+export interface RequestProveResult {
+  md5: string
+  taskId: string
+  taskDetails?: any // optional
 }
 
 export async function requestProve(
@@ -61,6 +70,7 @@ export async function requestProve(
   //   throw error
   // })
 }
+
 export async function waitProve(
   proverUrl: string,
   proveTaskId: string,
