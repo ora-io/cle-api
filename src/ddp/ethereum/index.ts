@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { KeyofToArray } from '@murongg/utils/index'
-import { cle_abi } from '../../common/constants'
+import { cleContractABI } from '../../common/constants'
 import type { ProofParams } from '../../types'
 import { DataDestinationPlugin } from '../interface'
 import { logger } from '../../common'
@@ -25,7 +25,7 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
     // TODO: double check: decoded extra should be uint256[blocknum1, blocknum2]
 
     // try {
-    const graph = new ethers.Contract(cleId, cle_abi, goParams.signer)
+    const graph = new ethers.Contract(cleId, cleContractABI, goParams.signer)
 
     // const tx = await graph.trigger(proof, instances, aux, [arg], extra, { gasLimit: goParams.gasLimit })
     const tx = await graph.trigger(proof, instances, aux, arg, extra, { gasLimit: goParams.gasLimit })

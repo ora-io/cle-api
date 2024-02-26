@@ -1,6 +1,6 @@
 import { Contract, ethers } from 'ethers'
 import {
-  cle_abi,
+  cleContractABI,
 } from '../common/constants'
 
 /**
@@ -23,7 +23,7 @@ export async function deposit(
 ) {
   const { depositAmount } = options
 
-  const cleContract = new Contract(cleContractAddress, cle_abi, signer)
+  const cleContract = new Contract(cleContractAddress, cleContractABI, signer)
   const tx = await cleContract
     .deposit(
       ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) },

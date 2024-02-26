@@ -3,7 +3,7 @@ import { Contract, ethers } from 'ethers'
 import { expect, it } from 'vitest'
 import { GraphAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
-import { DEFAULT_URL, abiFactory, addressFactory, cle_abi } from '../src/common/constants'
+import { DEFAULT_URL, abiFactory, addressFactory, cleContractABI } from '../src/common/constants'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 
@@ -45,7 +45,7 @@ it('test publish', async () => {
     const factoryContract = new Contract(addressFactory.sepolia, abiFactory, signer)
     const deployedAddress = await factoryContract.getGraphBycreator(signer.address)
 
-    const graphContract = new Contract(deployedAddress[deployedAddress.length - 1], cle_abi, provider).connect(signer)
+    const graphContract = new Contract(deployedAddress[deployedAddress.length - 1], cleContractABI, provider).connect(signer)
 
     const reward = await graphContract.bountyReward()
     // expect reward is equal to newBountyRewardPerTrigger
