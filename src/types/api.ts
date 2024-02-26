@@ -37,3 +37,21 @@ export interface ProveResult {
   proofParams?: ProofParams
   taskDetails?: any // optional
 }
+
+/**
+ * @param {string} proverUrl - the prover url
+ * @param {string} ipfsHash - the ipfs hash from the 'upload' step
+ * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
+ */
+export interface PublishOptions {
+  proverUrl?: string
+  ipfsHash: string
+  bountyRewardPerTrigger: number
+}
+
+export interface PublishResult {
+  graphAddress?: string // deprecating. == cleAddress
+  cleAddress: string
+  blockNumber: number
+  transactionHash: string
+}
