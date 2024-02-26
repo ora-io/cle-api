@@ -1,5 +1,5 @@
 import type { Input } from 'zkwasm-toolchain'
-import type { CLEYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types'
 import { fillInputBlocksWithoutLatestBlockhash, fillInputEvents, setFillInputEventsFunc } from '../ethereum/fill_blocks'
 import { unsafePrepareData } from '../ethereum.unsafe'
 import { ExtendableEthereumDataSourcePlugin, safePrepareData } from '../ethereum'

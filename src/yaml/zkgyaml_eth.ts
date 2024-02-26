@@ -1,8 +1,8 @@
 import { ethers } from 'ethers'
 import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
 import { logger } from '../common'
-import type { DataDestinationKind, DataSourceKind } from './zkgyaml_def'
-import { DataDestination, DataSource } from './zkgyaml_def'
+import type { DataDestinationKind, DataSourceKind } from './interface'
+import { DataDestination, DataSource } from './interface'
 
 function isEthereumAddress(address: string) {
   try {

@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
-import type { CLEYaml } from '../types/zkgyaml'
+import type { CLEYaml } from '../types'
 import { networks } from './constants'
 import { logger } from './logger'
 

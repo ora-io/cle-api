@@ -1,5 +1,5 @@
 import { YamlHealthCheckFailed, YamlNotSupported } from '../common/error'
-import { DataSource } from './zkgyaml_def'
+import { DataSource } from './interface'
 
 // can't do this, because of lib handleFunc requires static type
 // class CustomDataSection {

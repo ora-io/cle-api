@@ -1,7 +1,7 @@
 // TODO rename to api/interface.ts
 // Only define common interface here to reduce possible conflicts
 import type { Signer } from 'ethers'
-import type { CLEYaml } from './zkgyaml'
+import type { CLEYaml } from '../yaml'
 
 export interface CLEExecutable {
   wasmUint8Array: Uint8Array
