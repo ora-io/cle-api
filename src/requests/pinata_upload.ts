@@ -6,6 +6,12 @@ import type { UploadResult } from '../api/upload'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 
+export interface PinataOptions {
+  pinataEndpoint: string
+  pinataJWT: string
+  directoryName: string
+}
+
 export interface PinitaUploadResult extends UploadResult {
   response: AxiosResponse<any, any> | void
 }

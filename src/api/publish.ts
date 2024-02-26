@@ -22,6 +22,7 @@ export interface PublishResult {
   cleAddress: string
   blockNumber: number
   transactionHash: string
+  networkName: string
 }
 
 /**

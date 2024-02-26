@@ -1,6 +1,7 @@
 import type fs from 'fs'
 import FormData from 'form-data'
 import { isKeyOf, objectMap } from '@murongg/utils'
+import type { PinataOptions } from '../requests/pinata_upload'
 import { pinata_upload } from '../requests/pinata_upload'
 import { UploadFileNotExist } from '../common/error'
 import { DEFAULT_PATH } from '../common/constants'
@@ -18,17 +19,13 @@ export interface UploadRequiredFiles {
  * @param {string} directoryName - The name to identify the directory.
  */
 
-export interface PinataOptions {
-  pinataEndpoint: string
-  pinataJWT: string
-  directoryName: string
-}
 export type UploadOptions = PinataOptions & UploadRequiredFiles
 
 export interface UploadResult {
   success: boolean
   isUploadSuccess?: boolean // deprecating. == success
   errorMessage?: string
+  response: any
 }
 
 /**
