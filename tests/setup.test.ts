@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { describe, it } from 'vitest'
 import { ethers, providers } from 'ethers'
 import * as zkgapi from '../src/index'
+import { DEFAULT_URL } from '../src/common/constants'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
 
@@ -23,9 +24,9 @@ describe('test setup', () => {
     const signer = new ethers.Wallet(config.UserPrivateKey, provider)
     const result = await zkgapi.setup(
       { wasmUint8Array },
-      { circuitSize: 22, proverUrl: 'http://localhost:8080', signer },
+      { circuitSize: 22, proverUrl: DEFAULT_URL.ZKWASMHUB, signer },
     )
-
-    console.log('test result', result)
+    result
+    // console.log('test result', result)
   }, { timeout: 10000 })
 })
