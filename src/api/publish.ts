@@ -9,7 +9,7 @@ import {
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { CLEExecutable } from '../types/api'
+import type { CLEExecutable } from '../types'
 
 export interface PublishOptions {
   proverUrl?: string

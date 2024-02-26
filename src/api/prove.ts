@@ -4,8 +4,8 @@ import { ora_prove } from '../requests/ora_prove'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import type { BatchOption, CLEExecutable, ProofParams, SingableProver } from '../types/api'
-import { BatchStyle } from '../types/api'
+import type { BatchOption, CLEExecutable, ProofParams, SingableProver } from '../types'
+import { BatchStyle } from '../types'
 import { logger } from '../common'
 import { FinishStatusList } from '../common/constants'
 

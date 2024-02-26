@@ -4,7 +4,7 @@ import {
 } from '../requests/zkwasm_taskdetails'
 import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
-import type { CLEExecutable, SingableProver } from '../types/api'
+import type { CLEExecutable, SingableProver } from '../types'
 import { ora_setup } from '../requests'
 import { createFileStream } from '../common/compatible'
 import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
