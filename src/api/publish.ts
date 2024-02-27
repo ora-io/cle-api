@@ -9,7 +9,8 @@ import {
 import { DSPNotFound, GraphAlreadyExist } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { CLEExecutable } from '../types'
+import type { CLEExecutable, CLEYaml } from '../types'
+import { logger } from '../common'
 
 export interface PublishOptions {
   proverUrl?: string
@@ -62,7 +63,27 @@ export async function publishByImgCmt(
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
+  // for ora prover upgrade
+  const suffix = (cy: CLEYaml) => {
+    const allEthDS = cy.dataSources.filter(
+      ds => ds.kind === 'ethereum')// ds.filterByKeys(['event', 'storage', 'transaction'])  //
+    const allEthDSState = allEthDS.filter(
+      ds => Object.keys(ds.filterByKeys(['storage'])).length !== 0)
+    const allEthDSStateOnly = allEthDSState.filter(
+      ds => Object.keys(ds.filterByKeys(['event', 'transaction'])).length === 0)
+    if (allEthDSStateOnly.length > 0)
+      return ':stateonly'
+
+    const allNoTx = allEthDS.filter(
+      ds => Object.keys(ds.filterByKeys(['transaction'])).length === 0)
+    if (allNoTx.length > 0)
+      return ':notx'
+
+    return ''
+  }
+  logger.debug('[*] dsp name suffix for clecontract:', suffix(cleYaml))
+
+  const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName() + suffix(cleYaml)))
 
   const destinationContractAddress
     = (cleYaml?.dataDestinations && cleYaml?.dataDestinations.length)
