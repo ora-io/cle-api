@@ -28,7 +28,13 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
     const graph = new ethers.Contract(cleId, cleContractABI, goParams.signer)
 
     // const tx = await graph.trigger(proof, instances, aux, [arg], extra, { gasLimit: goParams.gasLimit })
-    const tx = await graph.trigger(proof, instances, aux, arg, extra, { gasLimit: goParams.gasLimit })
+    const callparams = [proof, instances, aux, arg, extra, { gasLimit: goParams.gasLimit }]
+
+    // throw err if execution revert
+    await graph.callStatic.trigger(...callparams)
+
+    // send tx if passed local test
+    const tx = await graph.trigger(...callparams)
 
     // logger.info("transaction submitted, tx hash: " + tx.hash);
     logger.log(`transaction submitted, tx hash: ${tx.hash}`)
