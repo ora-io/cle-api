@@ -12,7 +12,7 @@ export interface EthereumDDPGoParams {
 }
 
 export class EthereumDataDestinationPlugin extends DataDestinationPlugin<EthereumDDPGoParams> {
-  goParams: KeyofToArray<EthereumDDPGoParams> = ['signer']
+  goParams: KeyofToArray<EthereumDDPGoParams> = ['signer', 'gasLimit']
 
   async go(cleId: string, proofParams: ProofParams, goParams: EthereumDDPGoParams): Promise<void> {
     const proof = ZkWasmUtil.bytesToBigIntArray(proofParams.aggregate_proof)

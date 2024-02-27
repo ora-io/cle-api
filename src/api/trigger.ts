@@ -12,6 +12,9 @@ export async function trigger(
 ): Promise<void> {
   const { cleYaml } = cleExecutable
   const ddps = ddpHub.getDDPsByYaml(cleYaml)
-  for (const ddp of ddps)
-    await ddp.go(cleId, proofParams, ddpParamsList)
+  if (ddpParamsList.length !== ddps.length)
+    throw new Error(`The length of DDP params list provided (${ddpParamsList.length}) doesn't match yaml specified DDP numbers ${ddps.length} `)
+
+  for (let i = 0; i < ddps.length; i++)
+    await ddps[i].go(cleId, proofParams, ddpParamsList[i])
 }
