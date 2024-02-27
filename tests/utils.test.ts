@@ -1,6 +1,8 @@
-import { describe, it } from 'vitest'
+import fs from 'node:fs'
+import { describe, expect, it } from 'vitest'
 import { ethers } from 'ethers'
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
+import yaml from 'js-yaml'
 import * as zkgapi from '../src/index'
 import { u32ListToUint8Array } from '../src/common/utils'
 import { config } from './config'
@@ -22,13 +24,27 @@ describe('test utils', () => {
     // console.log(res)
   }, { timeout: 100000 })
 
-  it('u32ListToUint8Array', async () => {
+  it('u32ListToUint8Array', () => {
     const blocknums = [5353087, 5353088]
     const result = u32ListToUint8Array(blocknums, 32)
     console.log('test u32ListToUint8Array', result)
     const extra = ZkWasmUtil.bytesToBigIntArray(result)
     console.log('test u32ListToUint8Array extra', extra)
     // expect(result).equals(new Uint8Array([ 127, 174, 81, 0 ])) // imcomplete
+  })
+
+  it('yaml filterSections', () => {
+    const yaml = loadYamlFromPath('tests/testsrc/cle-event.yaml') as any
+    expect(yaml.dataSources[0].filterByKeys(['event', 'storage']).event).toBeInstanceOf(Array)
+  })
+  it('yaml toString', () => {
+    const yamlpath = 'tests/testsrc/cle-event.yaml'
+    const yamlContents = fs.readFileSync(yamlpath, 'utf8')
+    const expectedYamlDump = yaml.dump(yaml.load(yamlContents))
+
+    const yamlObj = loadYamlFromPath(yamlpath) as any
+
+    expect(yamlObj.toString()).equals(expectedYamlDump)
   })
 })
 

@@ -3,7 +3,7 @@ import semver from 'semver'
 import { YamlHealthCheckFailed, YamlInvalidFormat } from '../common/error'
 import { EthereumDataDestination, EthereumDataSource } from './cleyaml_eth'
 import type { DataDestination, DataSource, DataSourceKind } from './interface'
-import { Mapping } from './interface'
+import { Mapping, WrappedYaml } from './interface'
 import { OffchainDataSource } from './cleyaml_off'
 
 export type DataSourceClassType = 'ethereum' | 'offchain'
@@ -17,7 +17,7 @@ const dataDestinationClassMap = new Map()
 dataDestinationClassMap.set('ethereum', EthereumDataDestination)
 
 // class ZkGraphYaml
-export class CLEYaml {
+export class CLEYaml extends WrappedYaml {
   specVersion: string
   apiVersion: string
   description: string
@@ -26,10 +26,9 @@ export class CLEYaml {
   dataDestinations: any[]
   mapping: Mapping
   name: string
-  yamlObj: any
 
   constructor(
-    yamlObj: any,
+    yamlObj,
     specVersion: string,
     apiVersion: string,
     name: string,
@@ -39,6 +38,7 @@ export class CLEYaml {
     dataDestinations: any[],
     mapping: Mapping,
   ) {
+    super(yamlObj)
     this.specVersion = specVersion
     this.apiVersion = apiVersion
     this.name = name
@@ -47,7 +47,6 @@ export class CLEYaml {
     this.dataSources = dataSources
     this.dataDestinations = dataDestinations
     this.mapping = mapping
-    this.yamlObj = yamlObj
   }
 
   static from_v_0_0_2(yamlObj: any) {
@@ -194,10 +193,6 @@ export class CLEYaml {
     // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
     //   throw new Error("dataDestinations network must match dataSources network");
     // }
-  }
-
-  toString() {
-    return yaml.dump(this.yamlObj)
   }
 
   decidePublishNetwork(): string | undefined {
