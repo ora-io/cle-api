@@ -87,7 +87,11 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const result = await zkgapi.requestProve(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
-      { proverUrl: zkwasmUrl, signer })
+      {
+        proverUrl: zkwasmUrl,
+        signer,
+        batchStyle: zkgapi.BatchStyle.ORA,
+      })
 
     console.log(result)
     expect(result.taskId).toBeTypeOf('string')
