@@ -11,7 +11,7 @@ import {
   // WithSignature,
   ZkWasmServiceHelper,
   ZkWasmUtil,
-} from '@hyperoracle/zkwasm-service-helper'
+} from '@ora-io/zkwasm-service-helper'
 
 async function signMessage(message, sk) {
   const wallet = new Wallet(sk)
@@ -29,7 +29,7 @@ export async function zkwasm_setup(
   circuitSize,
 ) {
   const helper = new ZkWasmServiceHelper(ZkwasmProviderUrl, '', '')
-  // const imagePath = 'tests/build/zkgraph-storage.wasm'
+  // const imagePath = 'tests/build/cle-storage.wasm'
 
   // const image = createFileFromUint8Array(wasmUint8Array, wasmName);
   // const fileSelected = fs.readFileSync(imagePath)

@@ -1,20 +1,22 @@
 import type { KeyofToArray } from '@murongg/utils/index'
 import type { providers } from 'ethers'
-import { getBlock } from '../../common/ethers_helper'
-import type { Input } from '../../common/input'
+import { Input } from 'zkwasm-toolchain'
 import { trimPrefix } from '../../common/utils'
-import type { ZkGraphYaml } from '../../types/zkgyaml'
+import type { CLEYaml } from '../../types'
+import type { DataPrep } from '../interface'
 import { DataSourcePlugin } from '../interface'
+import { dspHooks } from '../hooks'
 import type { EthereumDataPrep } from './blockprep'
-import { fillInputBlocks } from './fill_blocks'
-import { prepareBlocksByYaml } from './prepare_blocks'
+import { fillInputBlocks, fillInputEvents, setFillInputEventsFunc } from './fill_blocks'
+import { prepareBlocksByYaml, prepareOneBlock, setPrePareOneBlockFunc } from './prepare_blocks'
+import { genAuxParams } from './aux'
 
 export { EthereumDataPrep } from './blockprep'
 
 export interface EthereumDSPPrepareParams {
   provider: providers.JsonRpcProvider
-  latestBlocknumber: number
-  latestBlockhash: string
+  contextBlocknumber: number
+  // contextBlockhash: string
   expectedStateStr: string
 }
 
@@ -29,35 +31,7 @@ export interface EthereumDSPProveParams {
   expectedStateStr: string
 }
 
-export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, EthereumDataPrep> {
-  // SHOULD align with zkgraph-lib/dsp/<DSPName>
-  getLibDSPName() { return 'ethereum' }
-
-  async prepareData(zkgraphYaml: ZkGraphYaml, prepareParams: EthereumDSPPrepareParams) {
-    const { provider, latestBlocknumber, latestBlockhash, expectedStateStr } = prepareParams
-    const dataPrep = await prepareBlocksByYaml(provider, latestBlocknumber, latestBlockhash, expectedStateStr || '', zkgraphYaml)
-    return dataPrep
-  }
-
-  fillExecInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
-    return fillInputBlocks(input, zkgraphYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.latestBlockhash)
-  }
-
-  fillProveInput(input: Input, zkgraphYaml: ZkGraphYaml, dataPrep: EthereumDataPrep) {
-    this.fillExecInput(input, zkgraphYaml, dataPrep)
-    // add expected State Str
-    const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
-    input.addVarLenHexString(expectedStateStr, true)
-    return input
-  }
-
-  // TODO: copy instead of rename
-  toProveDataPrep(execDataPrep: EthereumDataPrep, execResult: string) {
-    const proveDataPrep = execDataPrep
-    proveDataPrep.expectedStateStr = execResult
-    return proveDataPrep
-  }
-
+export abstract class ExtendableEthereumDataSourcePlugin<X extends DataPrep> extends DataSourcePlugin<EthereumDSPExecParams, EthereumDSPProveParams, EthereumDSPPrepareParams, X> {
   execParams: KeyofToArray<EthereumDSPExecParams> = ['provider', 'blockId']
   proveParams: KeyofToArray<EthereumDSPProveParams> = ['provider', 'blockId', 'expectedStateStr']
 
@@ -71,15 +45,60 @@ export class EthereumDataSourcePlugin extends DataSourcePlugin<EthereumDSPExecPa
 
     // Get block
     // TODO: optimize: no need to getblock if blockId is block num
-    const rawblock = await getBlock(provider, blockId)
+    const rawblock = await dspHooks.getBlock(provider, blockId)
     const blockNumber = parseInt(rawblock.number)
-    const blockHash = rawblock.hash
+    // const blockHash = rawblock.hash
 
     return {
       provider,
-      latestBlocknumber: blockNumber,
-      latestBlockhash: blockHash,
+      contextBlocknumber: blockNumber,
+      // contextBlockhash: '-deprecate-',
       expectedStateStr,
     }
   }
+
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: X) {
+    this.fillExecInput(input, cleYaml, dataPrep)
+    // add expected State Str
+    const expectedStateStr = trimPrefix(dataPrep.expectedStateStr, '0x')
+    input.addVarLenHexString(expectedStateStr, Input.PublicId)
+    return input
+  }
+
+  // TODO: copy instead of rename
+  toProveDataPrep(execDataPrep: X, execResult: string) {
+    const proveDataPrep = execDataPrep
+    proveDataPrep.expectedStateStr = execResult
+    return proveDataPrep
+  }
+}
+
+export class EthereumDataSourcePlugin extends ExtendableEthereumDataSourcePlugin<EthereumDataPrep> {
+  // SHOULD align with cle-lib/dsp/<DSPName>
+  getLibDSPName() { return 'ethereum' }
+
+  async prepareData(cleYaml: CLEYaml, prepareParams: EthereumDSPPrepareParams) {
+    return safePrepareData(cleYaml, prepareParams)
+  }
+
+  fillExecInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+    // set safe func
+    setFillInputEventsFunc(fillInputEvents)
+    input = fillInputBlocks(input, cleYaml, dataPrep.blockPrepMap, dataPrep.blocknumberOrder, dataPrep.contextBlocknumber)
+    input.auxParams = genAuxParams(cleYaml, dataPrep)
+    return input
+  }
+
+  fillProveInput(input: Input, cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
+    input = super.fillProveInput(input, cleYaml, dataPrep)
+    return input
+  }
+}
+
+export async function safePrepareData(cleYaml: CLEYaml, prepareParams: Record<string, any>) {
+  const { provider, contextBlocknumber, expectedStateStr } = prepareParams
+  setPrePareOneBlockFunc(prepareOneBlock)
+
+  const dataPrep = await prepareBlocksByYaml(provider, contextBlocknumber, expectedStateStr || '', cleYaml)
+  return dataPrep
 }

@@ -1,78 +1,71 @@
-import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+import { Input, Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-toolchain'
+// import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
+
 import { DSPNotFound } from '../common/error'
-import { Input } from '../common/input'
-import { ZKWASMMock } from '../common/zkwasm_mock'
 import { dspHub } from '../dsp/hub'
 import type { DataPrep } from '../dsp/interface'
-import type { ZkGraphExecutable } from '../types/api'
+import type { CLEExecutable } from '../types'
+export { hasDebugOnlyFunc } from 'zkwasm-toolchain'
 
 /**
- * Execute the given zkGraphExecutable in the context of execParams
- * @param {object} zkGraphExecutable {'zkgraphYaml': zkgraphYaml}
+ * Execute the given cleExecutable in the context of execParams
+ * @param {object} cleExecutable {'cleYaml': cleYaml}
  * @param {object} execParams
- * @param {boolean} isLocal
- * @param {boolean} enableLog
- * @returns {Uint8Array} - execution result (aka. zkgraph state)
+ * @returns {Uint8Array} - execution result (aka. CLE state)
  */
-export async function execute(zkGraphExecutable: ZkGraphExecutable, execParams: Record<string, any>, isLocal = false, _enableLog = true) {
-  // TODO: mv this log to cli
-  // if (enableLog){
-  //     console.log(`[*] Run zkgraph on block ${blockid}\n`);
-  // }
-  const { zkgraphYaml } = zkGraphExecutable
+export async function execute(cleExecutable: CLEExecutable, execParams: Record<string, any>): Promise<Uint8Array> {
+  const { cleYaml } = cleExecutable
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
   const prepareParams = await dsp?.toPrepareParams(execParams, 'exec')
-  const dataPrep /** :DataPrep */ = await dsp?.prepareData(zkgraphYaml, prepareParams)
+  const dataPrep /** :DataPrep */ = await dsp?.prepareData(cleYaml, prepareParams) as DataPrep
 
-  return await executeOnDataPrep(zkGraphExecutable, dataPrep)
+  return await executeOnDataPrep(cleExecutable, dataPrep)
 }
 
 /**
  *
- * @param {object} zkGraphExecutable
+ * @param {object} cleExecutable
  * @param {DataPrep} dataPrep
- * @param {boolean} isLocal
- * @param {boolean} enableLog
  * @returns
  */
-export async function executeOnDataPrep(zkGraphExecutable: ZkGraphExecutable, dataPrep: DataPrep, isLocal = false, _enableLog = true) {
-  const { zkgraphYaml } = zkGraphExecutable
+export async function executeOnDataPrep(cleExecutable: CLEExecutable, dataPrep: DataPrep): Promise<Uint8Array> {
+  const { cleYaml } = cleExecutable
 
   let input = new Input()
 
-  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(zkgraphYaml, { isLocal })
+  const dsp /** :DataSourcePlugin */ = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  input = dsp.fillExecInput(input, zkgraphYaml, dataPrep)
+  input = dsp.fillExecInput(input, cleYaml, dataPrep)
 
-  const [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()]
-
-  return await executeOnInputs(zkGraphExecutable, privateInputStr, publicInputStr)
+  return await executeOnInputs(cleExecutable, input)
 }
 
 /**
  *
- * @param {object} zkGraphExecutable
+ * @param {object} cleExecutable
  * @param {string} privateInputStr
  * @param {string} publicInputStr
  * @returns
  */
-export async function executeOnInputs(zkGraphExecutable: ZkGraphExecutable, privateInputStr: string, publicInputStr: string) {
-  const { wasmUint8Array } = zkGraphExecutable
+export async function executeOnInputs(cleExecutable: CLEExecutable, input: Input): Promise<Uint8Array> {
+  // console.log('executeOnInputs input:', input.auxParams)
+
+  const { wasmUint8Array } = cleExecutable
   if (!wasmUint8Array)
     throw new Error('wasmUint8Array is null')
+  const mock = new Simulator(100000000, 2000)
+  mock.set_private_input(input.getPrivateInputStr())
+  mock.set_public_input(input.getPublicInputStr())
+  mock.set_context_input(input.getContextInputStr())
+  setupZKWasmSimulator(mock)
 
-  const mock = new ZKWASMMock()
-  mock.set_private_input(privateInputStr)
-  mock.set_public_input(publicInputStr)
-  setupZKWasmMock(mock)
-
-  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
+  const { asmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error
   })
 
@@ -86,51 +79,3 @@ export async function executeOnInputs(zkGraphExecutable: ZkGraphExecutable, priv
   }
   return stateU8a as Uint8Array
 }
-
-// /**
-//  * // TODO: compitable purpose
-//  * // Deprecated since yaml specVersion: v0.0.2
-//  * Execute the given zkgraph {$wasmUint8Array, $yamlContent} in the context of $blockid
-//  * @param {string} wasmUint8Array
-//  * @param {string} yamlContent
-//  * @param {Array<string>} rawreceiptList
-//  * @param {boolean} isLocal
-//  * @param {boolean} enableLog
-//  * @returns {Uint8Array} - execution result (aka. zkgraph state)
-//  */
-// export async function executeOnRawReceipts(wasmUint8Array, yamlContent, rawreceiptList, isLocal=false, enableLog=true) {
-
-//     const zkgraphYaml = ZkGraphYaml.fromYamlContent(yamlContent)
-//     const provider = new providersonRpcProvider(rpcUrl);
-
-//     const [eventDSAddrList, eventDSEsigsList] = zkgraphYaml.dataSources[0].event.toArray();
-
-//     // prepare data
-
-//     // filter
-//     const [rawReceipts, matchedEventOffsets] = filterEvents(eventDSAddrList, eventDSEsigsList, rawreceiptList, enableLog).catch((error) => {
-//       throw error;
-//     })
-
-//     // create blockPrepMap
-//     let blockNumber = 0; // to compitable, use fixed block num
-
-//     let blockPrep = new BlockPrep(
-//       blockNumber,
-//       // header rlp
-//       "0x00",
-//     )
-//     blockPrep.addRLPReceipts(rawreceiptList)
-
-//     let blockPrepMap = new Map();
-//     blockPrepMap.set(blockNumber, blockPrep)
-
-//     let blocknumOrder = [blockNumber]
-
-//     // gen inputs
-//     let input = new Input();
-//     input = fillExecInput(input, zkgraphYaml, blockPrepMap, blocknumOrder)
-//     let [privateInputStr, publicInputStr] = [input.getPrivateInputStr(), input.getPublicInputStr()];
-
-//     return await executeOnInputs(wasmUint8Array, privateInputStr, publicInputStr)
-// }

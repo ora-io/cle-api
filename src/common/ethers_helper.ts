@@ -4,6 +4,7 @@ import { RLP } from '@ethereumjs/rlp'
 
 import { isMaybeNumber, retry, toNumber } from '@murongg/utils'
 import { BlockNotFound, OldBlockNumber } from './error'
+import { logger } from './logger'
 
 async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProvider, blockNumber: string | number, ignoreFailedTx: boolean) {
   // const blockReceipts = await ethersProvider.send("eth_getBlockReceipts", ["0x" + (blockNumber).toString(16)]);
@@ -73,7 +74,7 @@ async function getRawReceiptsWithoutDebugRPC(ethersProvider: providers.JsonRpcPr
     return await getRawLogsFromBlockReceipts(ethersProvider, blockid, ignoreFailedTx)
   }
   catch {
-    console.warn('The RPC does not support erigon rpc, fetching data may be slow')
+    logger.warn('The RPC does not support erigon rpc, fetching data may be slow')
     return await getRawLogsFromTxsReceipt(ethersProvider, blockid, ignoreFailedTx)
   }
 }
@@ -108,11 +109,16 @@ export async function getBlockBasic(provider: providers.JsonRpcProvider, block: 
     return fullBlock
   }
   const result = await retry(fn, 3)
-  if (result === null)
-    throw new BlockNotFound(`Not found block ${block} in this provider: ${provider.connection.url}`)
+  if (result === null) {
+    const latestBlocknumber = await provider.getBlockNumber()
+    throw new BlockNotFound(`Invalid blocknum ${block}, please check the given blocknum or the chain network specified in yaml. Block must be within 100000 blocks of the head block number (currently ${latestBlocknumber})`)
+  }
 
-  else
-    return result
+  else { return result }
+}
+
+export async function getBlockWithTxs(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
+  return await ethersProvider.getBlockWithTransactions(blockNumber)
 }
 
 export async function getBlockByNumber(ethersProvider: providers.JsonRpcProvider, blockNumber: number) {
@@ -123,21 +129,26 @@ export async function getBlockByHash(ethersProvider: providers.JsonRpcProvider, 
   return await getBlockBasic(ethersProvider, blockHash, 'hash')
 }
 
-export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string) {
+export async function getBlock(ethersProvider: providers.JsonRpcProvider, blockid: string | number) {
+  let parsedBlockid: number | string = blockid
+  // accept latest as blockid
+  if (blockid === 'latest')
+    parsedBlockid = await ethersProvider.getBlockNumber()
+
   if (
-    typeof blockid === 'string'
-    && blockid.length === 66
-    && blockid.charAt(0) === '0'
-    && blockid.charAt(1) === 'x'
+    typeof parsedBlockid === 'string'
+    && parsedBlockid.length === 66
+    && parsedBlockid.charAt(0) === '0'
+    && parsedBlockid.charAt(1) === 'x'
   ) {
-    return await getBlockByHash(ethersProvider, blockid).catch((error) => {
+    return await getBlockByHash(ethersProvider, parsedBlockid).catch((error) => {
       throw error
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);
     })
   }
-  else if (isMaybeNumber(blockid)) {
-    return await getBlockByNumber(ethersProvider, toNumber(blockid)).catch((error) => {
+  else if (isMaybeNumber(parsedBlockid)) {
+    return await getBlockByNumber(ethersProvider, toNumber(parsedBlockid)).catch((error) => {
       throw error
       // console.err("[-] ERROR: Failed to getBlockByNumber()", "\n");
       // process.exit(1);
@@ -170,3 +181,36 @@ export async function getProof(ethersProvider: providers.JsonRpcProvider, addres
     }
   }
 }
+
+export function getRawTransaction(tx: providers.TransactionResponse): string {
+  function addKey(accum: any, key: keyof providers.TransactionResponse) {
+    if (tx[key] !== undefined && tx[key] !== null)
+      accum[key] = tx[key]
+
+    return accum
+  }
+
+  const txFields: (keyof providers.TransactionResponse)[] = ['accessList', 'chainId', 'data', 'gasPrice', 'gasLimit', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce', 'to', 'type', 'value']
+  const sigFields: (keyof providers.TransactionResponse)[] = ['v', 'r', 's']
+
+  if (tx?.type === 2)
+    delete tx.gasPrice
+
+  const raw = utils.serializeTransaction(txFields.reduce(addKey, { }), sigFields.reduce(addKey, { }))
+
+  if (utils.keccak256(raw) !== tx.hash)
+    throw new Error('serializing failed!')
+
+  return raw
+}
+
+export function buildCreate2Address(creatorAddress: string, saltHex: string, byteCode: string): string {
+  return `0x${ethers.utils
+    .keccak256(
+      `0x${['ff', creatorAddress, saltHex, ethers.utils.keccak256(byteCode)]
+        .map(x => x.replace(/0x/, ''))
+        .join('')}`,
+    )
+    .slice(-40)}`.toLowerCase()
+}
+

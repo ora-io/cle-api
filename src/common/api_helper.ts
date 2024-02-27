@@ -1,7 +1,3 @@
-import assert from 'assert'
-import os from 'os'
-import path from 'path'
-import fs from 'fs'
 import { logReceiptAndEvents } from './log_utils'
 import { fromHexString, trimPrefix } from './utils'
 import { TxReceipt } from './tx_receipt'
@@ -49,8 +45,8 @@ export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList
   let accumulateReceiptLength = 0
   let rawreceipts = ''
 
-  if (!__BROWSER__)
-    assert(rawreceiptList.length === eventList.length)
+  if (rawreceiptList.length !== eventList.length)
+    throw new Error('rawreceiptList and eventList should have same length.')
 
   for (const rcpid in rawreceiptList) {
     const es = eventList[rcpid]
@@ -92,7 +88,7 @@ export function formatVarLenInput(input: string) {
   return formatted
 }
 
-export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[], enableLog: any): [Uint8Array, any[]] {
+export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[]): [Uint8Array, Uint32Array] {
   // RLP Decode and Filter
   const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
     rawreceiptList,
@@ -102,43 +98,20 @@ export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], ra
 
   // Gen Offsets
   // eslint-disable-next-line prefer-const
-  let [rawReceipts, matchedEventOffsets] = genStreamAndMatchedEventOffsets(
+  let [rawReceipts, _matchedEventOffsets] = genStreamAndMatchedEventOffsets(
     filteredRawReceiptList,
     filteredEventList,
   )
 
-  if (enableLog) {
-    // Log
-    logReceiptAndEvents(
-      rawreceiptList,
-      matchedEventOffsets as any,
-      filteredEventList,
-    )
-  }
+  // Log
+  logReceiptAndEvents(
+    rawreceiptList,
+    _matchedEventOffsets as any,
+    filteredEventList,
+  )
 
   // may remove
-  matchedEventOffsets = Uint32Array.from(matchedEventOffsets) as any
+  const matchedEventOffsets = Uint32Array.from(_matchedEventOffsets) as any
 
   return [rawReceipts, matchedEventOffsets]
 }
-
-export function createFileFromUint8Array(array: string, fileName: string): File | fs.ReadStream
-export function createFileFromUint8Array(array: Blob, fileName: string): File | fs.ReadStream
-export function createFileFromUint8Array(array: NodeJS.ArrayBufferView, fileName: string): fs.ReadStream
-export function createFileFromUint8Array(array: string | NodeJS.ArrayBufferView | Blob, fileName: string) {
-  // Running in a browser environment
-  if (__BROWSER__) {
-    return new File([array], fileName, {
-      type: 'application/wasm',
-      lastModified: Date.now(),
-    })
-  }
-  // Check if running in a Node.js environment
-  if (!__BROWSER__) {
-    const tempDir = os.tmpdir()
-    const filePath = path.join(tempDir, fileName)
-    fs.writeFileSync(filePath, array as any)
-    return fs.createReadStream(filePath)
-  }
-}
-

@@ -1,24 +1,23 @@
 {
-  "name": "@hyperoracle/zkgraph-api",
+  "name": "@ora-io/cle-api",
   "type": "module",
-  "version": "1.0.3",
-  "description": "API for interacting with Hyper Oracle zkGraphs",
+  "version": "0.1.0",
+  "packageManager": "pnpm@8.6.0",
+  "description": "API for interacting with ORA CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
-  "homepage": "https://github.com/hyperoracle/zkgraph-api#readme",
+  "homepage": "https://github.com/ora-io/cle-api#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hyperoracle/zkgraph-api.git"
+    "url": "git+https://github.com/ora-io/cle-api.git"
   },
   "bugs": {
-    "url": "https://github.com/hyperoracle/zkgraph-api/issues"
+    "url": "https://github.com/ora-io/cle-api/issues"
   },
   "keywords": [
-    "zkgraph",
+    "cle",
     "api",
-    "hyperoracle",
-    "ho",
-    "zkg"
+    "ora"
   ],
   "sideEffects": false,
   "exports": {
@@ -55,7 +54,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "nr build",
-    "release": "bumpp && npm publish",
+    "release": "cle-scripts release && cle-scripts publish",
     "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
@@ -66,8 +65,9 @@
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
-    "@hyperoracle/zkwasm-service-helper": "1.0.1",
-    "@murongg/utils": "^0.1.18",
+    "@murongg/utils": "^0.1.20",
+    "@ora-io/zkwasm-service-helper": "^1.0.2",
+    "assemblyscript": "^0.27.22",
     "axios": "^1.6.2",
     "axios-retry": "^3.9.1",
     "bn.js": "^5.2.1",
@@ -75,10 +75,13 @@
     "form-data": "^4.0.0",
     "js-yaml": "^4.1.0",
     "semver": "^7.5.4",
-    "web3-eth-contract": "^1.8.2"
+    "web3-eth-contract": "^1.8.2",
+    "zkwasm-toolchain": "^0.0.5"
   },
   "devDependencies": {
     "@murongg/eslint-config": "^0.2.1",
+    "@ora-io/cle-lib": "0.1.0",
+    "@ora-io/release-scripts": "^0.0.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-json": "^6.0.0",

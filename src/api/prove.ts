@@ -1,167 +1,103 @@
-/* eslint-disable no-console */
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { Nullable, NullableObjectWithKeys } from '@murongg/utils'
-import { toHexStringBytes32Reverse } from '../common/utils'
-import { logLoadingAnimation } from '../common/log_utils'
-import { zkwasm_prove } from '../requests/zkwasm_prove'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
+import type { Input } from 'zkwasm-toolchain'
+import { ora_prove } from '../requests/ora_prove'
 import {
-  taskPrettyPrint,
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import type { ZkGraphExecutable } from '../types/api'
+import type { BatchOption, CLEExecutable, ProofParams, SingableProver } from '../types'
+import { BatchStyle } from '../types'
+import { logger } from '../common'
+import { FinishStatusList } from '../common/constants'
+
+export type ProveOptions = SingableProver & BatchOption
+
+export interface ProveResult {
+  status: string
+  proofParams?: ProofParams
+  taskDetails?: any // optional
+}
 
 /**
  * Submit prove task to a given zkwasm and return the proof details.
- * @param {object} zkGraphExecutable
- * @param {string} privateInputStr - the packed private input in hex string
- * @param {string} publicInputStr - the packed public input in hex string
- * @param {string} zkwasmProverUrl - the url of the zkwasm prover
- * @param {string} userPrivateKey - the acct for sign&submi prove task to zkwasm
- * @param {boolean} enableLog - enable logging or not
- * @returns {object} - proof task details in json
  */
 export async function prove(
-  zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'>,
-  privateInputStr: string,
-  publicInputStr: string,
-  zkwasmProverUrl: string,
-  userPrivateKey: string,
-  enableLog = true,
-) {
-  const result: {
-    md5: Nullable<string>
-    taskId: Nullable<string>
-    errorMessage: Nullable<string>
-  } = {
-    md5: null,
-    taskId: null,
-    errorMessage: null,
-  }
-  const { wasmUint8Array } = zkGraphExecutable
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  input: Input,
+  options: ProveOptions,
+): Promise<ProveResult> {
+  const prResult = await requestProve(cleExecutable, input, options)
+  const pwResult = await waitProve(options.proverUrl, prResult.taskId, options)
+  return pwResult
+}
 
-  // Prove mode
-  const privateInputArray = privateInputStr.trim().split(' ')
-  const publicInputArray = publicInputStr.trim().split(' ')
+export interface RequestProveResult {
+  md5: string
+  taskId: string
+  taskDetails?: any // optional
+}
 
-  // Message and form data
+export async function requestProve(
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  input: Input,
+  options: ProveOptions,
+): Promise<RequestProveResult> {
+  const { wasmUint8Array } = cleExecutable
+
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
+  logger.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
-  result.md5 = md5
+  let taskDetails
+  let taskId = '' // taskId must be set to response.data.result.id later
+  await ora_prove(md5, input, options)
+    .then(async (response) => {
+      taskId = response.data.result.id
+      taskDetails = response.data.result.data[0]
+      logger.log(`[+] PROVING TASK STARTED. TASK ID: ${taskId}`, '\n')
+    })
+    // TODO: other error types need to be catch here? e.g. NoSetup
 
-  // TODO: remove isSetUpSuccess, errorMessage, should throw errors to cli / frontend layer e.g. NoSetup & other cases.
-  const [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
-    zkwasmProverUrl,
-    userPrivateKey,
-    md5,
-    publicInputArray,
-    privateInputArray,
-  ).catch((error) => {
-    throw error
-  })
-
-  if (enableLog)
-    console.log(`[*] IMAGE MD5: ${md5}`, '\n')
-
-  // TODO: move log to cli
-
-  if (isSetUpSuccess) {
-    //   console.log(`[+] IMAGE MD5: ${response.data.result.md5}`, "\n");
-
-    const taskId = response.data.result.id
-    result.taskId = taskId
-    result.errorMessage = errorMessage
-    // if (enableLog) {
-    //   console.log(`[+] PROVE TASK STARTED. TASK ID: ${taskId}`, "\n");
-
-    //   console.log(
-    //     "[*] Please wait for proof generation... (estimated: 1-5 min)",
-    //     "\n"
-    //   );
-    // }
-  }
-  else {
-    // if (enableLog) {
-    //   console.log(`[-] PROVE CANNOT BE STARTED. MIGHT NEED TO SETUP`, "\n");
-    // }
-  }
-
+  const result: RequestProveResult = { md5, taskId, taskDetails }
   return result
+  // const privateInputArray = input.getPrivateInputStr().trim().split(' ')
+  // const publicInputArray = input.getPublicInputStr().trim().split(' ')
+  // const [response, isSetUpSuccess, errorMessage] = await zkwasm_prove(
+  //   zkwasmProverUrl,
+  //   userPrivateKey,
+  //   md5,
+  //   publicInputArray,
+  //   privateInputArray,
+  // ).catch((error) => {
+  //   throw error
+  // })
 }
 
 export async function waitProve(
-  zkwasmProverUrl: string,
-  taskId: string,
-  enableLog = true,
-) {
-  const result: {
-    instances: Nullable<string>
-    batch_instances: Nullable<string>
-    proof: Nullable<string>
-    aux: Nullable<string>
-    md5: Nullable<string>
-    taskId: Nullable<string>
-  } = {
-    instances: null,
-    batch_instances: null,
-    proof: null,
-    aux: null,
-    md5: null,
-    taskId: null,
+  proverUrl: string,
+  proveTaskId: string,
+  options: BatchOption = {},
+): Promise<ProveResult> {
+  const { batchStyle = BatchStyle.ZKWASMHUB } = options
+  const task = await waitTaskStatus(proverUrl, proveTaskId, FinishStatusList, 3000, 0)
+  // .catch((err) => {
+  //   throw err
+  // }) // TODO: timeout
+
+  const result: ProveResult = {
+    status: task.status,
+    proofParams: undefined,
+    taskDetails: task,
   }
 
-  let loading
-
-  if (enableLog)
-    loading = logLoadingAnimation()
-
-  let taskDetails
-  try {
-    taskDetails = await waitTaskStatus(
-      zkwasmProverUrl,
-      taskId,
-      ['Done', 'Fail', 'DryRunFailed'],
-      3000,
-      0,
-    ).catch((err) => {
-      throw err
-    }) // TODO: timeout
-  }
-  catch (error) {
-    loading?.stopAndClear()
-    throw error
-  }
-
-  if (taskDetails.status === 'Done') {
-    if (enableLog) {
-      loading?.stopAndClear()
-      console.log('[+] PROVE SUCCESS!', '\n')
+  if (task.status === 'Done') {
+    const proofParams: ProofParams = {
+      aggregate_proof: task.proof,
+      batch_instances: task.batch_instances,
+      aux: task.aux,
+      // 2-dim, ZKWASMHUB-compatible
+      instances: batchStyle === BatchStyle.ZKWASMHUB ? [task.instances] : task.instances,
+      extra: task?.extra,
     }
-
-    const instances = toHexStringBytes32Reverse(taskDetails.instances)
-    const batch_instances = toHexStringBytes32Reverse(
-      taskDetails.batch_instances,
-    )
-    const proof = toHexStringBytes32Reverse(taskDetails.proof)
-    const aux = toHexStringBytes32Reverse(taskDetails.aux)
-    if (enableLog) {
-      taskPrettyPrint(taskDetails, '[*] ')
-
-      console.log()
-    }
-    result.instances = instances
-    result.batch_instances = batch_instances
-    result.proof = proof
-    result.aux = aux
-    result.taskId = taskId
-  }
-  else {
-    result.taskId = taskId
-
-    if (enableLog) {
-      loading?.stopAndClear()
-
-      console.log('[-] PROVE OR DRYRUN FAILED.', '\n')
-    }
+    result.proofParams = proofParams
   }
 
   return result

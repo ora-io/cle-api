@@ -1,11 +1,11 @@
-/* eslint-disable no-console */
 import fs from 'node:fs'
-import { providers } from 'ethers'
-import { describe, it } from 'vitest'
+import { ethers, providers } from 'ethers'
+import { describe, expect, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
-import * as zkgapi from '../src/index'
+import * as cleapi from '../src/index'
 import { config } from './config'
-import { getLatestBlocknumber } from './utils/ethers'
+import { loadYamlFromPath } from './utils/yaml'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
@@ -14,96 +14,94 @@ import { getLatestBlocknumber } from './utils/ethers'
 //   mainnet: 17633573,
 // }
 
-const blocknumForStorageTest = {
-  sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
-  mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
-}
-
-const expectedStateStrForTest = {
-  // update this when update the blocknumfortest
-  sepolia: '0x6370902000000003336530047e5ec3da40c000000000068f1888e6eb7036fffe',
-}
-
-// const proveModeOptionsForEvent = {
-//   wasmPath: 'tests/build/zkgraph-event.wasm',
-//   yamlPath: 'tests/testsrc/zkgraph-event.yaml',
-//   zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
+// const blocknumForStorageTest = {
+//   sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
+//   mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
 // }
 
-const proveModeOptionsForStorage = {
-  wasmPath: 'tests/build/zkgraph-storage.wasm',
-  yamlPath: 'tests/testsrc/zkgraph-storage.yaml',
-  zkwasmUrl: 'https://rpc.zkwasmhub.com:8090',
-}
+// const pathfromfixtures = 'prove(event)'
+const pathfromfixtures = 'prove(storage)'
+const option = fixtures[pathfromfixtures]
 
-describe('test prove', () => {
-  it('test prove mode', async () => {
-    const { wasmPath, yamlPath, zkwasmUrl } = proveModeOptionsForStorage
+describe(`test prove ${pathfromfixtures}`, () => {
+  // console.log('issued a prove taslk: ', result)
+  it('test mock mode', async () => {
+    const { yamlPath, wasmPath, blocknum, expectedState } = option
 
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
-    const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
+    // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
+    const yaml = loadYamlFromPath(yamlPath) as cleapi.CLEYaml
+    const dsp = cleapi.dspHub.getDSPByYaml(yaml)
+    const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
+    const provider = new providers.JsonRpcProvider(jsonRpcUrl)
+    const generalParams = {
+      provider,
+      blockId: loadConfigByNetwork(yaml, blocknum, true),
+      expectedStateStr: expectedState,
+    }
 
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
+    const proveParams = dsp?.toProveParams(generalParams)
+    const input = await cleapi.proveInputGen(
+      { cleYaml: yaml }, // doesn't care about wasmUint8Array
+      proveParams as any,
+    )
+
+    console.log(input.auxParams)
+
+    const res = await cleapi.proveMock(
+      { wasmUint8Array },
+      input,
+    )
+    console.log('mock result:', res)
+  })
+  it('test prove mode', async () => {
+    const { wasmPath, yamlPath, zkwasmUrl, blocknum, expectedState } = option
+    const wasm = fs.readFileSync(wasmPath)
+    const wasmUint8Array = new Uint8Array(wasm)
+    const yaml = loadYamlFromPath(yamlPath) as cleapi.CLEYaml
+
+    const dsp = cleapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
     const generalParams = {
       provider,
-      blockId: loadConfigByNetwork(yaml, blocknumForStorageTest, true), // for storage
-      expectedStateStr: loadConfigByNetwork(yaml, expectedStateStrForTest, true), // for storage
-      // blockId: loadConfigByNetwork(yaml, blocknumForEventTest, true), // for event
+      blockId: loadConfigByNetwork(yaml, blocknum, true),
+      expectedStateStr: expectedState,
     }
 
     const proveParams = dsp?.toProveParams(generalParams)
 
-    const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-      { wasmUint8Array: null, zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
+    const input = await cleapi.proveInputGen(
+      { cleYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
-      false,
-      true,
     )
 
-    // console.log([privateInputStr, publicInputStr])
+    // console.log(privateInputStr);
+    // console.log("-------------------");
+    // console.log(publicInputStr);
+    const userPrivateKey = config.UserPrivateKey
+    const signer = new ethers.Wallet(userPrivateKey, provider)
 
-    const result = await zkgapi.prove(
-      { wasmUint8Array, zkgraphYaml: null }, // doesn't care about zkgraphYaml
-      privateInputStr,
-      publicInputStr,
-      zkwasmUrl,
-      config.UserPrivateKey,
-      true)
+    const result = await cleapi.requestProve(
+      { wasmUint8Array }, // doesn't care about cleYaml
+      input,
+      {
+        proverUrl: zkwasmUrl,
+        signer,
+        batchStyle: cleapi.BatchStyle.ORA,
+      })
+
     console.log(result)
+    expect(result.taskId).toBeTypeOf('string')
   }, { timeout: 100000 })
-  // console.log('issued a prove taslk: ', result)
-  // it('test mock mode', async () => {
-  //   const { yamlPath, wasmPath, blockId, expectedStateStr } = proveModeOptions
 
-  //   const wasm = fs.readFileSync(wasmPath)
-  //   const wasmUint8Array = new Uint8Array(wasm)
-  //   // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-  //   const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath) as zkgapi.ZkGraphYaml
-  //   const dsp = zkgapi.dspHub.getDSPByYaml(yaml, { isLocal: false })
-
-  //   const proveParams = dsp.toProveParams(
-  //     {
-  //       jsonRpcUrl: config.JsonRpcProviderUrl.sepolia,
-  //       blockId,
-  //       expectedStateStr,
-  //     },
-  //   )
-  //   const [privateInputStr, publicInputStr] = await zkgapi.proveInputGen(
-  //     { wasmUint8Array: null, zkgraphYaml: yaml }, // doesn't care about wasmUint8Array
-  //     proveParams,
-  //     false,
-  //     true,
-  //   )
-
-  //   const res = await zkgapi.proveMock(
-  //     { wasmUint8Array, zkgraphYaml: null },
-  //     privateInputStr,
-  //     publicInputStr,
-  //   )
-  //   console.log(res)
-  // })
+  it.only('test waitProve', async () => {
+    const { zkwasmUrl } = option
+    const taskId = '65dae256429af08ed922479a'
+    const result = await cleapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: cleapi.BatchStyle.ZKWASMHUB })
+    // console.log(result.proofParams?.instances)
+    expect((result.proofParams?.instances as any[])[0]).toBeInstanceOf(Array)
+  }, { timeout: 100000 })
 })

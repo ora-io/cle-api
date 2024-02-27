@@ -1,110 +1,137 @@
-/* eslint-disable no-console */
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
-import type { providers } from 'ethers'
+import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { Contract, ethers, utils } from 'ethers'
 import {
   AddressZero,
+  DEFAULT_URL,
+  EventSigNewCLE,
   abiFactory,
   addressFactory,
 } from '../common/constants'
-import { DSPNotFound, GraphAlreadyExist } from '../common/error'
-import { logLoadingAnimation } from '../common/log_utils'
-import { loadConfigByNetwork } from '../common/utils'
+import { CLEAlreadyExist, DSPNotFound, TxFailed } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { ZkGraphExecutable } from '../types/api'
-import type { ZkGraphYaml } from '../types/zkgyaml'
+import type { CLEExecutable, CLEYaml } from '../types'
 
-/**
- * Publish and register zkGraph onchain.
- * @param {object} zkGraphExecutable {wasmUint8Array, zkgraphYaml}
- * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
- * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {string} ipfsHash - the ipfs hash of the zkGraph
- * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
- * @param {object} signer - the acct for sign tx
- * @param {boolean} enableLog - enable logging or not
- * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
- */
-export async function publish(
-  zkGraphExecutable: ZkGraphExecutable,
-  zkwasmProviderUrl: string,
-  provider: providers.JsonRpcProvider,
-  ipfsHash: string,
-  bountyRewardPerTrigger: number,
-  signer: ethers.Wallet | ethers.providers.Provider | string,
-  enableLog = true,
-) {
-  const imgCmt = await getImageCommitment(zkGraphExecutable, zkwasmProviderUrl)
-  return publishByImgCmt(zkGraphExecutable, imgCmt, provider, ipfsHash, bountyRewardPerTrigger, signer, enableLog)
+export interface PublishOptions {
+  proverUrl?: string
+  ipfsHash: string // the ipfs hash from the 'upload' step
+  bountyRewardPerTrigger: number // the bounty reward per verified trigger (ETH)
+}
+
+export interface PublishResult {
+  graphAddress?: string // deprecating. == cleAddress
+  cleAddress: string
+  blockNumber: number
+  transactionHash: string
+  networkName: string
 }
 
 /**
- * Publish and register zkGraph onchain, with code hash provided.
- * @param {object} zkGraphExecutable {zkgraphYaml}
- * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {string} ipfsHash - the ipfs hash of the zkGraph
- * @param {number} bountyRewardPerTrigger - the bounty reward per trigger in ETH
+ * Publish and register CLE onchain.
+ * @param {object} cleExecutable {wasmUint8Array, cleYaml}
+ * @param {ethers.Signer} signer - the acct for sign tx
+ * @param options
+ * @returns
+ */
+export async function publish(
+  cleExecutable: CLEExecutable,
+  signer: ethers.Signer,
+  options: PublishOptions,
+): Promise<PublishResult> {
+  const { proverUrl = DEFAULT_URL.PROVER } = options
+  const imgCmt = await getImageCommitment(cleExecutable, proverUrl)
+  return publishByImgCmt(cleExecutable, signer, options, imgCmt)
+}
+
+/**
+ * Publish and register CLE onchain, with code hash provided.
+ * @param {object} cleExecutable {cleYaml}
  * @param {object} signer - the acct for sign tx
- * @param {boolean} enableLog - enable logging or not
- * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
+ * @param options
+ * @param imageCommitment
  */
 export async function publishByImgCmt(
-  zkGraphExecutable: ZkGraphExecutable,
+  cleExecutable: CLEExecutable,
+  signer: ethers.Signer,
+  options: PublishOptions,
   imageCommitment: { pointX: ethers.BigNumber; pointY: ethers.BigNumber },
-  provider: providers.JsonRpcProvider,
-  ipfsHash: string,
-  bountyRewardPerTrigger: number,
-  signer: ethers.Wallet | ethers.providers.Provider | string,
-  enableLog = true,
-) {
-  const { zkgraphYaml } = zkGraphExecutable
+): Promise<PublishResult> {
+  const { ipfsHash, bountyRewardPerTrigger = 0.05 } = options
+  const { cleYaml } = cleExecutable
 
-  const dsp = dspHub.getDSPByYaml(zkgraphYaml, { isLocal: false })
+  const dsp = dspHub.getDSPByYaml(cleYaml)
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
+  // for ora prover upgrade
+  const suffix = (cy: CLEYaml) => {
+    const allEthDS = cy.dataSources.filter(
+      ds => ds.kind === 'ethereum')// ds.filterByKeys(['event', 'storage', 'transaction'])  //
+    const allEthDSState = allEthDS.filter(
+      ds => Object.keys(ds.filterByKeys(['storage'])).length !== 0)
+    const allEthDSStateOnly = allEthDSState.filter(
+      ds => Object.keys(ds.filterByKeys(['event', 'transaction'])).length === 0)
+    if (allEthDSStateOnly.length > 0)
+      return ':stateonly'
 
-  const networkName = zkgraphYaml?.dataDestinations[0].network
-  const destinationContractAddress = zkgraphYaml?.dataDestinations[0].address
-  const factoryAddress = loadConfigByNetwork(zkgraphYaml as ZkGraphYaml, addressFactory, false)
-  const factoryContract = new Contract(factoryAddress, abiFactory, provider).connect(signer)
+    const allNoTx = allEthDS.filter(
+      ds => Object.keys(ds.filterByKeys(['transaction'])).length === 0)
+    if (allNoTx.length > 0)
+      return ':notx'
+
+    return ''
+  }
+  // logger.debug('[*] dsp name suffix for clecontract:', suffix(cleYaml))
+
+  const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName() + suffix(cleYaml)))
+
+  const destinationContractAddress
+    = (cleYaml?.dataDestinations && cleYaml?.dataDestinations.length)
+      ? cleYaml?.dataDestinations[0].address
+      : AddressZero
+  const networkName = (await signer.provider?.getNetwork())?.name
+  const factoryAddress = networkName ? (addressFactory as any)[networkName] : AddressZero
+  const factoryContract = new Contract(factoryAddress, abiFactory, signer)
+  const bountyReward = ethers.utils.parseEther(bountyRewardPerTrigger.toString())
 
   const tx = await factoryContract
     .registry(
       destinationContractAddress,
       AddressZero,
-      bountyRewardPerTrigger,
+      bountyReward,
       dspID,
       ipfsHash,
       imageCommitment.pointX,
       imageCommitment.pointY,
     )
     .catch((_err: any) => {
-      throw new GraphAlreadyExist('Duplicate zkGraph detected. Only publishing distinct zkGraphs is allowed.')
+      throw new CLEAlreadyExist('Duplicate CLE detected. Only publishing distinct CLEs is allowed.')
     })
-
-  let loading
-  if (enableLog === true) {
-    console.log('[*] Please wait for publish tx... (estimated: 30 sec)', '\n')
-    loading = logLoadingAnimation()
-  }
 
   const txReceipt = await tx.wait(1).catch((err: any) => {
     throw err
   })
 
-  if (enableLog === true) {
-    loading?.stopAndClear()
-    console.log('[+] ZKGRAPH PUBLISHED SUCCESSFULLY!', '\n')
-    console.log(
-      `[*] Transaction confirmed in block ${txReceipt.blockNumber} on ${networkName}`,
-    )
-    console.log(`[*] Transaction hash: ${txReceipt.transactionHash}`, '\n')
-  }
+  if (txReceipt.status !== 1)
+    throw new TxFailed(`Transaction failed (${txReceipt.transactionHash})`)
 
-  return txReceipt.transactionHash
+  // filter event with topic "NewCLE(address)" in transaction receipt
+  const logs = txReceipt.logs.filter((log: { address: string; topics: string[] }) =>
+    log.address === factoryAddress
+    && log.topics[0] === EventSigNewCLE,
+  )
+
+  if (logs.length === 0)
+    throw new Error(`Can't identify NewCLE(address) event in tx receipt (${txReceipt.transactionHash}), please check the TX or factory contract (${factoryAddress})`)
+
+  // Extract the cle address from the event
+  const cleAddress = `0x${logs[0].data.slice(-40)}`
+
+  return {
+    cleAddress,
+    graphAddress: cleAddress, // for backward compatible only, rm when deprecate
+    ...txReceipt,
+  } as PublishResult
 }
 
 function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
@@ -116,19 +143,18 @@ function littleEndianToUint256(inputArray: number[]): ethers.BigNumber {
 
 /**
  *
- * @param {object} zkGraphExecutable {wasmUint8Array}
- * @param zkGraphExecutable
- * @param {string} zkwasmProviderUrl - the zkWasm prover rpc url
+ * @param {object} cleExecutable {wasmUint8Array}
+ * @param {string} proverUrl - the prover rpc url
  * @returns
  */
 export async function getImageCommitment(
-  zkGraphExecutable: ZkGraphExecutable,
-  zkwasmProviderUrl: string,
+  cleExecutable: CLEExecutable,
+  proverUrl: string,
 ) {
-  const { wasmUint8Array } = zkGraphExecutable
+  const { wasmUint8Array } = cleExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const deatails = await zkwasm_imagedetails(zkwasmProviderUrl, md5)
-  const result = deatails[0]?.data.result[0]
+  const details = await zkwasm_imagedetails(proverUrl, md5)
+  const result = details[0]?.data.result[0]
   if (result === null)
     throw new Error('Can\'t find zkWasm image details, please finish setup before publish.')
 

@@ -1,0 +1,26 @@
+specVersion: 0.0.2
+apiVersion: 0.0.2
+name: eg_addr
+description: 'Dev Test CLE. '
+repository: https://github.com/ora-io/cle
+dataSources:
+  - kind: ethereum
+    unsafe: true
+    network: sepolia
+    # block:
+    #   - offset: [0]
+    event:
+      - address: '0x5c7a6cf20cbd3eef32e19b9cad4eca17c432a794'
+        events:
+          - 'SubmissionReceived(int256,uint32,address)'
+          - '0x63754dc9539dda818b815ea60ecf3230584f27a98b815ea60ecf32309539dd84'
+
+mapping:
+  language: wasm/assemblyscript
+  file: ./mapping.ts
+  handler: handleBlocks
+
+dataDestinations:
+  - kind: ethereum
+    network: sepolia
+    address: '0x1B17C66e37CB33202Fd1C058fa1B97e36b7e517D'

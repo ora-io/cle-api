@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 // import type { Decoded } from './rlp'
+import { logger } from './logger'
 import { areEqualArrays, toHexString } from './utils'
 export class Event {
   address: Uint8Array
@@ -25,26 +25,26 @@ export class Event {
   }
 
   prettyPrint(prefix = '', withoffsets = true) {
-    console.log(
+    logger.log(
       prefix,
       '|--addr :',
       toHexString(this.address),
       withoffsets ? this.address_offset : '',
     )
     for (let j = 0; j < this.topics.length; j++) {
-      console.log(
+      logger.log(
         prefix,
         `|--arg#${j.toString()}: ${toHexString(this.topics[j])}`,
         withoffsets ? this.topics_offset[j] : '',
       )
     }
-    console.log(
+    logger.log(
       prefix,
       '|--data :',
       toHexString(this.data),
       withoffsets ? this.data_offset : '',
     )
-    console.log('')
+    logger.log('')
   }
 
   match(wantedAddressList: string | any[], wantedEsigsList: string | any[]) {

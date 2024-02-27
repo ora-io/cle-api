@@ -1,36 +1,54 @@
 import { describe } from 'node:test'
 import { expect, it } from 'vitest'
-import * as zkgapi from '../src/index'
+import { ethers } from 'ethers'
+import * as cleapi from '../src/index'
+import { AggregatorVerifierAddress, DEFAULT_URL } from '../src/common/constants'
+import { loadYamlFromPath } from './utils/yaml'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
 const rpcUrl = 'https://rpc.ankr.com/eth_sepolia'
 
-const yamlPath = 'tests/testsrc/zkgraph-event.yaml'
+const yamlPath = fixtures['dsp/ethereum(event)'].yamlPath
 // let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
-const ZkwasmProviderUrl = 'https://rpc.zkwasmhub.com:8090'
-// let proveTaskId = "6554584c82ab2c8b29dbc2c2" // true
-const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
+const proveTaskId = '65dd7dad235cd47b5193efce' // true
+// const proveTaskId = '65d1c1edc3e455a0eebd7bb6' // fasle
 
 describe('test verify', () => {
-  const yaml = zkgapi.ZkGraphYaml.fromYamlPath(yamlPath)
+  const cleYaml = loadYamlFromPath(yamlPath)
 
-  it('test verify ZKGraphExecutable', async () => {
-    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
-    expect(await zkgapi.verify(
-      { wasmUint8Array: null, zkgraphYaml: yaml },
-      proofParams,
-      rpcUrl,
+  it('test verify CLEExecutable', async () => {
+    const verifyParams = await cleapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
+
+    const network = cleYaml.decidePublishNetwork()
+    expect(network).toBeDefined()
+    if (network === undefined)
+      throw new Error('network is undefined')
+
+    // const verifierContractAddress = loadConfigByNetwork(cleYaml as CLEYaml, AggregatorVerifierAddress, false)
+    const verifierAddress = (AggregatorVerifierAddress as any)[network]
+    expect(await cleapi.verify(
+      verifyParams,
+      { verifierAddress, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
     )).toBeTruthy()
   })
   // 2nd way to verify proof.
   it('test verify proof params', async () => {
-    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(proveTaskId, ZkwasmProviderUrl)
-    const sepolia_verifier = '0x714C66711F6552D4F388Ec79D4A33FE20173cC34'
-    expect(await zkgapi.verifyProof(
-      sepolia_verifier,
+    const proofParams = await cleapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
+    const sepolia_verifier = '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0'
+    expect(await cleapi.verifyProof(
       proofParams,
-      rpcUrl,
+      { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
     )).toBeTruthy()
+
+    // make a wrong proof
+    proofParams.aggregate_proof[0] = 0x12
+    expect(await cleapi.verifyProof(
+      proofParams,
+      { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
+    )).toBeFalsy()
+  }, {
+    timeout: 1000000,
   })
 })

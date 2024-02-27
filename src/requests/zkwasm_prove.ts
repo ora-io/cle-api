@@ -1,11 +1,15 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import FormData from 'form-data'
 import { Wallet, utils } from 'ethers'
-import { ZkWasmUtil } from '@hyperoracle/zkwasm-service-helper'
+import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import { handleAxiosError } from './error_handle'
 import url from './url'
 // import { sign } from "crypto";
 
+/**
+ * send prove request to zkwasmhub
+ */
 export async function zkwasm_prove(
   zkwasmProverUrl: string,
   user_privatekey: string,
@@ -22,50 +26,36 @@ export async function zkwasm_prove(
     md5: image_md5.toUpperCase(),
     public_inputs,
     private_inputs,
+    input_context_type: InputContextType.ImageCurrent,
   })
-
-  // console.log('message', message)
-
-  // let message = JSON.stringify({
-  //   user_address,
-  //   md5: image_md5.toLowerCase(),
-  //   public_inputs: public_inputs,
-  //   private_inputs: private_inputs,
-  // });
 
   const wallet = new Wallet(user_privatekey)
   const signature = await wallet.signMessage(message)
 
-  // let formData = new FormData();
-  // formData.append("user_address", user_address);
-  // formData.append("md5", image_md5);
-  // formData.append("public_inputs", public_inputs);
-  // formData.append("private_inputs", private_inputs);
-  // formData.append("signature", signature);
-  const req = JSON.stringify({
-    user_address: user_address.toLowerCase(),
-    md5: image_md5.toUpperCase(),
-    public_inputs,
-    private_inputs,
-    // signature,
-  })
+  const formData = new FormData()
+  formData.append('user_address', user_address.toLowerCase())
+  formData.append('md5', image_md5)
+  for (let i = 0; i < public_inputs.length; i++)
+    formData.append('public_inputs', public_inputs[i])
+
+  for (let i = 0; i < private_inputs.length; i++)
+    formData.append('private_inputs', private_inputs[i])
+
+  formData.append('input_context_type', InputContextType.ImageCurrent)
 
   const zkwasmHeaders = {
-    'X-Eth-Address': user_address.toLowerCase(),
     'X-Eth-Signature': signature,
+    'Content-Type': 'multipart/form-data',
   }
-
-  // console.log('signature:', signature)
 
   const requestConfig = {
     method: 'post',
     maxBodyLength: Infinity,
     url: url.proveWasmImageURL(zkwasmProverUrl).url,
     headers: {
-      ...url.proveWasmImageURL(zkwasmProverUrl).contentType,
       ...zkwasmHeaders,
     },
-    data: req,
+    data: formData,
   }
 
   let errorMessage = ''

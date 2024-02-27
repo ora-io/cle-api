@@ -1,25 +1,26 @@
-import type { NullableObjectWithKeys } from '@murongg/utils'
-import { ZKWASMMock } from '../common/zkwasm_mock'
-import { instantiateWasm, setupZKWasmMock } from '../common/bundle'
-import { ZKGraphRequireFailed } from '../common/error'
-import type { ZkGraphExecutable } from '../types/api'
+import type { Input } from 'zkwasm-toolchain'
+import { Simulator, instantiateWasm, setupZKWasmSimulator } from 'zkwasm-toolchain'
+import { CLERequireFailed } from '../common/error'
+import type { CLEExecutable } from '../types'
 
 /**
  * Mock the zkwasm proving process for pre-test purpose.
- * @param {object} zkGraphExecutable
- * @param {string} privateInputStr
- * @param {string} publicInputStr
+ * @param {object} cleExecutable
+ * @param {Input} input
  * @returns {boolean} - the mock testing result
  */
-export async function proveMock(zkGraphExecutable: NullableObjectWithKeys<ZkGraphExecutable, 'zkgraphYaml'>, privateInputStr: string, publicInputStr: string) {
-  const { wasmUint8Array } = zkGraphExecutable
+export async function proveMock(
+  cleExecutable: Omit<CLEExecutable, 'cleYaml'>,
+  input: Input,
+): Promise<boolean> {
+  const { wasmUint8Array } = cleExecutable
 
-  const mock = new ZKWASMMock()
-  mock.set_private_input(privateInputStr)
-  mock.set_public_input(publicInputStr)
-  setupZKWasmMock(mock)
+  const mock = new Simulator()
+  mock.set_private_input(input.getPrivateInputStr())
+  mock.set_public_input(input.getPublicInputStr())
+  setupZKWasmSimulator(mock)
 
-  const { zkmain } = await instantiateWasm(wasmUint8Array).catch((error) => {
+  const { zkmain } = await instantiateWasm(wasmUint8Array).catch((error: any) => {
     throw error
   })
 
@@ -27,15 +28,11 @@ export async function proveMock(zkGraphExecutable: NullableObjectWithKeys<ZkGrap
     zkmain()
   }
   catch (e) {
-    if (e instanceof ZKGraphRequireFailed)
+    if (e instanceof CLERequireFailed)
       return false
 
     throw e
   }
-
-  // if (enableLog){
-  //     console.log("[+] ZKWASM MOCK EXECUTION SUCCESS!", "\n");
-  // }
 
   return true
 }

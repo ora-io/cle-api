@@ -1,29 +1,30 @@
-/* eslint-disable no-console */
-import type { providers } from 'ethers'
 import { Contract, ethers } from 'ethers'
 import {
-  graph_abi,
+  cleContractABI,
 } from '../common/constants'
-import { logLoadingAnimation } from '../common/log_utils'
 
 /**
- * Publish and register zkGraph onchain.
- * @param {providers.JsonRpcProvider} provider - the provider of the target network
- * @param {object} signer - the acct for sign tx
- * @param {string} graphContractAddress - the deployed verification contract address
  * @param {number} depositAmount - the deposit amount in ETH
- * @param {boolean} enableLog - enable logging or not
+ */
+interface DepositOptions {
+  depositAmount: string
+}
+/**
+ * Publish and register CLE onchain.
+ * @param {Signer} signer - the acct for sign tx
+ * @param {string} cleContractAddress - the deployed verification contract address
+ * @param options
  * @returns {string} - transaction hash of the publish transaction if success, empty string otherwise
  */
 export async function deposit(
-  provider: providers.JsonRpcProvider,
-  signer: ethers.Wallet | ethers.providers.Provider | string,
-  graphContractAddress: string,
-  depositAmount: string,
-  enableLog = true,
+  cleContractAddress: string,
+  signer: ethers.Signer,
+  options: DepositOptions,
 ) {
-  const graphContract = new Contract(graphContractAddress, graph_abi, provider).connect(signer)
-  const tx = await graphContract
+  const { depositAmount } = options
+
+  const cleContract = new Contract(cleContractAddress, cleContractABI, signer)
+  const tx = await cleContract
     .deposit(
       ethers.utils.parseEther(depositAmount), { value: ethers.utils.parseEther(depositAmount) },
     )
@@ -31,24 +32,12 @@ export async function deposit(
       throw err
     })
 
-  let loading
-  if (enableLog === true) {
-    console.log('[*] Please wait for deposit tx... (estimated: 30 sec)', '\n')
-    loading = logLoadingAnimation()
-  }
-
   const txReceipt = await tx.wait(1).catch((err: any) => {
     throw err
   })
 
-  if (enableLog === true) {
-    loading?.stopAndClear()
-    console.log('[+] ZKGRAPH BOUNTY DEPOSIT COMPLETE!', '\n')
-    console.log(
-      `[*] Transaction confirmed in block ${txReceipt.blockNumber}`,
-    )
-    console.log(`[*] Transaction hash: ${txReceipt.transactionHash}`, '\n')
+  return txReceipt as {
+    transactionHash: string
+    blockNumber: number
   }
-
-  return txReceipt.transactionHash
 }

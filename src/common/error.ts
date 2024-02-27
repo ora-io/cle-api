@@ -1,4 +1,4 @@
-export class ZKGraphRequireFailed extends Error {
+export class CLERequireFailed extends Error {
   constructor(message: string | undefined) {
     super(message)
   }
@@ -45,7 +45,20 @@ export class TDNoTaskFound extends Error {
   }
 }
 
-export class GraphAlreadyExist extends Error {
+// Publish Error
+export class CLEAlreadyExist extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class TxFailed extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class CLEAddressMissing extends Error {
   constructor(message: string | undefined) {
     super(message)
   }
@@ -64,6 +77,29 @@ export class BlockNotFound extends Error {
 }
 
 export class OldBlockNumber extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class InsufficientBalance extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+export class UploadFileNotExist extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class CircuitSizeOutOfRange extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class BatchStyleUnsupport extends Error {
   constructor(message: string | undefined) {
     super(message)
   }

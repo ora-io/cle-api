@@ -11,5 +11,6 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
   },
-  "exclude": ["dist"]
+  "include": ["src/**/*", "test/**/*", "types/**/*"],
+  "exclude": ["dist", "test/fixtures/**/*", "node_modules"]
 }
