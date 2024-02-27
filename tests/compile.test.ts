@@ -1,12 +1,12 @@
-import path from 'path'
 import fs from 'fs'
-import { expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
 import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
-import { compile } from '../src/api/compile'
+import { DEFAULT_PATH } from '../src/common/constants'
+import * as zkgapi from '../src/index'
 import { loadYamlFromPath } from './utils/yaml'
-// import { config } from './config'
 import { createOnNonexist } from './utils/file'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
@@ -14,42 +14,38 @@ function readFile(filepath: string) {
   return fs.readFileSync(filepath, 'utf-8')
 }
 
-it('test compile', async () => {
-  const yaml = loadYamlFromPath(path.join(__dirname, 'fixtures/compile/cle.yaml'))
-  if (!yaml)
-    throw new Error('yaml is null')
+const pathfromfixtures = 'dsp/ethereum(storage)'
+// const pathfromfixtures = 'dsp/ethereum.unsafe-ethereum'
+const option = fixtures[pathfromfixtures]
 
-  const sources = {
-    ...webjson,
-    'src/mapping.ts': readFile(path.join(__dirname, 'fixtures/compile/mapping.ts')),
-    'src/cle.yaml': readFile(path.join(__dirname, 'fixtures/compile/cle.yaml')),
-  }
+describe('test compile', async () => {
+  it('test compile', async () => {
+    const { mappingPath, yamlPath, wasmPath, watPath } = option
+    const cleYaml = loadYamlFromPath(yamlPath)
+    if (!cleYaml)
+      throw new Error('yaml is null')
 
-  const outWasmPath = path.join(__dirname, 'fixtures/build/cle-compiletest.wasm')
-  const outWatPath = path.join(__dirname, 'fixtures/build/cle-compiletest.wat')
+    const sources = {
+      ...webjson,
+      'src/mapping.ts': readFile(mappingPath),
+      'src/cle.yaml': readFile(yamlPath),
+    }
 
-  const result = await compile(sources, {
-    // yamlPath: 'cle.yaml',
-    outWasmPath,
-    outWatPath,
-    // compilerServerEndpoint: config.CompilerServerEndpoint,
-  })
-  if ((result?.stderr as any)?.length > 0)
-    throw new Error(result?.stderr?.toString())
-  expect(result.error).toBeNull()
-  expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
+    const result = await zkgapi.compile(sources)
 
-  const wasmContent = result.outputs[outWasmPath]
-  const watContent = result.outputs[outWatPath]
-  expect(wasmContent).toBeDefined()
-  expect(watContent).toBeDefined()
-  createOnNonexist(outWasmPath)
-  fs.writeFileSync(outWasmPath, wasmContent)
-  fs.writeFileSync(outWatPath, watContent)
+    if ((result?.stderr as any)?.length > 0)
+      throw new Error(result?.stderr?.toString())
 
-  // optional: output compile result for further exec test
-  // let wasmPath = 'tests/build/cle-compiletest.wasm'
-  // let watPath = 'tests/build/cle-compiletest.wat'
-  // fs.writeFileSync(wasmPath, wasmContent)
-  // fs.writeFileSync(watPath, watContent)
+    expect(result.error).toBeNull()
+    expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
+    const wasmContent = result.outputs[DEFAULT_PATH.OUT_WASM]
+    const watContent = result.outputs[DEFAULT_PATH.OUT_WAT]
+    expect(wasmContent).toBeDefined()
+    expect(watContent).toBeDefined()
+
+    // optional: output compile result for further exec test
+    createOnNonexist(wasmPath)
+    fs.writeFileSync(wasmPath, wasmContent)
+    fs.writeFileSync(watPath, watContent)
+  }, { timeout: 100000 })
 })

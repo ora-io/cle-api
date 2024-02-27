@@ -99,7 +99,8 @@ export interface CompileOptions {
   yamlPath?: string
   outWatPath?: string
   outWasmPath?: string
-  outInnerWasmPath?: string
+  outInnerWasmPath?: string // optional
+  outInnerWatPath?: string // optional
   compilerServerEndpoint?: string
   isLocal?: boolean
 }
@@ -120,16 +121,18 @@ export async function compile(
   // cache final out path
   const {
     isLocal = false,
-    outWasmPath = DEFAULT_PATH.OUT_WASM,
-    outWatPath = DEFAULT_PATH.OUT_WAT,
+    outInnerWasmPath = DEFAULT_PATH.OUT_INNER_WASM,
+    outInnerWatPath = DEFAULT_PATH.OUT_INNER_WAT,
   } = options
-  const finalOutWasmPath = outWasmPath
-  const finalOutWatPath = outWatPath
+  options.outWasmPath = options.outWasmPath || DEFAULT_PATH.OUT_WASM
+  options.outWatPath = options.outWatPath || DEFAULT_PATH.OUT_WAT
+  const finalOutWasmPath = options.outWasmPath
+  const finalOutWatPath = options.outWatPath
 
   // compile locally with asc, use inner path if isLocal
   if (isLocal) {
-    options.outWasmPath = DEFAULT_PATH.OUT_INNER_WASM
-    options.outWatPath = DEFAULT_PATH.OUT_INNER_WAT
+    options.outWasmPath = outInnerWasmPath
+    options.outWatPath = outInnerWatPath
   }
   const result = await compileAsc(sources, options)
   if (result.error)
@@ -139,7 +142,7 @@ export async function compile(
   if (isLocal === false) {
     const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
     const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
-    options.outInnerWasmPath = options.outWasmPath
+    // options.outInnerWasmPath = options.outWasmPath
     options.outWasmPath = finalOutWasmPath
     options.outWatPath = finalOutWatPath
     return await compileServer(innerCLEExecutable, cleYamlContent, options)
@@ -212,14 +215,13 @@ export async function compileServer(
     compilerServerEndpoint = DEFAULT_URL.COMPILER_SERVER,
     outWasmPath = DEFAULT_PATH.OUT_WASM,
     outWatPath = DEFAULT_PATH.OUT_WAT,
-    outInnerWasmPath = DEFAULT_PATH.OUT_WASM,
   } = options
 
   const outputs: Record<string, string | Uint8Array> = {}
   // Set up form data
   const data = new FormData()
 
-  data.append('wasmFile', createFileStream(wasmUint8Array, { fileType: 'application/wasm', fileName: 'inner.wasm', tmpPath: outInnerWasmPath }))
+  data.append('wasmFile', createFileStream(wasmUint8Array, { fileType: 'application/wasm', fileName: 'inner.wasm' })) // , tmpPath: outInnerWasmPath rm since paths may be abstract
   data.append('yamlFile', createFileStream(cleYamlContent, { fileType: 'text/yaml', fileName: 'src/cle.yaml' }))
   // if (__BROWSER__) {
 
