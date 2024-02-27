@@ -45,7 +45,20 @@ export class TDNoTaskFound extends Error {
   }
 }
 
-export class GraphAlreadyExist extends Error {
+// Publish Error
+export class CLEAlreadyExist extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class TxFailed extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class CLEAddressMissing extends Error {
   constructor(message: string | undefined) {
     super(message)
   }

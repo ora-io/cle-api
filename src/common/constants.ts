@@ -70,7 +70,7 @@ export const AggregatorVerifierABI = {
 
 export const addressFactory = {
   mainnet: 'not support yet',
-  sepolia: '0xE484E5B8b71aA7955d1De4D52737BF436eBf9970',
+  sepolia: '0x638e019Cfd8A5f1c2fecd473062471c7f6978c9B',
   goerli: 'not support yet',
 }
 export const abiFactory = [
@@ -79,6 +79,8 @@ export const abiFactory = [
   'function getCLEBycreator(address creator) external view returns (address[] memory)',
   'function getCLEInfoByAddress(address cle) external view returns (address creator, uint256 bountyReward, address destAddr, string memory cleURI)',
 ]
+
+export const EventSigNewCLE = '0x39f7254e91d2eee9fa8ffc88bc7b0dff5c67916b7a1cc84284b3192bde4ab1d2'
 
 export const AggregatorVerifierAddress: { [key: string]: { [key: string]: string } } = {
   ZkWasmHub: {
