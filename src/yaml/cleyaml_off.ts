@@ -22,8 +22,8 @@ import { DataSource } from './interface'
 
 export class OffchainDataSource extends DataSource {
   type: any
-  constructor(kind: any, type: any) {
-    super(kind)
+  constructor(yamlObj: any, kind: any, type: any) {
+    super(yamlObj, kind)
     this.type = type
   }
 
@@ -34,6 +34,7 @@ export class OffchainDataSource extends DataSource {
 
   static from_v_0_0_2(yamlOffDS: { kind: any; type: any }) {
     return new OffchainDataSource(
+      yamlOffDS,
       yamlOffDS.kind,
       yamlOffDS.type,
       // CustomDataSection.from_v_0_0_2(yamlOffDS.data)

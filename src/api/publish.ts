@@ -3,13 +3,14 @@ import { Contract, ethers, utils } from 'ethers'
 import {
   AddressZero,
   DEFAULT_URL,
+  EventSigNewCLE,
   abiFactory,
   addressFactory,
 } from '../common/constants'
-import { DSPNotFound, GraphAlreadyExist } from '../common/error'
+import { CLEAlreadyExist, DSPNotFound, TxFailed } from '../common/error'
 import { dspHub } from '../dsp/hub'
 import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
-import type { CLEExecutable } from '../types'
+import type { CLEExecutable, CLEYaml } from '../types'
 
 export interface PublishOptions {
   proverUrl?: string
@@ -62,7 +63,27 @@ export async function publishByImgCmt(
   if (!dsp)
     throw new DSPNotFound('Can\'t find DSP for this data source kind.')
 
-  const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName()))
+  // for ora prover upgrade
+  const suffix = (cy: CLEYaml) => {
+    const allEthDS = cy.dataSources.filter(
+      ds => ds.kind === 'ethereum')// ds.filterByKeys(['event', 'storage', 'transaction'])  //
+    const allEthDSState = allEthDS.filter(
+      ds => Object.keys(ds.filterByKeys(['storage'])).length !== 0)
+    const allEthDSStateOnly = allEthDSState.filter(
+      ds => Object.keys(ds.filterByKeys(['event', 'transaction'])).length === 0)
+    if (allEthDSStateOnly.length > 0)
+      return ':stateonly'
+
+    const allNoTx = allEthDS.filter(
+      ds => Object.keys(ds.filterByKeys(['transaction'])).length === 0)
+    if (allNoTx.length > 0)
+      return ':notx'
+
+    return ''
+  }
+  // logger.debug('[*] dsp name suffix for clecontract:', suffix(cleYaml))
+
+  const dspID = utils.keccak256(utils.toUtf8Bytes(dsp.getLibDSPName() + suffix(cleYaml)))
 
   const destinationContractAddress
     = (cleYaml?.dataDestinations && cleYaml?.dataDestinations.length)
@@ -84,20 +105,26 @@ export async function publishByImgCmt(
       imageCommitment.pointY,
     )
     .catch((_err: any) => {
-      throw new GraphAlreadyExist('Duplicate CLE detected. Only publishing distinct CLEs is allowed.')
+      throw new CLEAlreadyExist('Duplicate CLE detected. Only publishing distinct CLEs is allowed.')
     })
 
   const txReceipt = await tx.wait(1).catch((err: any) => {
     throw err
   })
 
-  // in the transaction receipt, get the event data with topic 0x3573344393f569107cbc8438d3f0a47ca210029fdc8226cc33804a7b35cd32d8
-  // this is the event newZkG(address graph)
-  const logs = txReceipt.logs.filter((log: { topics: string[] }) =>
-    log.topics.includes('0x3573344393f569107cbc8438d3f0a47ca210029fdc8226cc33804a7b35cd32d8'),
+  if (txReceipt.status !== 1)
+    throw new TxFailed(`Transaction failed (${txReceipt.transactionHash})`)
+
+  // filter event with topic "NewCLE(address)" in transaction receipt
+  const logs = txReceipt.logs.filter((log: { address: string; topics: string[] }) =>
+    log.address === factoryAddress
+    && log.topics[0] === EventSigNewCLE,
   )
 
-  // Extract the graph address from the event
+  if (logs.length === 0)
+    throw new Error(`Can't identify NewCLE(address) event in tx receipt (${txReceipt.transactionHash}), please check the TX or factory contract (${factoryAddress})`)
+
+  // Extract the cle address from the event
   const cleAddress = `0x${logs[0].data.slice(-40)}`
 
   return {

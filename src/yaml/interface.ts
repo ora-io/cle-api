@@ -1,9 +1,32 @@
+import yaml from 'js-yaml'
+
 export type DataSourceKind = 'ethereum' | 'offchain'
 export type DataDestinationKind = 'ethereum' | 'offchain'
 
-export class DataSource {
+export class WrappedYaml {
+  yamlObj: any
+  constructor(yamlObj: any) {
+    this.yamlObj = yamlObj
+  }
+
+  toString() {
+    return yaml.dump(this.yamlObj)
+  }
+
+  filterByKeys(keysToInclude: string[]) {
+    const filteredObject: any = {}
+    Object.keys(this.yamlObj).forEach((key) => {
+      if (keysToInclude.includes(key))
+        filteredObject[key] = this.yamlObj[key]
+    })
+    return filteredObject
+  }
+}
+
+export class DataSource extends WrappedYaml {
   kind: DataSourceKind
-  constructor(kind: DataSourceKind) {
+  constructor(yamlObj: any, kind: DataSourceKind) {
+    super(yamlObj)
     this.kind = kind
   }
 
@@ -16,9 +39,10 @@ export class DataSource {
   }
 }
 
-export class DataDestination {
+export class DataDestination extends WrappedYaml {
   kind: DataDestinationKind
-  constructor(kind: DataDestinationKind) {
+  constructor(yamlObj: any, kind: DataDestinationKind) {
+    super(yamlObj)
     this.kind = kind
   }
 

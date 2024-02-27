@@ -70,6 +70,7 @@ export class EthereumDataSource extends DataSource {
   storageSectionCache: StorageSectionCache | null = null
 
   constructor(
+    yamlObj: any,
     kind: DataSourceKind,
     unsafe: boolean,
     network: string,
@@ -79,7 +80,7 @@ export class EthereumDataSource extends DataSource {
     account: any[] | null,
     block: any,
   ) {
-    super(kind)
+    super(yamlObj, kind)
     this.unsafe = unsafe
     this.network = network
     this.event = event
@@ -91,6 +92,7 @@ export class EthereumDataSource extends DataSource {
 
   static from_v_0_0_2(yamlEthDS: { kind: DataSourceKind; unsafe?: boolean; network: string; event: EventItem[]; storage: StorageItem[]; transaction: TransactionItem[] }) {
     return new EthereumDataSource(
+      yamlEthDS,
       yamlEthDS.kind,
       yamlEthDS.unsafe == null ? false : yamlEthDS.unsafe,
       yamlEthDS.network,
@@ -188,8 +190,8 @@ export class EthereumDataSource extends DataSource {
 export class EthereumDataDestination extends DataDestination {
   network: string
   address: string
-  constructor(kind: DataDestinationKind, network: string, address: string) {
-    super(kind)
+  constructor(yamlObj: any, kind: DataDestinationKind, network: string, address: string) {
+    super(yamlObj, kind)
     this.network = network
     this.address = address
   }
@@ -201,6 +203,7 @@ export class EthereumDataDestination extends DataDestination {
 
   static from_v_0_0_2(yamlEthDD: { kind: DataDestinationKind; network: string; address: string }) {
     return new EthereumDataDestination(
+      yamlEthDD,
       yamlEthDD.kind,
       yamlEthDD.network,
       yamlEthDD.address,
@@ -209,6 +212,7 @@ export class EthereumDataDestination extends DataDestination {
 
   static from_v_0_0_1(yamlEthDD: { kind: DataDestinationKind; network: string; destination: { address: string } }) {
     return new EthereumDataDestination(
+      yamlEthDD,
       yamlEthDD.kind,
       yamlEthDD.network,
       yamlEthDD.destination.address,

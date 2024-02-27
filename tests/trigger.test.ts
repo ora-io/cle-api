@@ -1,32 +1,38 @@
 import { describe } from 'node:test'
 import { it } from 'vitest'
 import { ethers } from 'ethers'
-import * as zkgapi from '../src/index'
+import * as cleapi from '../src/index'
 import { DEFAULT_URL } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
 // const rpcUrl = 'https://rpc.ankr.com/eth_sepolia'
 
-const yamlPath = 'tests/testsrc/cle-event.yaml'
+const pathfromfixtures = 'dsp/ethereum(storage)'
+// const pathfromfixtures = 'dsp/ethereum.unsafe-ethereum'
+const option = fixtures[pathfromfixtures]
 // let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
-// let proveTaskId = "6554584c82ab2c8b29dbc2c2" // true
-const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
+const proveTaskId = '65dd7dad235cd47b5193efce' // true
+// const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
+
+// TODO: use a reward == 0 cle to pass trigger test
 
 describe('test trigger', () => {
-  const yaml = loadYamlFromPath(yamlPath)
+  it('eth ddp', async () => {
+    const { yamlPath } = option
+    const yaml = loadYamlFromPath(yamlPath)
 
-  it('test verify proof params', async () => {
-    const proofParams = await zkgapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
-    const CLEID = '0x870ef9B5DcBB6F71139a5f35D10b78b145853e69'
+    const proofParams = await cleapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
+    const CLEID = '0x8fd9e85b23d3777993ebf04ad3a3b0878f7fee77'
     const userPrivateKey = config.UserPrivateKey
     const rpcUrl = config.JsonRpcProviderUrl.sepolia
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const signer = new ethers.Wallet(userPrivateKey, provider)
-    const ddpParams = { signer, gasLimit: 3000000 }
-    await zkgapi.trigger(
+    const ddpParams = { signer, gasLimit: 10000000, onlyMock: true }
+    await cleapi.trigger(
       { cleYaml: yaml },
       CLEID,
       proofParams,

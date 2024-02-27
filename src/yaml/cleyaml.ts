@@ -3,7 +3,7 @@ import semver from 'semver'
 import { YamlHealthCheckFailed, YamlInvalidFormat } from '../common/error'
 import { EthereumDataDestination, EthereumDataSource } from './cleyaml_eth'
 import type { DataDestination, DataSource, DataSourceKind } from './interface'
-import { Mapping } from './interface'
+import { Mapping, WrappedYaml } from './interface'
 import { OffchainDataSource } from './cleyaml_off'
 
 export type DataSourceClassType = 'ethereum' | 'offchain'
@@ -17,7 +17,7 @@ const dataDestinationClassMap = new Map()
 dataDestinationClassMap.set('ethereum', EthereumDataDestination)
 
 // class ZkGraphYaml
-export class CLEYaml {
+export class CLEYaml extends WrappedYaml {
   specVersion: string
   apiVersion: string
   description: string
@@ -28,6 +28,7 @@ export class CLEYaml {
   name: string
 
   constructor(
+    yamlObj: any,
     specVersion: string,
     apiVersion: string,
     name: string,
@@ -37,6 +38,7 @@ export class CLEYaml {
     dataDestinations: any[],
     mapping: Mapping,
   ) {
+    super(yamlObj)
     this.specVersion = specVersion
     this.apiVersion = apiVersion
     this.name = name
@@ -47,44 +49,45 @@ export class CLEYaml {
     this.mapping = mapping
   }
 
-  static from_v_0_0_2(yaml: any) {
+  static from_v_0_0_2(yamlObj: any) {
     const dataSources: any[] = []
-    yaml.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
+    yamlObj.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
     const dataDestinations: DataDestination[] = []
-    if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestinations.length !== 0)
-      yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
+    if (yamlObj.dataDestinations !== undefined && yamlObj.dataDestinations !== null && yamlObj.dataDestinations.length !== 0)
+      yamlObj.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
 
     return new CLEYaml(
-      yaml.specVersion,
-      yaml.apiVersion,
-      yaml.name,
-      yaml.description,
-      yaml.repository,
+      yamlObj,
+      yamlObj.specVersion,
+      yamlObj.apiVersion,
+      yamlObj.name,
+      yamlObj.description,
+      yamlObj.repository,
       dataSources,
       dataDestinations,
-      Mapping.from_v_0_0_2(yaml.mapping),
+      Mapping.from_v_0_0_2(yamlObj.mapping),
     )
   }
 
   // TODO: type: should be the return class of yaml.load
-  static fromYaml(yaml: any) {
+  static fromYaml(yamlObj: any) {
     // health check before parse
-    CLEYaml.healthCheck(yaml)
-    if (yaml.specVersion === '0.0.1')
-      return CLEYaml.from_v_0_0_1(yaml)
+    CLEYaml.healthCheck(yamlObj)
+    if (yamlObj.specVersion === '0.0.1')
+      return CLEYaml.from_v_0_0_1(yamlObj)
 
-    else if (yaml.specVersion === '0.0.2')
-      return CLEYaml.from_v_0_0_2(yaml)
+    else if (yamlObj.specVersion === '0.0.2')
+      return CLEYaml.from_v_0_0_2(yamlObj)
 
     else
-      throw new Error(`Unsupported specVersion: ${yaml.specVersion}`)
+      throw new Error(`Unsupported specVersion: ${yamlObj.specVersion}`)
   }
 
   static fromYamlContent(yamlContent: string) {
     try {
       // Parse the YAML content
-      const config = yaml.load(yamlContent)
-      return CLEYaml.fromYaml(config)
+      const yamlObj = yaml.load(yamlContent)
+      return CLEYaml.fromYaml(yamlObj)
     }
     catch (error: any) {
       // TODO: is there other cases than "Invalid Yaml"?
@@ -190,10 +193,6 @@ export class CLEYaml {
     // if (config.dataDestinations[0].network !== sourceNetworks[0]) {
     //   throw new Error("dataDestinations network must match dataSources network");
     // }
-  }
-
-  toString() {
-    return yaml.dump(this)
   }
 
   decidePublishNetwork(): string | undefined {
