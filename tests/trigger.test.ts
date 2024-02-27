@@ -15,6 +15,8 @@ const yamlPath = 'tests/testsrc/cle-event.yaml'
 const proveTaskId = '65dd7dad235cd47b5193efce' // true
 // const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
 
+// TODO: use a reward == 0 cle to pass trigger test
+
 describe('test trigger', () => {
   const yaml = loadYamlFromPath(yamlPath)
 
@@ -25,7 +27,7 @@ describe('test trigger', () => {
     const rpcUrl = config.JsonRpcProviderUrl.sepolia
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const signer = new ethers.Wallet(userPrivateKey, provider)
-    const ddpParams = { signer, gasLimit: 10000000 }
+    const ddpParams = { signer, gasLimit: 10000000, onlyMock: true }
     await zkgapi.trigger(
       { cleYaml: yaml },
       CLEID,

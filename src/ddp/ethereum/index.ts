@@ -9,6 +9,7 @@ import { logger } from '../../common'
 export interface EthereumDDPGoParams {
   signer: ethers.Wallet
   gasLimit: number
+  onlyMock: boolean
 }
 
 export class EthereumDataDestinationPlugin extends DataDestinationPlugin<EthereumDDPGoParams> {
@@ -32,6 +33,9 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
 
     // throw err if execution revert
     await graph.callStatic.trigger(...callparams)
+
+    if (goParams.onlyMock)
+      return
 
     // send tx if passed local test
     const tx = await graph.trigger(...callparams)
