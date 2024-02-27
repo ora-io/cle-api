@@ -4,12 +4,13 @@ import { ethers } from 'ethers'
 import * as cleapi from '../src/index'
 import { AggregatorVerifierAddress, DEFAULT_URL } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
+import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
 const rpcUrl = 'https://rpc.ankr.com/eth_sepolia'
 
-const yamlPath = 'tests/testsrc/cle-event.yaml'
+const yamlPath = fixtures['dsp/ethereum(event)'].yamlPath
 // let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
 const proveTaskId = '65dd7dad235cd47b5193efce' // true
 // const proveTaskId = '65d1c1edc3e455a0eebd7bb6' // fasle

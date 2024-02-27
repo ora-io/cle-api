@@ -34,11 +34,11 @@ describe('test utils', () => {
   })
 
   it('yaml filterSections', () => {
-    const yaml = loadYamlFromPath('tests/testsrc/cle-event.yaml') as any
+    const yaml = loadYamlFromPath(fixtures['dsp/ethereum(event)'].yamlPath) as any
     expect(yaml.dataSources[0].filterByKeys(['event', 'storage']).event).toBeInstanceOf(Array)
   })
   it('yaml toString', () => {
-    const yamlpath = 'tests/testsrc/cle-event.yaml'
+    const yamlpath = fixtures['dsp/ethereum(event)'].yamlPath
     const yamlContents = fs.readFileSync(yamlpath, 'utf8')
     const expectedYamlDump = yaml.dump(yaml.load(yamlContents))
 
