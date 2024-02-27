@@ -26,19 +26,18 @@ export class EthereumDataDestinationPlugin extends DataDestinationPlugin<Ethereu
     // TODO: double check: decoded extra should be uint256[blocknum1, blocknum2]
 
     // try {
-    const graph = new ethers.Contract(cleId, cleContractABI, goParams.signer)
+    const cleSC = new ethers.Contract(cleId, cleContractABI, goParams.signer)
 
-    // const tx = await graph.trigger(proof, instances, aux, [arg], extra, { gasLimit: goParams.gasLimit })
     const callparams = [proof, instances, aux, arg, extra, { gasLimit: goParams.gasLimit }]
 
     // throw err if execution revert
-    await graph.callStatic.trigger(...callparams)
+    await cleSC.callStatic.trigger(...callparams)
 
     if (goParams.onlyMock)
       return
 
     // send tx if passed local test
-    const tx = await graph.trigger(...callparams)
+    const tx = await cleSC.trigger(...callparams)
 
     // logger.info("transaction submitted, tx hash: " + tx.hash);
     logger.log(`transaction submitted, tx hash: ${tx.hash}`)

@@ -1,6 +1,6 @@
 import { it } from 'vitest'
 import { ethers } from 'ethers'
-import * as zkgapi from '../src/index'
+import * as cleapi from '../src/index'
 import { config } from './config'
 
 (global as any).__BROWSER__ = false
@@ -12,7 +12,7 @@ it('test deposit', async () => {
   const depositAmount = '0.001'
   const userPrivateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(userPrivateKey, provider)
-  const result = await zkgapi.deposit(deployedContractAddress, signer, { depositAmount })
+  const result = await cleapi.deposit(deployedContractAddress, signer, { depositAmount })
 
   console.log(result)
 }, { timeout: 100000 })

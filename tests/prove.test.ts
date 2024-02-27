@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import { ethers, providers } from 'ethers'
 import { describe, expect, it } from 'vitest'
 import { loadConfigByNetwork } from '../src/common/utils'
-import * as zkgapi from '../src/index'
+import * as cleapi from '../src/index'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 import { fixtures } from './fixureoptions'
@@ -31,8 +31,8 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     // const yamlContent = fs.readFileSync(yamlPath, 'utf-8')
-    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
+    const yaml = loadYamlFromPath(yamlPath) as cleapi.CLEYaml
+    const dsp = cleapi.dspHub.getDSPByYaml(yaml)
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
     const generalParams = {
@@ -42,14 +42,14 @@ describe(`test prove ${pathfromfixtures}`, () => {
     }
 
     const proveParams = dsp?.toProveParams(generalParams)
-    const input = await zkgapi.proveInputGen(
+    const input = await cleapi.proveInputGen(
       { cleYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
     )
 
     console.log(input.auxParams)
 
-    const res = await zkgapi.proveMock(
+    const res = await cleapi.proveMock(
       { wasmUint8Array },
       input,
     )
@@ -59,9 +59,9 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const { wasmPath, yamlPath, zkwasmUrl, blocknum, expectedState } = option
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
-    const yaml = loadYamlFromPath(yamlPath) as zkgapi.CLEYaml
+    const yaml = loadYamlFromPath(yamlPath) as cleapi.CLEYaml
 
-    const dsp = zkgapi.dspHub.getDSPByYaml(yaml)
+    const dsp = cleapi.dspHub.getDSPByYaml(yaml)
 
     const jsonRpcUrl = loadConfigByNetwork(yaml, config.JsonRpcProviderUrl, true)
     const provider = new providers.JsonRpcProvider(jsonRpcUrl)
@@ -73,7 +73,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
 
     const proveParams = dsp?.toProveParams(generalParams)
 
-    const input = await zkgapi.proveInputGen(
+    const input = await cleapi.proveInputGen(
       { cleYaml: yaml }, // doesn't care about wasmUint8Array
       proveParams as any,
     )
@@ -84,13 +84,13 @@ describe(`test prove ${pathfromfixtures}`, () => {
     const userPrivateKey = config.UserPrivateKey
     const signer = new ethers.Wallet(userPrivateKey, provider)
 
-    const result = await zkgapi.requestProve(
+    const result = await cleapi.requestProve(
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
       {
         proverUrl: zkwasmUrl,
         signer,
-        batchStyle: zkgapi.BatchStyle.ORA,
+        batchStyle: cleapi.BatchStyle.ORA,
       })
 
     console.log(result)
@@ -100,7 +100,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
   it.only('test waitProve', async () => {
     const { zkwasmUrl } = option
     const taskId = '65dae256429af08ed922479a'
-    const result = await zkgapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: zkgapi.BatchStyle.ZKWASMHUB })
+    const result = await cleapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: cleapi.BatchStyle.ZKWASMHUB })
     // console.log(result.proofParams?.instances)
     expect((result.proofParams?.instances as any[])[0]).toBeInstanceOf(Array)
   }, { timeout: 100000 })

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
 import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
 import { DEFAULT_PATH } from '../src/common/constants'
-import * as zkgapi from '../src/index'
+import * as cleapi from '../src/index'
 import { loadYamlFromPath } from './utils/yaml'
 import { createOnNonexist } from './utils/file'
 import { fixtures } from './fixureoptions'
@@ -36,7 +36,7 @@ export async function testCompile(option: any) {
     'src/cle.yaml': readFile(yamlPath),
   }
 
-  const result = await zkgapi.compile(sources)
+  const result = await cleapi.compile(sources)
 
   if ((result?.stderr as any)?.length > 0)
     throw new Error(result?.stderr?.toString())

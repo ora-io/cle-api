@@ -1,6 +1,6 @@
 import { it } from 'vitest'
 import { ethers } from 'ethers'
-import * as zkgapi from '../src/index'
+import * as cleapi from '../src/index'
 import { config } from './config'
 
 (global as any).__BROWSER__ = false
@@ -14,7 +14,7 @@ it.skip('test dispatch', async () => {
   const privateKey = config.UserPrivateKey
   const signer = new ethers.Wallet(privateKey, provider)
 
-  const dispatcher = new zkgapi.TaskDispatch(queryAPI, contractAddress, feeInWei, provider, signer)
+  const dispatcher = new cleapi.TaskDispatch(queryAPI, contractAddress, feeInWei, provider, signer)
   const tx = await dispatcher.setup('cle', 22)
   await tx.wait()
 
