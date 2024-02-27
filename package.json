@@ -1,7 +1,7 @@
 {
   "name": "@ora-io/cle-api",
   "type": "module",
-  "version": "1.0.3-alpha.17",
+  "version": "1.0.3-alpha.18",
   "description": "API for interacting with ORA CLEs",
   "author": "Norman (nom4dv3) & Suning (msfew)",
   "license": "ISC",
@@ -53,8 +53,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepublishOnly": "nr build",
-    "release": "cle-scripts release",
-    "publish": "cle-scripts publish",
+    "release": "cle-scripts release && cle-scripts publish",
     "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
