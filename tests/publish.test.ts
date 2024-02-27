@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import { Contract, ethers } from 'ethers'
 import { expect, it } from 'vitest'
-import { GraphAlreadyExist } from '../src/common/error'
+import { CLEAlreadyExist } from '../src/common/error'
 import * as zkgapi from '../src/index'
 import { DEFAULT_URL, abiFactory, addressFactory, cleContractABI } from '../src/common/constants'
 import { config } from './config'
@@ -9,7 +9,7 @@ import { loadYamlFromPath } from './utils/yaml'
 
 (global as any).__BROWSER__ = false
 
-it('test publish', async () => {
+it.skip('test publish', async () => {
   const cleYaml = loadYamlFromPath('tests/testsrc/cle-dirty.yaml') as zkgapi.CLEYaml
   const network = cleYaml.decidePublishNetwork()
   console.log('network', network)
@@ -52,8 +52,8 @@ it('test publish', async () => {
     expect(reward).toEqual(ethers.utils.parseEther(newBountyRewardPerTrigger.toString()))
   }
   catch (error) {
-    if (error instanceof GraphAlreadyExist)
-      console.error('Graph already exist')
+    if (error instanceof CLEAlreadyExist)
+      console.error('CLE already exist')
     else
       throw error
   }

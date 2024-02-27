@@ -20,32 +20,36 @@ const option = fixtures[pathfromfixtures]
 
 describe('test compile', async () => {
   it('test compile', async () => {
-    const { mappingPath, yamlPath, wasmPath, watPath } = option
-    const cleYaml = loadYamlFromPath(yamlPath)
-    if (!cleYaml)
-      throw new Error('yaml is null')
-
-    const sources = {
-      ...webjson,
-      'src/mapping.ts': readFile(mappingPath),
-      'src/cle.yaml': readFile(yamlPath),
-    }
-
-    const result = await zkgapi.compile(sources)
-
-    if ((result?.stderr as any)?.length > 0)
-      throw new Error(result?.stderr?.toString())
-
-    expect(result.error).toBeNull()
-    expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
-    const wasmContent = result.outputs[DEFAULT_PATH.OUT_WASM]
-    const watContent = result.outputs[DEFAULT_PATH.OUT_WAT]
-    expect(wasmContent).toBeDefined()
-    expect(watContent).toBeDefined()
-
-    // optional: output compile result for further exec test
-    createOnNonexist(wasmPath)
-    fs.writeFileSync(wasmPath, wasmContent)
-    fs.writeFileSync(watPath, watContent)
+    await testCompile(option)
   }, { timeout: 100000 })
 })
+
+export async function testCompile(option: any) {
+  const { mappingPath, yamlPath, wasmPath, watPath } = option
+  const cleYaml = loadYamlFromPath(yamlPath)
+  if (!cleYaml)
+    throw new Error('yaml is null')
+
+  const sources = {
+    ...webjson,
+    'src/mapping.ts': readFile(mappingPath),
+    'src/cle.yaml': readFile(yamlPath),
+  }
+
+  const result = await zkgapi.compile(sources)
+
+  if ((result?.stderr as any)?.length > 0)
+    throw new Error(result?.stderr?.toString())
+
+  expect(result.error).toBeNull()
+  expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
+  const wasmContent = result.outputs[DEFAULT_PATH.OUT_WASM]
+  const watContent = result.outputs[DEFAULT_PATH.OUT_WAT]
+  expect(wasmContent).toBeDefined()
+  expect(watContent).toBeDefined()
+
+  // optional: output compile result for further exec test
+  createOnNonexist(wasmPath)
+  fs.writeFileSync(wasmPath, wasmContent)
+  fs.writeFileSync(watPath, watContent)
+}
