@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { it } from 'vitest'
 import { ethers } from 'ethers'
 import * as zkgapi from '../src/index'
@@ -7,9 +6,9 @@ import { config } from './config'
 (global as any).__BROWSER__ = false
 
 it('test dispatch', async () => {
-  const queryAPI = 'http://127.0.0.1:3000'
+  const queryAPI = 'https://zkwasm.hyperoracle.io/td'
   const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
-  const feeInWei = ethers.utils.parseEther('0.1')
+  const feeInWei = ethers.utils.parseEther('0.01')
   const rpcUrl = config.JsonRpcProviderUrl.sepolia
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   const privateKey = config.UserPrivateKey

@@ -37,10 +37,11 @@ export async function verifyOnchain(
   if (isZKVerifier === false)
     throw new Error('isZKVerifier==false is reserved, not supported yet')
   const { provider } = options
+  const network = await provider.getNetwork()
   const defaultVerifierAddress
     = batchStyle === BatchStyle.ORA
-      ? AggregatorVerifierAddress.Ora[provider.network.name]
-      : AggregatorVerifierAddress.ZKWASMHUB[provider.network.name]
+      ? AggregatorVerifierAddress.Ora[network.name]
+      : AggregatorVerifierAddress.ZkWasmHub[network.name]
 
   const { verifierAddress = defaultVerifierAddress } = options
 

@@ -48,5 +48,7 @@ describe('test verify', () => {
       proofParams,
       { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
     )).toBeFalsy()
+  }, {
+    timeout: 1000000,
   })
 })

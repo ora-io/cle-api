@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import FormData from 'form-data'
 import { describe, expect, it } from 'vitest'
 import { objectKeys } from '@murongg/utils'
@@ -6,7 +7,6 @@ import webjson from '@ora-io/cle-lib/test/weblib/weblib.json'
 import { providers } from 'ethers'
 import { fromHexString, loadConfigByNetwork, toHexString } from '../src/common/utils'
 import * as zkgapi from '../src/index'
-import { DEFAULT_PATH } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
@@ -35,15 +35,21 @@ describe(`test dsp: ${pathfromfixtures}`, () => {
       'src/cle.yaml': readFile(yamlPath),
     }
 
-    const result = await zkgapi.compile(sources)
+    const outWasmPath = path.join(__dirname, 'fixtures/build/cle-compiletest.wasm')
+    const outWatPath = path.join(__dirname, 'fixtures/build/cle-compiletest.wat')
+
+    const result = await zkgapi.compile(sources, {
+      outWasmPath,
+      outWatPath,
+    })
 
     if ((result?.stderr as any)?.length > 0)
       throw new Error(result?.stderr?.toString())
 
     expect(result.error).toBeNull()
     expect(objectKeys(result.outputs).length).toBeGreaterThanOrEqual(1)
-    const wasmContent = result.outputs[DEFAULT_PATH.OUT_WASM]
-    const watContent = result.outputs[DEFAULT_PATH.OUT_WAT]
+    const wasmContent = result.outputs[outWasmPath]
+    const watContent = result.outputs[outWatPath]
     expect(wasmContent).toBeDefined()
     expect(watContent).toBeDefined()
 

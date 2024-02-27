@@ -120,6 +120,8 @@ export async function compile(
   // cache final out path
   const {
     isLocal = false,
+  } = options
+  let {
     outWasmPath = DEFAULT_PATH.OUT_WASM,
     outWatPath = DEFAULT_PATH.OUT_WAT,
   } = options
@@ -128,8 +130,8 @@ export async function compile(
 
   // compile locally with asc, use inner path if isLocal
   if (isLocal) {
-    options.outWasmPath = DEFAULT_PATH.OUT_INNER_WASM
-    options.outWatPath = DEFAULT_PATH.OUT_INNER_WAT
+    outWasmPath = DEFAULT_PATH.OUT_INNER_WASM
+    outWatPath = DEFAULT_PATH.OUT_INNER_WAT
   }
   const result = await compileAsc(sources, options)
   if (result.error)
@@ -137,9 +139,9 @@ export async function compile(
 
   // compile remotely on the compiler server if needed, using final out path
   if (isLocal === false) {
-    const outWasm = result.outputs[options.outWasmPath as string] as Uint8Array
+    const outWasm = result.outputs[outWasmPath as string] as Uint8Array
     const innerCLEExecutable = { wasmUint8Array: outWasm, cleYaml }
-    options.outInnerWasmPath = options.outWasmPath
+    options.outInnerWasmPath = outWasmPath
     options.outWasmPath = finalOutWasmPath
     options.outWatPath = finalOutWatPath
     return await compileServer(innerCLEExecutable, cleYamlContent, options)
