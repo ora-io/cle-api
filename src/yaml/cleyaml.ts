@@ -26,8 +26,10 @@ export class CLEYaml {
   dataDestinations: any[]
   mapping: Mapping
   name: string
+  yamlObj: any
 
   constructor(
+    yamlObj: any,
     specVersion: string,
     apiVersion: string,
     name: string,
@@ -45,46 +47,48 @@ export class CLEYaml {
     this.dataSources = dataSources
     this.dataDestinations = dataDestinations
     this.mapping = mapping
+    this.yamlObj = yamlObj
   }
 
-  static from_v_0_0_2(yaml: any) {
+  static from_v_0_0_2(yamlObj: any) {
     const dataSources: any[] = []
-    yaml.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
+    yamlObj.dataSources.forEach((ds: any) => dataSources.push(dataSourceClassMap.get(ds.kind)?.from_v_0_0_2(ds)))
     const dataDestinations: DataDestination[] = []
-    if (yaml.dataDestinations !== undefined && yaml.dataDestinations !== null && yaml.dataDestinations.length !== 0)
-      yaml.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
+    if (yamlObj.dataDestinations !== undefined && yamlObj.dataDestinations !== null && yamlObj.dataDestinations.length !== 0)
+      yamlObj.dataDestinations.forEach((dd: { kind: any }) => dataDestinations.push(dataDestinationClassMap.get(dd.kind).from_v_0_0_2(dd)))
 
     return new CLEYaml(
-      yaml.specVersion,
-      yaml.apiVersion,
-      yaml.name,
-      yaml.description,
-      yaml.repository,
+      yamlObj,
+      yamlObj.specVersion,
+      yamlObj.apiVersion,
+      yamlObj.name,
+      yamlObj.description,
+      yamlObj.repository,
       dataSources,
       dataDestinations,
-      Mapping.from_v_0_0_2(yaml.mapping),
+      Mapping.from_v_0_0_2(yamlObj.mapping),
     )
   }
 
   // TODO: type: should be the return class of yaml.load
-  static fromYaml(yaml: any) {
+  static fromYaml(yamlObj: any) {
     // health check before parse
-    CLEYaml.healthCheck(yaml)
-    if (yaml.specVersion === '0.0.1')
-      return CLEYaml.from_v_0_0_1(yaml)
+    CLEYaml.healthCheck(yamlObj)
+    if (yamlObj.specVersion === '0.0.1')
+      return CLEYaml.from_v_0_0_1(yamlObj)
 
-    else if (yaml.specVersion === '0.0.2')
-      return CLEYaml.from_v_0_0_2(yaml)
+    else if (yamlObj.specVersion === '0.0.2')
+      return CLEYaml.from_v_0_0_2(yamlObj)
 
     else
-      throw new Error(`Unsupported specVersion: ${yaml.specVersion}`)
+      throw new Error(`Unsupported specVersion: ${yamlObj.specVersion}`)
   }
 
   static fromYamlContent(yamlContent: string) {
     try {
       // Parse the YAML content
-      const config = yaml.load(yamlContent)
-      return CLEYaml.fromYaml(config)
+      const yamlObj = yaml.load(yamlContent)
+      return CLEYaml.fromYaml(yamlObj)
     }
     catch (error: any) {
       // TODO: is there other cases than "Invalid Yaml"?
@@ -193,7 +197,7 @@ export class CLEYaml {
   }
 
   toString() {
-    return yaml.dump(this)
+    return yaml.dump(this.yamlObj)
   }
 
   decidePublishNetwork(): string | undefined {
