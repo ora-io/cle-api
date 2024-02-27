@@ -28,7 +28,7 @@ export class CLEYaml extends WrappedYaml {
   name: string
 
   constructor(
-    yamlObj,
+    yamlObj: any,
     specVersion: string,
     apiVersion: string,
     name: string,

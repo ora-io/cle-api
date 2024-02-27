@@ -22,7 +22,7 @@ import { DataSource } from './interface'
 
 export class OffchainDataSource extends DataSource {
   type: any
-  constructor(yamlObj, kind: any, type: any) {
+  constructor(yamlObj: any, kind: any, type: any) {
     super(yamlObj, kind)
     this.type = type
   }

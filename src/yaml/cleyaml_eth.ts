@@ -190,7 +190,7 @@ export class EthereumDataSource extends DataSource {
 export class EthereumDataDestination extends DataDestination {
   network: string
   address: string
-  constructor(yamlObj, kind: DataDestinationKind, network: string, address: string) {
+  constructor(yamlObj: any, kind: DataDestinationKind, network: string, address: string) {
     super(yamlObj, kind)
     this.network = network
     this.address = address
