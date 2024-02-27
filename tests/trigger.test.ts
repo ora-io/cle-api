@@ -22,7 +22,7 @@ describe('test trigger', () => {
 
   it('eth ddp', async () => {
     const proofParams = await zkgapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
-    const CLEID = '0xde237111f9f77ed6e76ca2f3703bf1ea755a0d84'
+    const CLEID = '0x8fd9e85b23d3777993ebf04ad3a3b0878f7fee77'
     const userPrivateKey = config.UserPrivateKey
     const rpcUrl = config.JsonRpcProviderUrl.sepolia
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
