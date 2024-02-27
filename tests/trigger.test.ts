@@ -18,14 +18,14 @@ const proveTaskId = '65dd7dad235cd47b5193efce' // true
 describe('test trigger', () => {
   const yaml = loadYamlFromPath(yamlPath)
 
-  it('test verify proof params', async () => {
+  it('eth ddp', async () => {
     const proofParams = await zkgapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
     const CLEID = '0xde237111f9f77ed6e76ca2f3703bf1ea755a0d84'
     const userPrivateKey = config.UserPrivateKey
     const rpcUrl = config.JsonRpcProviderUrl.sepolia
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const signer = new ethers.Wallet(userPrivateKey, provider)
-    const ddpParams = { signer, gasLimit: 3000000 }
+    const ddpParams = { signer, gasLimit: 10000000 }
     await zkgapi.trigger(
       { cleYaml: yaml },
       CLEID,

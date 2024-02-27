@@ -83,12 +83,12 @@ export const abiFactory = [
 export const EventSigNewCLE = '0x39f7254e91d2eee9fa8ffc88bc7b0dff5c67916b7a1cc84284b3192bde4ab1d2'
 
 export const AggregatorVerifierAddress: { [key: string]: { [key: string]: string } } = {
-  ZkWasmHub: {
+  ZKWASMHUB: {
     mainnet: 'not support yet',
     sepolia: '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0',
     goerli: '0xbEF9572648284CB63a0DA32a89D3b4F2BeD65a89',
   },
-  Ora: {
+  ORA: {
     mainnet: 'not support yet',
     sepolia: '0xf48dC1e1AaA6bB8cA43b03Ca0695973a2F440090',
     goerli: 'not support yet',

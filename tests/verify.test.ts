@@ -11,8 +11,8 @@ const rpcUrl = 'https://rpc.ankr.com/eth_sepolia'
 
 const yamlPath = 'tests/testsrc/cle-event.yaml'
 // let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
-// let proveTaskId = "6554584c82ab2c8b29dbc2c2" // true
-const proveTaskId = '65d1c1edc3e455a0eebd7bb6' // fasle
+const proveTaskId = '65dd7dad235cd47b5193efce' // true
+// const proveTaskId = '65d1c1edc3e455a0eebd7bb6' // fasle
 
 describe('test verify', () => {
   const cleYaml = loadYamlFromPath(yamlPath)
@@ -21,7 +21,6 @@ describe('test verify', () => {
     const verifyParams = await zkgapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
 
     const network = cleYaml.decidePublishNetwork()
-    console.log('network', network)
     expect(network).toBeDefined()
     if (network === undefined)
       throw new Error('network is undefined')
@@ -48,5 +47,5 @@ describe('test verify', () => {
       proofParams,
       { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
     )).toBeFalsy()
-  })
+  }, { timeout: 10000 })
 })
