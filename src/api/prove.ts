@@ -46,17 +46,13 @@ export async function requestProve(
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
   logger.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
-  let taskDetails
   let taskId = '' // taskId must be set to response.data.result.id later
-  await ora_prove(md5, input, options)
-    .then(async (response) => {
-      taskId = response.data.result.id
-      taskDetails = response.data.result.data[0]
-      logger.log(`[+] PROVING TASK STARTED. TASK ID: ${taskId}`, '\n')
-    })
-    // TODO: other error types need to be catch here? e.g. NoSetup
+  const response = await ora_prove(md5, input, options)
+  taskId = response.data.result.id
+  logger.log(`[+] PROVING TASK STARTED. TASK ID: ${taskId}`, '\n')
+  // TODO: other error types need to be catch here? e.g. NoSetup
 
-  const result: RequestProveResult = { md5, taskId, taskDetails }
+  const result: RequestProveResult = { md5, taskId }
   return result
   // const privateInputArray = input.getPrivateInputStr().trim().split(' ')
   // const publicInputArray = input.getPublicInputStr().trim().split(' ')
