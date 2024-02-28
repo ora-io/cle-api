@@ -1,5 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import FormData from 'form-data'
 import type { Signer } from 'ethers'
 import { InputContextType, ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { Input } from 'zkwasm-toolchain'
