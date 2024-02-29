@@ -76,7 +76,7 @@
     "js-yaml": "^4.1.0",
     "semver": "^7.5.4",
     "web3-eth-contract": "^1.8.2",
-    "zkwasm-toolchain": "^0.0.5"
+    "zkwasm-toolchain": "^0.0.6"
   },
   "devDependencies": {
     "@murongg/eslint-config": "^0.2.1",
