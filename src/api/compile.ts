@@ -129,8 +129,8 @@ export async function compile(
   const finalOutWasmPath = options.outWasmPath
   const finalOutWatPath = options.outWatPath
 
-  // compile locally with asc, use inner path if isLocal
-  if (isLocal) {
+  // compile locally with asc, use inner path if isLocal==false
+  if (isLocal === false) {
     options.outWasmPath = outInnerWasmPath
     options.outWatPath = outInnerWatPath
   }
