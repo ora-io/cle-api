@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.8.2
     version: 1.10.3
   zkwasm-toolchain:
-    specifier: ^0.0.6
-    version: 0.0.6
+    specifier: ^0.0.7
+    version: 0.0.7
 
 devDependencies:
   '@murongg/eslint-config':
@@ -8176,8 +8176,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /zkwasm-toolchain@0.0.6:
-    resolution: {integrity: sha512-wQy046r6OMqy5aKKGefXIkb5sYsCi7osQ1cnLBcYfctW6Cs6hg3GOSoqabYNUdRDwuHNeX/ZRoq4jw8VqIoWcw==}
+  /zkwasm-toolchain@0.0.7:
+    resolution: {integrity: sha512-BjPdVgyumQSg0hwkCw6QmXrfo0wac0gAlqVG+vQFvX5BudWQ9xEVNfV+NBuotQ9rzUPV4LEBis+5rRfi6U8BvQ==}
     dev: false
 
   github.com/DelphinusLab/delphinus-web3subscriber/b623f2174498bde8746d2acd43519680c968e466:
