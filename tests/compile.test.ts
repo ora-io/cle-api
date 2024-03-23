@@ -7,6 +7,7 @@ import * as cleapi from '../src/index'
 import { loadYamlFromPath } from './utils/yaml'
 import { createOnNonexist } from './utils/file'
 import { fixtures } from './fixureoptions'
+import { config } from './config'
 
 (global as any).__BROWSER__ = false
 
@@ -14,8 +15,9 @@ function readFile(filepath: string) {
   return fs.readFileSync(filepath, 'utf-8')
 }
 
-const pathfromfixtures = 'dsp/ethereum(storage)'
-// const pathfromfixtures = 'dsp/ethereum.unsafe-ethereum'
+// const pathfromfixtures = 'dsp/ethereum(storage)'
+const pathfromfixtures = 'dsp/ethereum(event)'
+// const pathfromfixtures = 'dsp/ethereum.unsafe'
 const option = fixtures[pathfromfixtures]
 
 describe('test compile', async () => {
@@ -36,7 +38,7 @@ export async function testCompile(option: any) {
     'src/cle.yaml': readFile(yamlPath),
   }
 
-  const result = await cleapi.compile(sources)
+  const result = await cleapi.compile(sources, { compilerServerEndpoint: config.CompilerServerEndpoint })
 
   if ((result?.stderr as any)?.length > 0)
     throw new Error(result?.stderr?.toString())
