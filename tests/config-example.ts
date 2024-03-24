@@ -1,8 +1,10 @@
+import { DEFAULT_URL } from '../src/common/constants'
+
 export const config = {
   JsonRpcProviderUrl: { // Erigon node rpc are highly recommended here.
-    mainnet: 'https://eth.llamarpc.com',
-    sepolia: 'https://eth-sepolia.public.blastapi.io',
+    mainnet: 'https://rpc.ankr.com/eth',
+    sepolia: 'https://rpc.ankr.com/eth_sepolia',
   },
   UserPrivateKey: '0x{key}',
-  CompilerServerEndpoint: 'http://compiler.hyperoracle.io/compile',
+  CompilerServerEndpoint: DEFAULT_URL.COMPILER_SERVER,
 }

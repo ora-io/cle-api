@@ -108,7 +108,7 @@ export const DEFAULT_PATH = {
 export const DEFAULT_URL = {
   PROVER: 'https://rpc.zkwasmhub.com:8090',
   ZKWASMHUB: 'https://rpc.zkwasmhub.com:8090',
-  COMPILER_SERVER: 'http://compiler.hyperoracle.io/compile',
+  COMPILER_SERVER: 'https://compiler.ora.io/compile',
   PINATA: 'https://api.pinata.cloud/pinning/pinFileToIPFS',
 }
 

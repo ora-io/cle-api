@@ -20,7 +20,6 @@ describe('test setup', () => {
     const signer = new ethers.Wallet(config.UserPrivateKey, provider)
     const result = await cleapi.setup(
       { wasmUint8Array },
-      // { circuitSize: 22, proverUrl: DEFAULT_URL.ZKWASMHUB, signer },
       { circuitSize: 22, proverUrl: DEFAULT_URL.ZKWASMHUB, signer },
     )
     result

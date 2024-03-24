@@ -15,8 +15,8 @@ function readFile(filepath: string) {
   return fs.readFileSync(filepath, 'utf-8')
 }
 
-// const pathfromfixtures = 'dsp/ethereum(storage)'
-const pathfromfixtures = 'dsp/ethereum(event)'
+const pathfromfixtures = 'dsp/ethereum(storage)'
+// const pathfromfixtures = 'dsp/ethereum(event)'
 // const pathfromfixtures = 'dsp/ethereum.unsafe'
 const option = fixtures[pathfromfixtures]
 
