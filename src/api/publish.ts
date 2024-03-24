@@ -9,8 +9,8 @@ import {
 } from '../common/constants'
 import { CLEAlreadyExist, DSPNotFound, TxFailed } from '../common/error'
 import { dspHub } from '../dsp/hub'
-import { zkwasm_imagedetails } from '../requests/zkwasm_imagedetails'
 import type { CLEExecutable, CLEYaml } from '../types'
+import { requireImageDetails } from './setup'
 
 export interface PublishOptions {
   proverUrl?: string
@@ -153,12 +153,8 @@ export async function getImageCommitment(
 ) {
   const { wasmUint8Array } = cleExecutable
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
-  const details = await zkwasm_imagedetails(proverUrl, md5)
-  const result = details[0]?.data.result[0]
-  if (result === null)
-    throw new Error('Can\'t find zkWasm image details, please finish setup before publish.')
-
-  const pointX = littleEndianToUint256(result.checksum.x)
-  const pointY = littleEndianToUint256(result.checksum.y)
+  const details = await requireImageDetails(proverUrl, md5)
+  const pointX = littleEndianToUint256(details.checksum.x)
+  const pointY = littleEndianToUint256(details.checksum.y)
   return { pointX, pointY }
 }

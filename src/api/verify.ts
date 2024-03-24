@@ -1,7 +1,7 @@
 import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import type { providers } from 'ethers'
 import { Contract } from 'ethers'
-import { AggregatorVerifierABI, AggregatorVerifierAddress } from '../common/constants'
+import { AggregatorVerifierABI, AggregatorVerifierAddress, PROVER_RPC_CONSTANTS } from '../common/constants'
 import { ProveTaskNotReady } from '../common/error'
 import type { BatchOption, ProofParams, ProofParams as VerifyProofParams } from '../types'
 import { BatchStyle } from '../types'
@@ -88,7 +88,7 @@ export async function getVerifyProofParamsByTaskID(
   options: BatchOption = {},
 ): Promise<ProofParams> {
   const result = await waitProve(proverUrl, proveTaskId, options)
-  if (result.status !== 'Done' || !result.proofParams)
-    throw new ProveTaskNotReady('Prove task is not \'Done\', can\'t verify')
+  if (result.status !== PROVER_RPC_CONSTANTS.TASK_STATUS_DONE || !result.proofParams)
+    throw new ProveTaskNotReady(`Prove task is not \'${PROVER_RPC_CONSTANTS.TASK_STATUS_DONE}\', can\'t verify`)
   return result.proofParams
 }

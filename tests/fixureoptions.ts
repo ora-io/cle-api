@@ -18,7 +18,7 @@ interface OptionType {
 const defaultPath = (pathFromFixtures: string) => {
   return {
     mappingPath: `tests/fixtures/${pathFromFixtures}/mapping.ts`,
-    yamlPath: `tests/fixtures/${pathFromFixtures}/cle-event.yaml`,
+    yamlPath: `tests/fixtures/${pathFromFixtures}/cle.yaml`,
     wasmPath: `tests/fixtures/build/${pathFromFixtures}.wasm`,
     watPath: `tests/fixtures/build/${pathFromFixtures}.wat`,
   }

@@ -116,4 +116,16 @@ export const DEFAULT_CIRCUIT_SIZE = 22
 export const MIN_CIRCUIT_SIZE = 18
 export const MAX_CIRCUIT_SIZE = 24
 
-export const FinishStatusList = ['Done', 'Fail', 'DryRunFailed']
+export const PROVER_RPC_CONSTANTS = {
+  TASK_STATUS_DONE: 'Done',
+  TASK_STATUS_FAIL: 'Fail',
+  TASK_STATUS_DRYRUNFAILED: 'DryRunFailed',
+  TASK_STATUS_SETUP_FINISH_LIST: ['Done', 'Fail'],
+  TASK_STATUS_PROVE_FINISH_LIST: ['Done', 'Fail', 'DryRunFailed'],
+  IMAGE_STATUS_VALID: 'Verified',
+  TASK_TYPE_SETUP: 'Setup',
+  TASK_TYPE_RESET: 'Reset',
+}
+
+// TODO: compatible only, deprecating
+export const FinishStatusList = PROVER_RPC_CONSTANTS.TASK_STATUS_PROVE_FINISH_LIST

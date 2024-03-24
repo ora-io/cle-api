@@ -10,6 +10,18 @@ export class ImageAlreadyExists extends Error {
   }
 }
 
+export class ImageNotExists extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
+export class ImageInvalid extends Error {
+  constructor(message: string | undefined) {
+    super(message)
+  }
+}
+
 export class ProveTaskNotReady extends Error {
   constructor(message: string | undefined) {
     super(message)
