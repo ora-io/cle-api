@@ -1,9 +1,11 @@
 import { utils } from 'ethers'
-import type { BlockPrep } from './blockprep'
 import { safeHex } from '../../common/utils'
+import type { BlockPrep } from './blockprep'
 
-
-function i32ToLittleEndianHexStr(value: number) {
+function i32ToLittleEndian(value: number) {
+  /**
+   * Converts i32 number to little endian hex string.
+   */
   const buffer = Buffer.alloc(8)
   buffer.writeUInt32LE(value, 0)
   return buffer.toString('hex')
@@ -11,7 +13,7 @@ function i32ToLittleEndianHexStr(value: number) {
 
 function prependLengthInLittleEndianHex(hexString: string) {
   const lengthInBytes = hexString.length / 2
-  const lengthAsLittleEndianHex = i32ToLittleEndianHexStr(lengthInBytes)
+  const lengthAsLittleEndianHex = i32ToLittleEndian(lengthInBytes)
   return lengthAsLittleEndianHex + hexString
 }
 
@@ -26,7 +28,24 @@ function formatProofPath(rawProofPath: string) {
   return newHexString
 }
 
-function padHexStringToU64LengthLittleEndian(rawHex: string) {
+function pad2LittleEndian(rawHex: string) {
+  /**
+   * Pads the given hex string to 8 bytes (u64) divisible and convert to little endian.
+   */
+  const length = rawHex.length
+  const remainder = length % 16
+  if (remainder === 0)
+    return rawHex
+
+  const paddingSize = 16 - remainder
+  const paddedHexString = toLittleEndian(rawHex) + '0'.repeat(paddingSize)
+  return paddedHexString
+}
+
+function padHexString(rawHex: string) {
+  /**
+   * Pads the given hex string to 8 bytes (u64) divisible.
+   */
   const length = rawHex.length
   const remainder = length % 16
   if (remainder === 0)
@@ -37,11 +56,11 @@ function padHexStringToU64LengthLittleEndian(rawHex: string) {
   return paddedHexString
 }
 
-function hexToLittleEndian(hexString: string) {
-  let result = hexString.match(/../g)
-  if (result) {
-      return result.reverse().join('')
-  }
+function toLittleEndian(hexString: string) {
+  const result = hexString.match(/../g)
+  if (result)
+    return result.reverse().join('')
+
   return ''
 }
 
@@ -53,7 +72,7 @@ export class MptInput {
     this.blockCnt = blockCnt
     this.priIpt = ''
     // block count
-    this.ctx = `0x${padHexStringToU64LengthLittleEndian(safeHex(this.blockCnt.toString()))}`
+    this.ctx = `0x${pad2LittleEndian(safeHex(this.blockCnt.toString()))}`
   }
 
   addBlock(blockPrep: BlockPrep) {
@@ -64,23 +83,23 @@ export class MptInput {
   addBlock2Ctx(blockPrep: BlockPrep) {
     let currCtx = ''
     // block number
-    currCtx += padHexStringToU64LengthLittleEndian(hexToLittleEndian(safeHex(blockPrep.number.toString(16))) || '')
+    currCtx += padHexString(toLittleEndian(safeHex(blockPrep.number.toString(16))))
     // account count
     const accCnt = blockPrep.accounts.size
-    currCtx += padHexStringToU64LengthLittleEndian(safeHex(accCnt.toString(16)))
+    currCtx += pad2LittleEndian(safeHex(accCnt.toString(16)))
     for (const [addr, accData] of blockPrep.accounts) {
       // address
-      currCtx += padHexStringToU64LengthLittleEndian(safeHex(addr))
+      currCtx += padHexString(safeHex(addr))
       // account rlp
-      currCtx += padHexStringToU64LengthLittleEndian(safeHex((safeHex(accData.rlpNode).length / 2).toString(16)))
-      currCtx += padHexStringToU64LengthLittleEndian(safeHex(accData.rlpNode))
+      currCtx += pad2LittleEndian(safeHex((safeHex(accData.rlpNode).length / 2).toString(16)))
+      currCtx += padHexString(safeHex(accData.rlpNode))
       // slot count
       const slotCnt = accData.slots.size
-      currCtx += padHexStringToU64LengthLittleEndian(safeHex(slotCnt.toString(16)))
+      currCtx += pad2LittleEndian(safeHex(slotCnt.toString(16)))
       for (const [slotKey, slotData] of accData.slots) {
-        currCtx += padHexStringToU64LengthLittleEndian(safeHex(slotKey))
-        currCtx += padHexStringToU64LengthLittleEndian(safeHex((safeHex(slotData.value).length / 2).toString(16)))
-        currCtx += padHexStringToU64LengthLittleEndian(safeHex(slotData.value))
+        currCtx += padHexString(safeHex(slotKey))
+        currCtx += pad2LittleEndian(safeHex((safeHex(slotData.value).length / 2).toString(16)))
+        currCtx += padHexString(safeHex(slotData.value))
       }
     }
     return currCtx
@@ -107,7 +126,7 @@ export class MptInput {
       // proof hash steam
       currPriIpt += `0x${proofHashStream}:bytes-packed `
       // storage hash
-      currPriIpt += `0x${blockPrep.transactionsRoot}:bytes-packed `
+      currPriIpt += `${accData.storageHash}:bytes-packed `
       for (const [slotKey, slotData] of accData.slots) {
         // key hash
         currPriIpt += `${utils.keccak256(slotKey)}:bytes-packed `

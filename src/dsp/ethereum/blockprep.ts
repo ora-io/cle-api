@@ -36,15 +36,18 @@ export class SlotPrep {
 export class AccountPrep {
   address: any
   rlpNode: any
+  storageHash: any
   accountProof: any
   slots: Map<any, any>
   constructor(
     address: any,
     rlpNode: any,
+    storageHash: any,
     accountProof: any,
   ) {
     this.address = address
     this.rlpNode = rlpNode
+    this.storageHash = storageHash
     this.accountProof = accountProof
     this.slots = new Map() // <key: string, Slot>
   }
@@ -130,10 +133,10 @@ export class BlockPrep {
     return nestedList
   }
 
-  addAccount(address: string, rlpAccount: string, accountProof: any) {
+  addAccount(address: string, rlpAccount: string, storageHash: string, accountProof: any) {
     this.accounts.set(
       address,
-      new AccountPrep(address, rlpAccount, accountProof),
+      new AccountPrep(address, rlpAccount, storageHash, accountProof),
     )
   }
 
@@ -149,7 +152,7 @@ export class BlockPrep {
     return this.accounts.has(addressLowercase)
   }
 
-  addFromGetProofResult(ethproof: { address: any; accountProof: any; storageProof: any }, accountRLP: string | null = null) {
+  addFromGetProofResult(ethproof: { address: any; accountProof: any; storageHash: any; storageProof: any }, accountRLP: string | null = null) {
     const accountAddress = ethproof.address
 
     // add Account if not exist.
@@ -157,7 +160,7 @@ export class BlockPrep {
       if (accountRLP == null)
         throw new Error('lack of accountRLP when new Account')
 
-      this.addAccount(accountAddress, accountRLP, ethproof.accountProof)
+      this.addAccount(accountAddress, accountRLP, ethproof.storageHash, ethproof.accountProof)
     }
 
     this.getAccount(accountAddress)?.addFromStorageProofList(ethproof.storageProof)
