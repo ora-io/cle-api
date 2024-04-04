@@ -1,4 +1,3 @@
-import { utils } from 'ethers'
 import { safeHex } from '../../common/utils'
 import type { BlockPrep } from './blockprep'
 
@@ -109,40 +108,32 @@ export class MptInput {
     let currPriIpt = ''
     // state root
     currPriIpt += `0x${safeHex(blockPrep.stateRoot)}:bytes-packed `
-    for (const [addr, accData] of blockPrep.accounts) {
-      // address hash
-      currPriIpt += `${utils.keccak256(addr)}:bytes-packed `
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const [_, accData] of blockPrep.accounts) {
       // account proof count
       currPriIpt += `0x${safeHex(accData.accountProof.length.toString(16))}:i64 `
-      let proofStream = ''; let proofHashStream = ''
-      for (const proof of accData.accountProof) {
+      let proofStream = ''
+      for (const proof of accData.accountProof)
         proofStream += formatProofPath(safeHex(proof))
-        proofHashStream += safeHex(utils.keccak256(proof))
-      }
+
       // proof steam length
       currPriIpt += `0x${safeHex((proofStream.length / 2).toString(16))}:i64 `
       // proof steam
       currPriIpt += `0x${proofStream}:bytes-packed `
-      // proof hash steam
-      currPriIpt += `0x${proofHashStream}:bytes-packed `
-      // storage hash
+      // storage hash root
       currPriIpt += `${accData.storageHash}:bytes-packed `
-      for (const [slotKey, slotData] of accData.slots) {
-        // key hash
-        currPriIpt += `${utils.keccak256(slotKey)}:bytes-packed `
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for (const [_, slotData] of accData.slots) {
         // proof count
         currPriIpt += `0x${safeHex(slotData.storageProof.length.toString(16))}:i64 `
-        let slotPrfStream = ''; let slotPrfHashStream = ''
-        for (const proof of slotData.storageProof) {
+        let slotPrfStream = ''
+        for (const proof of slotData.storageProof)
           slotPrfStream += formatProofPath(safeHex(proof))
-          slotPrfHashStream += safeHex(utils.keccak256(proof))
-        }
+
         // slot proof stream length
         currPriIpt += `0x${safeHex((slotPrfStream.length / 2).toString(16))}:i64 `
         // slot proof steam
         currPriIpt += `0x${slotPrfStream}:bytes-packed `
-        // slot proof hash steam
-        currPriIpt += `0x${slotPrfHashStream}:bytes-packed `
       }
     }
     return currPriIpt
