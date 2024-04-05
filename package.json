@@ -65,6 +65,8 @@
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.1",
+    "@ethereumjs/trie": "^6.1.1",
+    "@ethereumjs/util": "^9.0.2",
     "@murongg/utils": "^0.1.20",
     "@ora-io/cle-api": "^1.0.3-alpha.5",
     "@ora-io/zkwasm-service-helper": "^1.0.2",

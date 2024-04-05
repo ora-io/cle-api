@@ -148,4 +148,58 @@ export class MptInput {
   }
 }
 
-export default MptInput
+module.exports = MptInput
+
+export class ReceiptMptInput {
+  receiptCnt: number
+  receiptRoot: string
+  priIpt: string
+  ctx: string
+  constructor(receiptCnt: number, receiptRoot: string) {
+    this.receiptCnt = receiptCnt
+    this.receiptRoot = receiptRoot
+    this.priIpt = `0x${safeHex(receiptRoot)}:bytes-packed `
+    // receipt count
+    this.ctx = `0x${pad2LittleEndian(safeHex(this.receiptCnt.toString()))}`
+  }
+
+  addReceipt(key: string, value: string, proofPath: string[]) {
+    this.ctx += this.addReceipt2Ctx(key, value)
+    this.priIpt += this.addReceipt2PriIpt(key, proofPath)
+  }
+
+  addReceipt2Ctx(key: string, value: string) {
+    // receipt index
+    let currCtx = padHexString(safeHex(key))
+    // receipt value
+    currCtx += pad2LittleEndian(safeHex((safeHex(value).length / 2).toString(16)))
+    currCtx += padHexString(safeHex(value))
+    return currCtx
+  }
+
+  addReceipt2PriIpt(key: string, proofPath: string[]) {
+    // key hash
+    // proof count
+    let currPriIpt = `0x${safeHex(proofPath.length.toString(16))}:i64 `
+    let slotPrfStream = ''
+    for (const proof of proofPath)
+      slotPrfStream += formatProofPath(safeHex(proof))
+
+    // slot proof stream length
+    currPriIpt += `0x${safeHex((slotPrfStream.length / 2).toString(16))}:i64 `
+    // slot proof steam
+    currPriIpt += `0x${slotPrfStream}:bytes-packed `
+    // slot proof hash steam
+    return currPriIpt
+  }
+
+  getCtx() {
+    return `${this.ctx}:bytes-packed`
+  }
+
+  getPriIpt() {
+    return this.priIpt
+  }
+}
+
+module.exports = ReceiptMptInput
