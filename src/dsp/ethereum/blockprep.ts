@@ -78,6 +78,7 @@ export class AccountPrep {
 export class BlockPrep {
   rlpheader: string
   number: any
+  timestamp: any
   // rlpHeader: any
   hash: string
   stateRoot: string
@@ -89,6 +90,7 @@ export class BlockPrep {
   // constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
   constructor(rawblock: Record<string, string>) {
     this.number = parseInt(rawblock.number, 16)
+    this.timestamp = parseInt(rawblock.timestamp, 16)
     this.hash = rawblock.hash
     this.stateRoot = rawblock.stateRoot
     this.receiptsRoot = rawblock.receiptsRoot

@@ -65,6 +65,8 @@ export function setFillInputTxsFunc(_func: any) {
 export function fillInputOneBlock(input: any, cleYaml: CLEYaml, blockPrep: BlockPrep) {
   input.addInt(blockPrep.number, 0)
 
+  // add timestamp
+  input.addInt(blockPrep.timestamp, 0)
   // TODO: adjust this with lib
   // input.addVarLenHexString(
   //   // blockPrep?.rlpHeader,
