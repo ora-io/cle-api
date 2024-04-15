@@ -1,11 +1,12 @@
 import { Trie } from '@ethereumjs/trie'
 import { MapDB } from '@ethereumjs/util'
+import { RLP } from '@ethereumjs/rlp'
 
 import { utils } from 'ethers'
 import { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types'
 import { u32ListToUint8Array } from '../../common/utils'
-import { fromHexString, uint8ArrayToHex } from '../../common/utils'
+import { fromHexString, safeHex, uint8ArrayToHex } from '../../common/utils'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
 import { MptInput, ReceiptMptInput } from './mpt_input'
 
@@ -32,15 +33,14 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
   // account and storage slot
   const mptIpt = new MptInput(dataPrep.blocknumberOrder.length)
   for (const blockNum of dataPrep.blocknumberOrder) {
-    // console.log("block number:", blockNum)
+    console.log('block number:', blockNum)
     const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
     // console.log("blcokPrepData:", blcokPrepData)
     // console.log("blcokPrepData.accounts:", blcokPrepData.accounts)
-
-    console.log('ctx:', mptIpt.getCtx())
-    console.log('private input:', mptIpt.getPriIpt())
   }
+  console.log('ctx:', mptIpt.getCtx())
+  console.log('private input:', mptIpt.getPriIpt())
   input.append(mptIpt.getCtx(), 2)
   input.append(mptIpt.getPriIpt(), 0);
 
@@ -49,24 +49,27 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
     for (const blockNum of dataPrep.blocknumberOrder) {
       const trie = await Trie.create({ db: new MapDB() })
       const keys = []
-      const keyHashs = []
       const values = []
       console.log('block number:', blockNum)
       const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
       const receiptCount = blcokPrepData.rlpreceipts.length
       for (let txIndex = 0; txIndex < receiptCount; txIndex++) {
-        const key = toHexString(txIndex)
-        const keyHash = utils.keccak256(fromHexString(key))
-        const rlp = blcokPrepData.rlpreceipts[txIndex]
+        const key = uint8ArrayToHex(RLP.encode(txIndex))
+        // const rlp = blcokPrepData.rlpreceipts[txIndex]
+
+        let rlp = safeHex(blcokPrepData.rlpreceipts[txIndex])
+        if (txIndex >= 4)
+          rlp = `0x02${rlp}`
+        else
+          rlp = `0x${rlp}`
+
         console.log('key: ', key)
-        console.log('key hash: ', keyHash)
         keys.push(key)
-        keyHashs.push(keyHash)
         const rlpHash = utils.keccak256(fromHexString(rlp))
-        values.push(rlpHash)
+        values.push(rlp)
         console.log('rlp: ', rlp)
         console.log('rlpHash: ', rlpHash)
-        await trie.put(fromHexString(keyHash), fromHexString(rlpHash))
+        await trie.put(fromHexString(key), fromHexString(rlp))
       }
 
       const receiptRoot = uint8ArrayToHex(trie.root())
@@ -75,10 +78,9 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
       const receiptMptIpt = new ReceiptMptInput(receiptCount, receiptRoot)
       for (let i = 0; i < keys.length; i++) {
         console.log('key: ', keys[i])
-        console.log('key hash: ', keyHashs[i])
         console.log('value: ', values[i])
-        const proof_paths = await getProof(keyHashs[i], trie)
-        receiptMptIpt.addReceipt(keys[i], keyHashs[i], values[i], proof_paths)
+        const proof_paths = await getProof(keys[i], trie)
+        receiptMptIpt.addReceipt(keys[i], values[i], proof_paths)
       }
       console.log('ctx:', receiptMptIpt.getCtx())
       console.log('private input:', receiptMptIpt.getPriIpt())
@@ -135,9 +137,9 @@ async function getProof(key: string, trie: Trie): Promise<string[]> {
   return proof_paths
 }
 
-function toHexString(num: number): string {
-  const hexString = num.toString(16)
-  const paddingSize = 64 - hexString.length
-  const padding = '0'.repeat(paddingSize)
-  return padding + hexString
-}
+// function toHexString(num: number): string {
+//   const hexString = num.toString(16)
+//   const paddingSize = 64 - hexString.length
+//   const padding = '0'.repeat(paddingSize)
+//   return padding + hexString
+// }

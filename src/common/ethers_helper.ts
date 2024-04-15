@@ -25,6 +25,10 @@ async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProv
       txRawLogs.push([log.address, log.topics, log.data])
 
     txRawReceipt.push(txRawLogs) // empty log will be included
+    // if(receipt.type != '0x0')
+    //   rawReceipt.push(`0x02${Buffer.from(RLP.encode(txRawReceipt)).toString('hex')}`)
+    // else
+    //   rawReceipt.push(`0x${Buffer.from(RLP.encode(txRawReceipt)).toString('hex')}`)
     rawReceipt.push(`0x${Buffer.from(RLP.encode(txRawReceipt)).toString('hex')}`)
   }
 
