@@ -80,7 +80,7 @@
   },
   "devDependencies": {
     "@murongg/eslint-config": "^0.2.1",
-    "@ora-io/cle-lib": "0.1.0",
+    "@ora-io/cle-lib": "^0.1.2",
     "@ora-io/release-scripts": "^0.0.1",
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.4",
