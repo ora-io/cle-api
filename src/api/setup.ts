@@ -2,12 +2,12 @@ import { ZkWasmUtil } from '@ora-io/zkwasm-service-helper'
 import {
   waitTaskStatus,
 } from '../requests/zkwasm_taskdetails'
-import { CircuitSizeOutOfRange, ImageAlreadyExists } from '../common/error'
+import { CircuitSizeOutOfRange, ImageAlreadyExists, ImageInvalid, ImageNotExists } from '../common/error'
 import { zkwasm_imagetask } from '../requests/zkwasm_imagetask'
 import type { CLEExecutable, SingableProver } from '../types'
-import { ora_setup } from '../requests'
+import { ora_setup, zkwasm_imagedetails } from '../requests'
 import { createFileStream } from '../common/compatible'
-import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE } from '../common/constants'
+import { DEFAULT_CIRCUIT_SIZE, DEFAULT_URL, MAX_CIRCUIT_SIZE, MIN_CIRCUIT_SIZE, PROVER_RPC_CONSTANTS } from '../common/constants'
 import { logger } from '../common'
 
 export interface BasicSetupParams {
@@ -79,10 +79,10 @@ export async function requestSetup(
       // return the last status if exists
       if (error instanceof ImageAlreadyExists) {
         // check if there's any "Reset" task before
-        let res = await zkwasm_imagetask(proverUrl, md5, 'Reset')
+        let res = await zkwasm_imagetask(proverUrl, md5, PROVER_RPC_CONSTANTS.TASK_TYPE_RESET)
         // if no "Reset", check "Setup"
         if (res.data.result.total === 0)
-          res = await zkwasm_imagetask(proverUrl, md5, 'Setup')
+          res = await zkwasm_imagetask(proverUrl, md5, PROVER_RPC_CONSTANTS.TASK_TYPE_SETUP)
 
         taskDetails = res.data.result.data[0]
         taskId = res.data.result.data[0]._id.$oid
@@ -107,15 +107,26 @@ export async function waitSetup(proverUrl: string, taskId: string): Promise<Setu
   const taskDetails = await waitTaskStatus(
     proverUrl,
     taskId,
-    ['Done', 'Fail'],
+    PROVER_RPC_CONSTANTS.TASK_STATUS_SETUP_FINISH_LIST,
     3000,
     0,
   ) // TODO: timeout
 
   const result: SetupResult = {
-    success: taskDetails.status === 'Done',
+    success: taskDetails.status === PROVER_RPC_CONSTANTS.TASK_STATUS_DONE,
     status: taskDetails.status,
     taskDetails,
   }
   return result
+}
+
+export async function requireImageDetails(proverUrl: string, md5: string) {
+  const response = await zkwasm_imagedetails(proverUrl, md5)
+  const details = response[0]?.data.result[0]
+  if (details === null)
+    throw new ImageNotExists('Can\'t find wasm image in prover, please finish setup first.')
+  if (details.status !== PROVER_RPC_CONSTANTS.IMAGE_STATUS_VALID && details.status !== PROVER_RPC_CONSTANTS.IMAGE_STATUS_INITIALIZED)
+    throw new ImageInvalid('wasm image is invalid in prover, please setup a valid wasm. or contact admin if you believe it should be valid.')
+
+  return details
 }

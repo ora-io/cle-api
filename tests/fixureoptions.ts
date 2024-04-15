@@ -18,7 +18,7 @@ interface OptionType {
 const defaultPath = (pathFromFixtures: string) => {
   return {
     mappingPath: `tests/fixtures/${pathFromFixtures}/mapping.ts`,
-    yamlPath: `tests/fixtures/${pathFromFixtures}/cle-event.yaml`,
+    yamlPath: `tests/fixtures/${pathFromFixtures}/cle.yaml`,
     wasmPath: `tests/fixtures/build/${pathFromFixtures}.wasm`,
     watPath: `tests/fixtures/build/${pathFromFixtures}.wat`,
   }
@@ -39,28 +39,28 @@ export const fixtures: Record<string, OptionType> = {
     local: false,
     expectedState: 'a60ecf32309539dd84f27a9563754dca818b815e', // storage case
     blocknum: latestblocknum,
-    zkwasmUrl: '',
+    zkwasmUrl: DEFAULT_URL.ZKWASMHUB,
   },
   'dsp/ethereum(event)': {
     ...defaultPath('dsp/ethereum(event)'),
     local: false,
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // event case
     blocknum: eventblocknum,
-    zkwasmUrl: '',
+    zkwasmUrl: DEFAULT_URL.ZKWASMHUB,
   },
   'dsp/ethereum.unsafe': {
     ...defaultPath('dsp/ethereum.unsafe'),
     local: false,
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // event case
     blocknum: eventblocknum,
-    zkwasmUrl: '',
+    zkwasmUrl: DEFAULT_URL.ZKWASMHUB,
   },
   'dsp/ethereum.unsafe-ethereum': {
     ...defaultPath('dsp/ethereum.unsafe-ethereum'),
     local: false,
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
     blocknum: eventblocknum,
-    zkwasmUrl: '',
+    zkwasmUrl: DEFAULT_URL.ZKWASMHUB,
   },
   'prove(event)': {
     ...defaultPath('dsp/ethereum(event)'),

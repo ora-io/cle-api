@@ -7,7 +7,8 @@ import {
 import type { BatchOption, CLEExecutable, ProofParams, SingableProver } from '../types'
 import { BatchStyle } from '../types'
 import { logger } from '../common'
-import { FinishStatusList } from '../common/constants'
+import { PROVER_RPC_CONSTANTS } from '../common/constants'
+import { requireImageDetails } from './setup'
 
 export type ProveOptions = SingableProver & BatchOption
 
@@ -46,6 +47,9 @@ export async function requestProve(
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toUpperCase()
   logger.log(`[*] IMAGE MD5: ${md5}`, '\n')
 
+  // require image exist & valid
+  await requireImageDetails(options.proverUrl, md5)
+
   let taskId = '' // taskId must be set to response.data.result.id later
   const response = await ora_prove(md5, input, options)
   taskId = response.data.result.id
@@ -73,7 +77,11 @@ export async function waitProve(
   options: BatchOption = {},
 ): Promise<ProveResult> {
   const { batchStyle = BatchStyle.ZKWASMHUB } = options
-  const task = await waitTaskStatus(proverUrl, proveTaskId, FinishStatusList, 3000, 0)
+  const task = await waitTaskStatus(
+    proverUrl,
+    proveTaskId,
+    PROVER_RPC_CONSTANTS.TASK_STATUS_PROVE_FINISH_LIST,
+    3000, 0)
   // .catch((err) => {
   //   throw err
   // }) // TODO: timeout
@@ -84,7 +92,7 @@ export async function waitProve(
     taskDetails: task,
   }
 
-  if (task.status === 'Done') {
+  if (task.status === PROVER_RPC_CONSTANTS.TASK_STATUS_DONE) {
     const proofParams: ProofParams = {
       aggregate_proof: task.proof,
       batch_instances: task.batch_instances,

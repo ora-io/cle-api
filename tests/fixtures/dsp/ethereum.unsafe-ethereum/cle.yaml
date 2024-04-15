@@ -34,7 +34,7 @@ mapping:
   file: ./mapping.ts
   handler: handleBlocks
 
-dataDestinations:
-  - kind: ethereum
-    network: sepolia
-    address: '0x1B17C66e37CB33202Fd1C058fa1B97e36b7e517D'
+# dataDestinations:
+#   - kind: ethereum
+#     network: sepolia
+#     address: '0x1B17C66e37CB33202Fd1C058fa1B97e36b7e517D'

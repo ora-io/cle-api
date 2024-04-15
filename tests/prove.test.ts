@@ -20,7 +20,7 @@ import { fixtures } from './fixureoptions'
 // }
 
 // const pathfromfixtures = 'prove(event)'
-const pathfromfixtures = 'prove(storage)'
+const pathfromfixtures = 'dsp/ethereum(storage)'
 const option = fixtures[pathfromfixtures]
 
 describe(`test prove ${pathfromfixtures}`, () => {
@@ -54,7 +54,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
       input,
     )
     console.log('mock result:', res)
-  })
+  }, { timeout: 100000 })
   it('test prove mode', async () => {
     const { wasmPath, yamlPath, zkwasmUrl, blocknum, expectedState } = option
     const wasm = fs.readFileSync(wasmPath)
@@ -90,14 +90,14 @@ describe(`test prove ${pathfromfixtures}`, () => {
       {
         proverUrl: zkwasmUrl,
         signer,
-        batchStyle: cleapi.BatchStyle.ORA,
+        batchStyle: cleapi.BatchStyle.ZKWASMHUB,
       })
 
     console.log(result)
     expect(result.taskId).toBeTypeOf('string')
   }, { timeout: 100000 })
 
-  it.only('test waitProve', async () => {
+  it('test waitProve', async () => {
     const { zkwasmUrl } = option
     const taskId = '65dae256429af08ed922479a'
     const result = await cleapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: cleapi.BatchStyle.ZKWASMHUB })

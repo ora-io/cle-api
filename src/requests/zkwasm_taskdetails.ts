@@ -41,15 +41,6 @@ export async function waitTaskStatus(
   interval: number | undefined,
   _timeout = 0,
 ) {
-  // let done = false;
-  // setInterval(() => {
-  //     var [response, isSetUpSuccess, errorMessage] = await zkwasm_taskdetails(taskId)
-  //     if(response.data.result.data[0].status == 'Done'){
-  //         done = true
-  //         return
-  //     }
-  // }, interval)
-  // var [response, isSetUpSuccess, errorMessage] = await zkwasm_taskdetails(taskId)
   return new Promise<any>((resolve, reject) => {
     const checkStatus = async () => {
       const [response, error] = await zkwasm_taskdetails(zkwasmProverUrl, taskId)
@@ -109,13 +100,3 @@ export function taskPrettyPrint(resData: { submit_time: string | number | Date; 
     )}`,
   )
 }
-
-// try{
-// let a = await waitTaskStatus('64c0c2bbf0e3eee93f75c260', ['Done', 'Fail'], 100);
-// // console.log(a)
-// taskPrettyPrint(a, '[*] ')
-// }catch(error) {
-//     console.log(error)
-// }
-// var [response, errorMessage] =await zkwasm_taskdetails('64c0c2bbf0e3eee93f75c260')
-// console.log(response.data.result.data[0].status)
