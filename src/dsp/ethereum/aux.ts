@@ -79,8 +79,10 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
       for (let i = 0; i < keys.length; i++) {
         console.log('key: ', keys[i])
         console.log('value: ', values[i])
+        const valueHash = utils.keccak256(fromHexString(values[i]))
+        console.log('value hash: ', valueHash)
         const proof_paths = await getProof(keys[i], trie)
-        receiptMptIpt.addReceipt(keys[i], values[i], proof_paths)
+        receiptMptIpt.addReceipt(keys[i], values[i], valueHash, proof_paths)
       }
       console.log('ctx:', receiptMptIpt.getCtx())
       console.log('private input:', receiptMptIpt.getPriIpt())
@@ -136,10 +138,3 @@ async function getProof(key: string, trie: Trie): Promise<string[]> {
   console.log('proof paths: ', proof_paths)
   return proof_paths
 }
-
-// function toHexString(num: number): string {
-//   const hexString = num.toString(16)
-//   const paddingSize = 64 - hexString.length
-//   const padding = '0'.repeat(paddingSize)
-//   return padding + hexString
-// }
