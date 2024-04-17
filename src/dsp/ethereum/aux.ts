@@ -79,10 +79,11 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
       for (let i = 0; i < keys.length; i++) {
         console.log('key: ', keys[i])
         console.log('value: ', values[i])
-        const valueHash = utils.keccak256(fromHexString(values[i]))
-        console.log('value hash: ', valueHash)
         const proof_paths = await getProof(keys[i], trie)
-        receiptMptIpt.addReceipt(keys[i], values[i], valueHash, proof_paths)
+        const lastNodeRlp = proof_paths.pop()
+        const lastNodeRlpHash = utils.keccak256(fromHexString(lastNodeRlp))
+        console.log('lastNodeRlpHash: ', lastNodeRlpHash)
+        receiptMptIpt.addReceipt(keys[i], lastNodeRlpHash, proof_paths)
       }
       console.log('ctx:', receiptMptIpt.getCtx())
       console.log('private input:', receiptMptIpt.getPriIpt())

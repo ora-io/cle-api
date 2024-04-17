@@ -163,27 +163,23 @@ export class ReceiptMptInput {
     this.ctx = `0x${pad2LittleEndian(safeHex(this.receiptCnt.toString()))}`
   }
 
-  addReceipt(key: string, value: string, valueHash: string, proofPath: string[]) {
-    this.ctx += this.addReceipt2Ctx(key, safeHex(valueHash))
-    this.priIpt += this.addReceipt2PriIpt(key, safeHex(value), proofPath)
+  addReceipt(key: string, lastNodeRlpHash: string, proofPath: string[]) {
+    this.ctx += this.addReceipt2Ctx(key, safeHex(lastNodeRlpHash))
+    this.priIpt += this.addReceipt2PriIpt(key, proofPath)
   }
 
-  addReceipt2Ctx(key: string, valueHash: string) {
+  addReceipt2Ctx(key: string, lastNodeRlpHash: string) {
     // receipt index/ key
     let currCtx = pad2LittleEndian(safeHex((safeHex(key).length / 2).toString(16)))
     currCtx += padHexString(safeHex(key))
     // receipt value
-    currCtx += padHexString(safeHex(valueHash))
+    currCtx += padHexString(safeHex(lastNodeRlpHash))
     return currCtx
   }
 
-  addReceipt2PriIpt(key: string, value: string, proofPath: string[]) {
-    // value rlp length
-    let currPriIpt = `0x${safeHex((value.length / 2).toString(16))}:i64 `
-    // value
-    currPriIpt += `0x${value}:bytes-packed `
+  addReceipt2PriIpt(key: string, proofPath: string[]) {
     // proof count
-    currPriIpt += `0x${safeHex(proofPath.length.toString(16))}:i64 `
+    let currPriIpt = `0x${safeHex(proofPath.length.toString(16))}:i64 `
     let slotPrfStream = ''
     for (const proof of proofPath)
       slotPrfStream += formatProofPath(safeHex(proof))
