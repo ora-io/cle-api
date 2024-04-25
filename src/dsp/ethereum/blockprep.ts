@@ -92,6 +92,7 @@ export class BlockPrep {
   transactions: providers.TransactionResponse[]
   // constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
   constructor(rawblock: Record<string, string>) {
+    // console.log('rawblock:', rawblock)
     this.number = parseInt(rawblock.number, 16)
     this.timestamp = parseInt(rawblock.timestamp, 16)
     this.hash = rawblock.hash
