@@ -36,7 +36,8 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
     console.log('block number:', blockNum)
     const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
-    // console.log("blcokPrepData:", blcokPrepData)
+    console.log('blcokPrepData:', blcokPrepData)
+    console.log('receipts root:', blcokPrepData.receiptsRoot)
     // console.log("blcokPrepData.accounts:", blcokPrepData.accounts)
   }
   console.log('ctx:', mptIpt.getCtx())
@@ -47,36 +48,35 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
   // receipts
   (async () => {
     for (const blockNum of dataPrep.blocknumberOrder) {
+      const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
+      const receiptCount = blcokPrepData.rlpreceipts.length
+      if (receiptCount === 0)
+        continue
+      console.log('block number:', blockNum)
       const trie = await Trie.create({ db: new MapDB() })
       const keys = []
       const values = []
-      console.log('block number:', blockNum)
-      const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
-      const receiptCount = blcokPrepData.rlpreceipts.length
       for (let txIndex = 0; txIndex < receiptCount; txIndex++) {
         const key = uint8ArrayToHex(RLP.encode(txIndex))
-        // const rlp = blcokPrepData.rlpreceipts[txIndex]
-
-        let rlp = safeHex(blcokPrepData.rlpreceipts[txIndex])
-        if (txIndex >= 4)
-          rlp = `0x02${rlp}`
-        else
-          rlp = `0x${rlp}`
+        const rlp = safeHex(blcokPrepData.rlpreceipts[txIndex])
 
         console.log('key: ', key)
         keys.push(key)
-        const rlpHash = utils.keccak256(fromHexString(rlp))
         values.push(rlp)
         console.log('rlp: ', rlp)
-        console.log('rlpHash: ', rlpHash)
         await trie.put(fromHexString(key), fromHexString(rlp))
       }
 
       const receiptRoot = uint8ArrayToHex(trie.root())
       console.log('receipt mpt root:', receiptRoot)
 
-      const receiptMptIpt = new ReceiptMptInput(receiptCount, receiptRoot)
-      for (let i = 0; i < keys.length; i++) {
+      // console.log('keys:', keys)
+      // console.log('values:', values)
+
+      const proveReceiptCnt = 2
+      // const proveReceiptCnt = keys.length
+      const receiptMptIpt = new ReceiptMptInput(proveReceiptCnt, receiptRoot)
+      for (let i = 0; i < proveReceiptCnt; i++) {
         console.log('key: ', keys[i])
         console.log('value: ', values[i])
         const proof_paths = await getProof(keys[i], trie)
