@@ -18,18 +18,18 @@ async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProv
       continue
 
     const txRawLogs = []
-    const txRawReceipt = [receipt.status == '0x0' ? '' : receipt.status, receipt.cumulativeGasUsed, receipt.logsBloom]
+    // recipt status == 0x0 will be set as empty
+    const txRawReceipt = [receipt.status === '0x0' ? '' : receipt.status, receipt.cumulativeGasUsed, receipt.logsBloom]
 
     const logs = receipt.logs
     for (const log of logs)
       txRawLogs.push([log.address, log.topics, log.data])
 
     txRawReceipt.push(txRawLogs) // empty log will be included
-    // if(receipt.type != '0x0')
-    //   rawReceipt.push(`0x02${Buffer.from(RLP.encode(txRawReceipt)).toString('hex')}`)
-    // else
-    //   rawReceipt.push(`0x${Buffer.from(RLP.encode(txRawReceipt)).toString('hex')}`)
-    rawReceipt.push(`0x${Buffer.from(RLP.encode(txRawReceipt)).toString('hex')}`)
+    // recipt type == 0x0 will be set as empty
+    const paddedType = receipt.type === '0x0' ? '0x' : `0x${parseInt(receipt.type, 16).toString(16).padStart(2, '0')}`
+    console.log(paddedType)
+    rawReceipt.push(paddedType + Buffer.from(RLP.encode(txRawReceipt)).toString('hex'))
   }
 
   return rawReceipt
