@@ -18,7 +18,7 @@ async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProv
       continue
 
     const txRawLogs = []
-    const txRawReceipt = [receipt.status, receipt.cumulativeGasUsed, receipt.logsBloom]
+    const txRawReceipt = [receipt.status == '0x0' ? '' : receipt.status, receipt.cumulativeGasUsed, receipt.logsBloom]
 
     const logs = receipt.logs
     for (const log of logs)
