@@ -36,6 +36,9 @@ export class TxReceipt {
   }
 
   static fromRawStr(rawReceiptStr: string) {
+    // remove leading receipt type (e.g. 0x01, 0x02, 0x03)
+    const regex = /0x0[1-3]/g
+    rawReceiptStr = rawReceiptStr.replace(regex, '0x')
     return TxReceipt.fromRawBin(fromHexString(rawReceiptStr))
   }
 
