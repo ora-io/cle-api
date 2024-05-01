@@ -28,7 +28,6 @@ async function getRawLogsFromBlockReceipts(ethersProvider: providers.JsonRpcProv
     txRawReceipt.push(txRawLogs) // empty log will be included
     // recipt type == 0x0 will be set as empty
     const paddedType = receipt.type === '0x0' ? '0x' : `0x${parseInt(receipt.type, 16).toString(16).padStart(2, '0')}`
-    console.log(paddedType)
     rawReceipt.push(paddedType + Buffer.from(RLP.encode(txRawReceipt)).toString('hex'))
   }
 
