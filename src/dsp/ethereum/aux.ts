@@ -36,7 +36,7 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
     console.log('block number:', blockNum)
     const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
-    console.log('blcokPrepData:', blcokPrepData)
+    // console.log('blcokPrepData:', blcokPrepData)
     console.log('receipts root:', blcokPrepData.receiptsRoot)
     // console.log("blcokPrepData.accounts:", blcokPrepData.accounts)
   }
@@ -59,31 +59,28 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
       for (let txIndex = 0; txIndex < receiptCount; txIndex++) {
         const key = uint8ArrayToHex(RLP.encode(txIndex))
         const rlp = safeHex(blcokPrepData.rlpreceipts[txIndex])
-
-        console.log('key: ', key)
         keys.push(key)
         values.push(rlp)
-        console.log('rlp: ', rlp)
+
+        // console.log('key: ', key)
+        // console.log('rlp: ', rlp)
         await trie.put(fromHexString(key), fromHexString(rlp))
       }
 
       const receiptRoot = uint8ArrayToHex(trie.root())
-      console.log('receipt mpt root:', receiptRoot)
-
-      // console.log('keys:', keys)
-      // console.log('values:', values)
+      console.log('Built receipt mpt root:', receiptRoot)
 
       const proveReceiptCnt = 2
       // const proveReceiptCnt = keys.length
       const receiptMptIpt = new ReceiptMptInput(proveReceiptCnt, receiptRoot)
       for (let i = 0; i < proveReceiptCnt; i++) {
-        console.log('key: ', keys[i])
-        console.log('value: ', values[i])
+        // console.log('key: ', keys[i])
+        // console.log('value: ', values[i])
         const proof_paths = await getProof(keys[i], trie)
         const lastNodeRlp = proof_paths.pop()
         const lastNodeRlpHash = utils.keccak256(fromHexString(lastNodeRlp))
         console.log('lastNodeRlpHash: ', lastNodeRlpHash)
-        receiptMptIpt.addReceipt(keys[i], lastNodeRlpHash, proof_paths)
+        receiptMptIpt.addReceipt(uint8ArrayToHex(keys[i]), lastNodeRlpHash, proof_paths)
       }
       console.log('ctx:', receiptMptIpt.getCtx())
       console.log('private input:', receiptMptIpt.getPriIpt())
