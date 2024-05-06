@@ -12,14 +12,14 @@ const option = fixtures[pathfromfixtures]
 
 describe('test setup', () => {
   it('test setup', async () => {
-    const { wasmPath, zkwasmUrl } = option
+    const { wasmPath } = option
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     const provider = new providers.JsonRpcProvider('http://localhost') // not important
     const signer = new ethers.Wallet(config.UserPrivateKey, provider)
     const result = await cleapi.setup(
       { wasmUint8Array },
-      { circuitSize: 22, proverUrl: zkwasmUrl, signer },
+      { circuitSize: 22, proverUrl: config.ZkwasmProviderUrl, signer },
     )
     result
     // console.log('test result', result)

@@ -7,4 +7,5 @@ export const config = {
   },
   UserPrivateKey: '0x{key}',
   CompilerServerEndpoint: DEFAULT_URL.COMPILER_SERVER,
+  ZkwasmProviderUrl: DEFAULT_URL.ZKWASMHUB,
 }

@@ -9,17 +9,6 @@ import { fixtures } from './fixureoptions'
 
 (global as any).__BROWSER__ = false
 
-// const blocknumForEventTest = {
-//   sepolia: 2279547, // to test event use 2279547, to test storage use latest blocknum
-//   mainnet: 17633573,
-// }
-
-// const blocknumForStorageTest = {
-//   sepolia: await getLatestBlocknumber(config.JsonRpcProviderUrl.sepolia),
-//   mainnet: await getLatestBlocknumber(config.JsonRpcProviderUrl.mainnet),
-// }
-
-// const pathfromfixtures = 'prove(event)'
 const pathfromfixtures = 'dsp/ethereum(storage)'
 const option = fixtures[pathfromfixtures]
 
@@ -55,8 +44,8 @@ describe(`test prove ${pathfromfixtures}`, () => {
     )
     console.log('mock result:', res)
   }, { timeout: 100000 })
-  it('test prove mode', async () => {
-    const { wasmPath, yamlPath, zkwasmUrl, blocknum, expectedState } = option
+  it.only('test prove mode', async () => {
+    const { wasmPath, yamlPath, blocknum, expectedState } = option
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
     const yaml = loadYamlFromPath(yamlPath) as cleapi.CLEYaml
@@ -88,7 +77,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
       { wasmUint8Array }, // doesn't care about cleYaml
       input,
       {
-        proverUrl: zkwasmUrl,
+        proverUrl: config.ZkwasmProviderUrl,
         signer,
         batchStyle: cleapi.BatchStyle.ZKWASMHUB,
       })
@@ -98,9 +87,8 @@ describe(`test prove ${pathfromfixtures}`, () => {
   }, { timeout: 100000 })
 
   it('test waitProve', async () => {
-    const { zkwasmUrl } = option
     const taskId = '65dae256429af08ed922479a'
-    const result = await cleapi.waitProve(zkwasmUrl, taskId as string, { batchStyle: cleapi.BatchStyle.ZKWASMHUB })
+    const result = await cleapi.waitProve(config.ZkwasmProviderUrl, taskId as string, { batchStyle: cleapi.BatchStyle.ZKWASMHUB })
     // console.log(result.proofParams?.instances)
     expect((result.proofParams?.instances as any[])[0]).toBeInstanceOf(Array)
   }, { timeout: 100000 })
