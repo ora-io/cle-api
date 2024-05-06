@@ -122,8 +122,7 @@ export const PROVER_RPC_CONSTANTS = {
   TASK_STATUS_DRYRUNFAILED: 'DryRunFailed',
   TASK_STATUS_SETUP_FINISH_LIST: ['Done', 'Fail'],
   TASK_STATUS_PROVE_FINISH_LIST: ['Done', 'Fail', 'DryRunFailed'],
-  IMAGE_STATUS_VALID: 'Verified',
-  IMAGE_STATUS_INITIALIZED: 'Initialized',
+  IMAGE_STATUS_VALID_LIST: ['Verified', 'Initialized'],
   TASK_TYPE_SETUP: 'Setup',
   TASK_TYPE_RESET: 'Reset',
 }
