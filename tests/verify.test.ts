@@ -2,9 +2,10 @@ import { describe } from 'node:test'
 import { expect, it } from 'vitest'
 import { ethers } from 'ethers'
 import * as cleapi from '../src/index'
-import { AggregatorVerifierAddress, DEFAULT_URL } from '../src/common/constants'
+import { AggregatorVerifierAddress } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { fixtures } from './fixureoptions'
+import { config } from './config'
 
 (global as any).__BROWSER__ = false
 
@@ -19,7 +20,7 @@ describe('test verify', () => {
   const cleYaml = loadYamlFromPath(yamlPath)
 
   it('test verify CLEExecutable', async () => {
-    const verifyParams = await cleapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
+    const verifyParams = await cleapi.getVerifyProofParamsByTaskID(config.ZkwasmProviderUrl, proveTaskId)
 
     const network = cleYaml.decidePublishNetwork()
     expect(network).toBeDefined()
@@ -35,7 +36,7 @@ describe('test verify', () => {
   })
   // 2nd way to verify proof.
   it('test verify proof params', async () => {
-    const proofParams = await cleapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
+    const proofParams = await cleapi.getVerifyProofParamsByTaskID(config.ZkwasmProviderUrl, proveTaskId)
     const sepolia_verifier = '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0'
     expect(await cleapi.verifyProof(
       proofParams,

@@ -3,7 +3,7 @@ import { Contract, ethers } from 'ethers'
 import { expect, it } from 'vitest'
 import { CLEAlreadyExist } from '../src/common/error'
 import * as cleapi from '../src/index'
-import { DEFAULT_URL, abiFactory, addressFactory, cleContractABI } from '../src/common/constants'
+import { abiFactory, addressFactory, cleContractABI } from '../src/common/constants'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
 import { fixtures } from './fixureoptions'
@@ -42,7 +42,7 @@ it.skip('test publish', async () => {
     const publishTxHash = await cleapi.publish(
       { wasmUint8Array, cleYaml },
       signer,
-      { proverUrl: DEFAULT_URL.ZKWASMHUB, ipfsHash, bountyRewardPerTrigger: newBountyRewardPerTrigger },
+      { proverUrl: config.ZkwasmProviderUrl, ipfsHash, bountyRewardPerTrigger: newBountyRewardPerTrigger },
     )
 
     console.log('publishTxHash:', publishTxHash)
