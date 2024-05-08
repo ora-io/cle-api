@@ -10,7 +10,7 @@ import { config } from './config'
 (global as any).__BROWSER__ = false
 
 const yamlPath = fixtures['dsp/ethereum(event)'].yamlPath
-// const proveTaskId = 'QS2lHw1j6ZyxE2NSkwjt58kX' // ora prover proof
+// const proveTaskId = 'v4YpdX4UufG89z2CwA26m0OS' // ora prover proof
 const proveTaskId = '65dd7dad235cd47b5193efce' // zkwasmhub proof
 
 describe('test verify', () => {
@@ -35,20 +35,28 @@ describe('test verify', () => {
   it.only('test verify proof params', async () => {
     const proofParams = await cleapi.getVerifyProofParamsByTaskID(config.ZkwasmProviderUrl, proveTaskId)
     const network = 'sepolia'
-    // const sepolia_verifier = '0xDf0946992839A1f2B5aD09D001adF6C0332B1263' // ora verifier
-    const sepolia_verifier = '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0' // zkwasmhub verifier
+    // const verifierAddress = '0x9B13520f499e95f7e94E8346Ed8F52D2F830d955' // ora verifier
+    // const verifierAddress = '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0' // zkwasmhub verifier
 
     expect(await cleapi.verifyProof(
       proofParams,
-      { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(config.JsonRpcProviderUrl[network]) },
+      {
+        // verifierAddress,
+        provider: new ethers.providers.JsonRpcProvider(config.JsonRpcProviderUrl[network]),
+        // batchStyle: cleapi.BatchStyle.ORA_SINGLE
+      },
     )).toBeTruthy()
 
     /// / make a wrong proof for test
-    // proofParams.aggregate_proof[0] = 0x12
-    // expect(await cleapi.verifyProof(
-    //   proofParams,
-    //   { verifierAddress: sepolia_verifier, provider: new ethers.providers.JsonRpcProvider(rpcUrl) },
-    // )).toBeFalsy()
+    proofParams.aggregate_proof[0] = 0x12
+    expect(await cleapi.verifyProof(
+      proofParams,
+      {
+        // verifierAddress,
+        provider: new ethers.providers.JsonRpcProvider(config.JsonRpcProviderUrl[network]),
+        // batchStyle: cleapi.BatchStyle.ORA_SINGLE
+      },
+    )).toBeFalsy()
   }, {
     timeout: 1000000,
   })

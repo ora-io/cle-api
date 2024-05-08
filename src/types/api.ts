@@ -18,6 +18,7 @@ export interface ProofParams {
 
 export enum BatchStyle {
   ORA,
+  ORA_SINGLE,
   ZKWASMHUB,
 }
 export interface BatchOption {

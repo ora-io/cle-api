@@ -5,6 +5,7 @@ export const networks = [
     name: 'Sepolia',
     label: 'Sepolia',
     value: 11155111,
+    chainId: 11155111,
     expectedEth: 0.002,
     hex: '0xaa36a7',
   },
@@ -12,6 +13,7 @@ export const networks = [
     name: 'Goerli',
     label: 'Goerli',
     value: 5,
+    chainId: 5,
     expectedEth: 0.5,
     hex: '0x5',
   },
@@ -19,6 +21,7 @@ export const networks = [
     name: 'Mainnet',
     label: 'Mainnet',
     value: 1,
+    chainId: 1,
   },
 ]
 
@@ -87,6 +90,11 @@ export const AggregatorVerifierAddress: { [key: string]: { [key: string]: string
     mainnet: 'not support yet',
     sepolia: '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0',
     goerli: '0xbEF9572648284CB63a0DA32a89D3b4F2BeD65a89',
+  },
+  ORA_SINGLE: {
+    mainnet: '0x9B13520f499e95f7e94E8346Ed8F52D2F830d955',
+    sepolia: 'not support yet',
+    goerli: 'not support yet',
   },
   ORA: {
     mainnet: 'not support yet',
