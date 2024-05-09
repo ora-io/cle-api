@@ -93,7 +93,7 @@ export const AggregatorVerifierAddress: { [key: string]: { [key: string]: string
   },
   ORA_SINGLE: {
     mainnet: '0x9B13520f499e95f7e94E8346Ed8F52D2F830d955',
-    sepolia: 'not support yet',
+    sepolia: '0x232adE59de1C31bcB48c7c2C45b71805B420b119',
     goerli: 'not support yet',
   },
   ORA: {
