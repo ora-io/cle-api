@@ -2,7 +2,6 @@ import { describe } from 'node:test'
 import { it } from 'vitest'
 import { ethers } from 'ethers'
 import * as cleapi from '../src/index'
-import { DEFAULT_URL } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
@@ -25,7 +24,7 @@ describe('test trigger', () => {
     const { yamlPath } = option
     const yaml = loadYamlFromPath(yamlPath)
 
-    const proofParams = await cleapi.getVerifyProofParamsByTaskID(DEFAULT_URL.ZKWASMHUB, proveTaskId)
+    const proofParams = await cleapi.getVerifyProofParamsByTaskID(config.ZkwasmProviderUrl, proveTaskId)
     const CLEID = '0x8fd9e85b23d3777993ebf04ad3a3b0878f7fee77'
     const userPrivateKey = config.UserPrivateKey
     const rpcUrl = config.JsonRpcProviderUrl.sepolia

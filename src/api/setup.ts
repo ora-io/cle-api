@@ -125,7 +125,7 @@ export async function requireImageDetails(proverUrl: string, md5: string) {
   const details = response[0]?.data.result[0]
   if (details === null)
     throw new ImageNotExists('Can\'t find wasm image in prover, please finish setup first.')
-  if (details.status !== PROVER_RPC_CONSTANTS.IMAGE_STATUS_VALID && details.status !== PROVER_RPC_CONSTANTS.IMAGE_STATUS_INITIALIZED)
+  if (!PROVER_RPC_CONSTANTS.IMAGE_STATUS_VALID_LIST.includes(details.status))
     throw new ImageInvalid('wasm image is invalid in prover, please setup a valid wasm. or contact admin if you believe it should be valid.')
 
   return details

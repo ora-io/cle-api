@@ -5,6 +5,7 @@ export const networks = [
     name: 'Sepolia',
     label: 'Sepolia',
     value: 11155111,
+    chainId: 11155111,
     expectedEth: 0.002,
     hex: '0xaa36a7',
   },
@@ -12,6 +13,7 @@ export const networks = [
     name: 'Goerli',
     label: 'Goerli',
     value: 5,
+    chainId: 5,
     expectedEth: 0.5,
     hex: '0x5',
   },
@@ -19,6 +21,7 @@ export const networks = [
     name: 'Mainnet',
     label: 'Mainnet',
     value: 1,
+    chainId: 1,
   },
 ]
 
@@ -88,6 +91,11 @@ export const AggregatorVerifierAddress: { [key: string]: { [key: string]: string
     sepolia: '0xfD74dce645Eb5EB65D818aeC544C72Ba325D93B0',
     goerli: '0xbEF9572648284CB63a0DA32a89D3b4F2BeD65a89',
   },
+  ORA_SINGLE: {
+    mainnet: '0x9B13520f499e95f7e94E8346Ed8F52D2F830d955',
+    sepolia: '0x232adE59de1C31bcB48c7c2C45b71805B420b119',
+    goerli: 'not support yet',
+  },
   ORA: {
     mainnet: 'not support yet',
     sepolia: '0xf48dC1e1AaA6bB8cA43b03Ca0695973a2F440090',
@@ -122,8 +130,7 @@ export const PROVER_RPC_CONSTANTS = {
   TASK_STATUS_DRYRUNFAILED: 'DryRunFailed',
   TASK_STATUS_SETUP_FINISH_LIST: ['Done', 'Fail'],
   TASK_STATUS_PROVE_FINISH_LIST: ['Done', 'Fail', 'DryRunFailed'],
-  IMAGE_STATUS_VALID: 'Verified',
-  IMAGE_STATUS_INITIALIZED: 'Initialized',
+  IMAGE_STATUS_VALID_LIST: ['Verified', 'Initialized'],
   TASK_TYPE_SETUP: 'Setup',
   TASK_TYPE_RESET: 'Reset',
 }

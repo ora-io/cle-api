@@ -32,7 +32,7 @@ export async function ora_prove(
 
   // zkwasmhub doesn't accept aux_params
 
-  if (batchStyle === BatchStyle.ORA) {
+  if (batchStyle === BatchStyle.ORA || batchStyle === BatchStyle.ORA_SINGLE) {
     if (proverUrl.startsWith(DEFAULT_URL.ZKWASMHUB))
       throw new BatchStyleUnsupport('zkwasmhub doesn\'t support ORA batch style, use ProverType.ZKWASMHUB instead.')
 

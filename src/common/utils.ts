@@ -155,6 +155,15 @@ export function getTargetNetwork(inputtedNetworkName: string) {
   return targetNetwork
 }
 
+export function getNetworkNameByChainID(chainId: number) {
+  const netname = networks.find(
+    net => net.chainId === chainId,
+  )?.name
+  if (netname === undefined)
+    throw new Error('Unsupported network id')
+  return netname
+}
+
 /**
  * normalize DSP params
  * @param paramNames

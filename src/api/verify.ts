@@ -5,6 +5,7 @@ import { AggregatorVerifierABI, AggregatorVerifierAddress, PROVER_RPC_CONSTANTS 
 import { ProveTaskNotReady } from '../common/error'
 import type { BatchOption, ProofParams, ProofParams as VerifyProofParams } from '../types'
 import { BatchStyle } from '../types'
+import { getNetworkNameByChainID } from '../common/utils'
 import { waitProve } from './prove'
 // import { VerifyProofParams } from '@ora-io/zkwasm-service-helper'
 
@@ -37,11 +38,15 @@ export async function verifyOnchain(
   if (isZKVerifier === false)
     throw new Error('isZKVerifier==false is reserved, not supported yet')
   const { provider } = options
-  const network = (await provider.getNetwork()).name
+
+  const chainId = (await provider.getNetwork()).chainId
+  const network = getNetworkNameByChainID(chainId).toLowerCase()
   const defaultVerifierAddress
-    = batchStyle === BatchStyle.ORA
-      ? AggregatorVerifierAddress.ORA[network]
-      : AggregatorVerifierAddress.ZKWASMHUB[network]
+    = batchStyle === BatchStyle.ZKWASMHUB
+      ? AggregatorVerifierAddress.ZKWASMHUB[network]
+      : batchStyle === BatchStyle.ORA_SINGLE
+        ? AggregatorVerifierAddress.ORA_SINGLE[network]
+        : AggregatorVerifierAddress.ORA[network]
 
   const { verifierAddress = defaultVerifierAddress } = options
 

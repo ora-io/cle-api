@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest'
 import { fixtures } from './fixureoptions'
-import { testCompile } from './compile.test'
-import { testExecute } from './exec.test'
+import { testCompile } from './compile_test_impl'
+import { testExecute } from './exec_test_impl'
 
 (global as any).__BROWSER__ = false
 

@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import { describe, it } from 'vitest'
 import { ethers, providers } from 'ethers'
 import * as cleapi from '../src/index'
-import { DEFAULT_URL } from '../src/common/constants'
 import { config } from './config'
 import { fixtures } from './fixureoptions'
 
@@ -20,7 +19,7 @@ describe('test setup', () => {
     const signer = new ethers.Wallet(config.UserPrivateKey, provider)
     const result = await cleapi.setup(
       { wasmUint8Array },
-      { circuitSize: 22, proverUrl: DEFAULT_URL.ZKWASMHUB, signer },
+      { circuitSize: 22, proverUrl: config.ZkwasmProviderUrl, signer },
     )
     result
     // console.log('test result', result)
