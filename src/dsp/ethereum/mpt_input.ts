@@ -84,7 +84,7 @@ export class MptInput {
     // block number
     currCtx += padHexString(toLittleEndian(safeHex(blockPrep.number.toString(16))))
     // timestamp
-    currCtx += padHexString(toLittleEndian(safeHex(blockPrep.timestamp)))
+    currCtx += padHexString(toLittleEndian(safeHex(blockPrep.timestamp.toString(16))))
     // account count
     const accCnt = blockPrep.accounts.size
     currCtx += pad2LittleEndian(safeHex(accCnt.toString(16)))
