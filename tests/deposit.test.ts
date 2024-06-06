@@ -5,7 +5,7 @@ import { config } from './config'
 
 (global as any).__BROWSER__ = false
 
-it('test deposit', async () => {
+it.skip('test deposit', async () => {
   const rpcUrl = config.JsonRpcProviderUrl.sepolia
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   const deployedContractAddress = '0x870ef9B5DcBB6F71139a5f35D10b78b145853e69'

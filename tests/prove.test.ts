@@ -5,14 +5,15 @@ import { loadConfigByNetwork } from '../src/common/utils'
 import * as cleapi from '../src/index'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
-import { fixtures } from './fixureoptions'
+import { fixtures } from './fixtures/fixureoptions'
 
 (global as any).__BROWSER__ = false
 
-const pathfromfixtures = 'dsp/ethereum(storage)'
-const option = fixtures[pathfromfixtures]
+const fixtureKey = config.fixture
+const option = fixtures[fixtureKey]
+let proveTaskId: string
 
-describe(`test prove ${pathfromfixtures}`, () => {
+describe(`test prove ${fixtureKey}`, () => {
   // console.log('issued a prove taslk: ', result)
   it('test mock mode', async () => {
     const { yamlPath, wasmPath, blocknum, expectedState } = option
@@ -44,7 +45,7 @@ describe(`test prove ${pathfromfixtures}`, () => {
     )
     console.log('mock result:', res)
   }, { timeout: 100000 })
-  it.only('test prove mode', async () => {
+  it('test prove mode', async () => {
     const { wasmPath, yamlPath, blocknum, expectedState } = option
     const wasm = fs.readFileSync(wasmPath)
     const wasmUint8Array = new Uint8Array(wasm)
@@ -83,11 +84,15 @@ describe(`test prove ${pathfromfixtures}`, () => {
       })
 
     console.log(result)
+
+    proveTaskId = result.taskId
+
     expect(result.taskId).toBeTypeOf('string')
   }, { timeout: 100000 })
 
   it('test waitProve', async () => {
-    const taskId = '65dae256429af08ed922479a'
+    // use proveTaskId from "test prove mode" first
+    const taskId = proveTaskId || config.proveTaskId
     const result = await cleapi.waitProve(config.ZkwasmProviderUrl, taskId as string, { batchStyle: cleapi.BatchStyle.ZKWASMHUB })
     // console.log(result.proofParams?.instances)
     expect((result.proofParams?.instances as any[])[0]).toBeInstanceOf(Array)

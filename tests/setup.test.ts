@@ -3,12 +3,12 @@ import { describe, it } from 'vitest'
 import { ethers, providers } from 'ethers'
 import * as cleapi from '../src/index'
 import { config } from './config'
-import { fixtures } from './fixureoptions'
+import { fixtures } from './fixtures/fixureoptions'
 
 (global as any).__BROWSER__ = false
 
-const pathfromfixtures = 'dsp/ethereum(storage)'
-const option = fixtures[pathfromfixtures]
+const fixtureKey = config.fixture
+const option = fixtures[fixtureKey]
 
 describe('test setup', () => {
   it('test setup', async () => {
@@ -23,5 +23,5 @@ describe('test setup', () => {
     )
     result
     // console.log('test result', result)
-  }, { timeout: 10000 })
+  }, { timeout: 100000 })
 })

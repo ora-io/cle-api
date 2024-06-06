@@ -7,7 +7,7 @@ import { config } from './config'
 (global as any).__BROWSER__ = false
 
 describe('test rlp', async () => {
-  it('rlp', async () => {
+  it('blockheader rlp', async () => {
     const rpcUrl = config.JsonRpcProviderUrl.sepolia
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
 

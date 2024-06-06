@@ -4,14 +4,13 @@ import { ethers } from 'ethers'
 import * as cleapi from '../src/index'
 import { AggregatorVerifierAddress } from '../src/common/constants'
 import { loadYamlFromPath } from './utils/yaml'
-import { fixtures } from './fixureoptions'
+import { fixtures } from './fixtures/fixureoptions'
 import { config } from './config'
 
 (global as any).__BROWSER__ = false
 
-const yamlPath = fixtures['dsp/ethereum(event)'].yamlPath
-// const proveTaskId = 'v4YpdX4UufG89z2CwA26m0OS' // ora prover proof
-const proveTaskId = '65dd7dad235cd47b5193efce' // zkwasmhub proof
+const yamlPath = fixtures[config.fixture].yamlPath
+const proveTaskId = config.proveTaskId
 
 describe('test verify', () => {
   const cleYaml = loadYamlFromPath(yamlPath)

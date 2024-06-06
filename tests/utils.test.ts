@@ -7,7 +7,7 @@ import * as cleapi from '../src/index'
 import { u32ListToUint8Array } from '../src/common/utils'
 import { config } from './config'
 import { loadYamlFromPath } from './utils/yaml'
-import { fixtures } from './fixureoptions'
+import { fixtures } from './fixtures/fixureoptions'
 
 (global as any).__BROWSER__ = false
 
@@ -34,11 +34,11 @@ describe('test utils', () => {
   })
 
   it('yaml filterSections', () => {
-    const yaml = loadYamlFromPath(fixtures['dsp/ethereum(event)'].yamlPath) as any
+    const yaml = loadYamlFromPath(fixtures[config.fixture].yamlPath) as any
     expect(yaml.dataSources[0].filterByKeys(['event', 'storage']).event).toBeInstanceOf(Array)
   })
   it('yaml toString', () => {
-    const yamlpath = fixtures['dsp/ethereum(event)'].yamlPath
+    const yamlpath = fixtures[config.fixture].yamlPath
     const yamlContents = fs.readFileSync(yamlpath, 'utf8')
     const expectedYamlDump = yaml.dump(yaml.load(yamlContents))
 

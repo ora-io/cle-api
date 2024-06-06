@@ -8,4 +8,9 @@ export const config = {
   UserPrivateKey: '0x{key}',
   CompilerServerEndpoint: DEFAULT_URL.COMPILER_SERVER,
   ZkwasmProviderUrl: DEFAULT_URL.ZKWASMHUB,
+
+  // test config
+  fixture: 'dsp/ethereum(storage)',
+  // fixture: 'dsp/ethereum(event)',
+  proveTaskId: '65dd7dad235cd47b5193efce', // succ proof
 }

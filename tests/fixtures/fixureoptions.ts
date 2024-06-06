@@ -1,7 +1,7 @@
-import type { NetworksConfig } from '../src/common/utils'
-import { config } from './config'
+import type { NetworksConfig } from '../../src/common/utils'
+import { config } from '../config'
 // for storage case
-import { getLatestBlocknumber } from './utils/ethers'
+import { getLatestBlocknumber } from '../utils/ethers'
 
 interface OptionType {
   mappingPath: string
@@ -54,6 +54,12 @@ export const fixtures: Record<string, OptionType> = {
     ...defaultPath('dsp/ethereum.unsafe-ethereum'),
     local: false,
     expectedState: '5c7a6cf20cbd3eef32e19b9cad4eca17c432a794000000005c7a6cf20cbd3eef32e19b9cad4eca17c432a794', // use event return
+    blocknum: eventblocknum,
+  },
+  'compile': {
+    ...defaultPath('compile'),
+    local: false,
+    expectedState: '48656c6c6f20434c4520746573743221', // use event return
     blocknum: eventblocknum,
   },
 }

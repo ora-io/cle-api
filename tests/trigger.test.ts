@@ -4,18 +4,13 @@ import { ethers } from 'ethers'
 import * as cleapi from '../src/index'
 import { loadYamlFromPath } from './utils/yaml'
 import { config } from './config'
-import { fixtures } from './fixureoptions'
+import { fixtures } from './fixtures/fixureoptions'
 
 (global as any).__BROWSER__ = false
 
-// const rpcUrl = 'https://rpc.ankr.com/eth_sepolia'
-
-const pathfromfixtures = 'dsp/ethereum(storage)'
-// const pathfromfixtures = 'dsp/ethereum.unsafe-ethereum'
-const option = fixtures[pathfromfixtures]
-// let ZkwasmProviderUrl = "https://zkwasm-explorer.delphinuslab.com:8090"
-const proveTaskId = '65dd7dad235cd47b5193efce' // true
-// const proveTaskId = '655568eaadb2c56ffd2f0ee0' // fasle
+const fixtureKey = config.fixture
+const option = fixtures[fixtureKey]
+const proveTaskId = config.proveTaskId
 
 // TODO: use a reward == 0 cle to pass trigger test
 
