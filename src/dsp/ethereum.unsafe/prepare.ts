@@ -51,7 +51,7 @@ export async function unsafePrepareOneBlock(provider: providers.JsonRpcProvider,
       },
     )
 
-    block.addRLPReceipts(rawreceiptList)
+    block.setReceiptRLPs(rawreceiptList)
   }
 
   if (needTransactions) {

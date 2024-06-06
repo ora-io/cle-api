@@ -163,21 +163,34 @@ export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrLi
 }
 
 export function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][]) {
-  const rawreceiptList = blockPrep?.getRLPReceipts()
+  const rawreceiptList = blockPrep?.getReceiptRLPs()
 
   // TODO: return list rather than appending string.
   // NODE: rm `matchedEventOffsets` already. please add it yourself.
-  const [rawReceipts] = filterEvents(
+  const [rawReceipts, , filteredRawReceiptIndexList] = filterEvents(
     eventDSAddrList,
     eventDSEsigsList,
     rawreceiptList as any,
   )
 
-  // TODO: calc receipt count from filterEvents
-  const receiptCount = (rawReceipts.length > 0 ? rawreceiptList?.length : 0) || 0
+  const receiptCount = filteredRawReceiptIndexList.length
   input.addInt(receiptCount, false) // receipt count (tmp)
 
   if (receiptCount > 0) {
+    const trie = blockPrep.receiptTrie
+    for (let i = 0; i < receiptCount; i++) {
+      const idx = filteredRawReceiptIndexList[i]
+      // fill mpt key
+      input.addVarLenHexString(trie.keys[idx], 0)
+      // fill mpt lastNodeHash
+      const prf = trie.proof.get(idx)
+      if (!prf)
+        throw new Error(`missing receipt proof in Trie cache (idx: ${idx})`)
+      input.addHexString(trie.lastNodeRlpHash(prf), 0)
+      // fill receipt rlp len
+      input.addInt(rawreceiptList[idx].length, 0)
+    }
+
     // fill raw receipts
     input.addVarLenHexString(toHexString(rawReceipts), false)
   }

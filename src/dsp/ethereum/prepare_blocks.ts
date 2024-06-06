@@ -4,7 +4,9 @@ import { RLP } from '@ethereumjs/rlp'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
 import type { CLEYaml, EthereumDataSource } from '../../types'
 import { dspHooks } from '../hooks'
+import { filterEvents } from '../../common/api_helper'
 import { BlockPrep, EthereumDataPrep } from './blockprep'
+import { MPTTrie } from './trie'
 
 export async function prepareBlocksByYaml(provider: providers.JsonRpcProvider, contextBlocknumber: number, expectedStateStr: string, cleYaml: CLEYaml) {
   const blockPrepMap = new Map()
@@ -29,21 +31,27 @@ export function setPrePareOneBlockFunc(_func: any) {
 }
 
 export async function prepareOneBlockByYaml(provider: providers.JsonRpcProvider, blockNumber: any, cleYaml: CLEYaml) {
-  let stateDSAddrList, stateDSSlotsList
+  // let stateDSAddrList, stateDSSlotsList
   const ds = cleYaml.getFilteredSourcesByKind('ethereum')[0] as unknown as EthereumDataSource
-  if (ds.storage)
-    [stateDSAddrList, stateDSSlotsList] = ds.getStorageLists()
 
-  else
-    [stateDSAddrList, stateDSSlotsList] = [[], []]
+  const [stateDSAddrList, stateDSSlotsList] = ds.storage ? ds.getStorageLists() : [[], []]
+  const [eventDSAddrList, eventDSEsigsList] = ds.event ? ds.getEventLists() : [[], []]
 
-  const needRLPReceiptList = ds.event != null
   const needTransactions = ds.transaction != null
 
-  return await prepareOneBlockFunc(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList, needTransactions)
+  // return await prepareOneBlockFunc(provider, blockNumber, stateDSAddrList, stateDSSlotsList, needRLPReceiptList, needTransactions)
+  return await prepareOneBlockFunc(provider, blockNumber, stateDSAddrList, stateDSSlotsList, eventDSAddrList, eventDSEsigsList, needTransactions)
 }
 
-export async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
+// export async function prepareOneBlock(provider: providers.JsonRpcProvider, blockNumber: number, stateDSAddrList: any[], stateDSSlotsList: any[][], needRLPReceiptList: boolean, needTransactions: boolean) {
+export async function prepareOneBlock(
+  provider: providers.JsonRpcProvider,
+  blockNumber: number,
+  stateDSAddrList: string[],
+  stateDSSlotsList: string[][],
+  eventDSAddrList: string[],
+  eventDSEsigsList: string[][],
+  needTransactions: boolean) {
   // let [stateDSAddrList, stateDSSlotsList] = [stateDSAddrList, stateDSSlotsList]
   const rawblock = await dspHooks.getBlock(provider, blockNumber)
   const block = new BlockPrep(rawblock)
@@ -82,10 +90,24 @@ export async function prepareOneBlock(provider: providers.JsonRpcProvider, block
   /**
    * prepare raw receipts data
    */
-  if (needRLPReceiptList) {
+  if (eventDSAddrList.length > 0) {
     const rawreceiptList = await dspHooks.getRawReceipts(provider, blockNumber)
 
-    block.addRLPReceipts(rawreceiptList)
+    // get filtered receipt index list
+    const [, , filteredRawReceiptIndexList] = filterEvents(
+      eventDSAddrList,
+      eventDSEsigsList,
+      rawreceiptList as any,
+    )
+    // cache trie proof for receipts since prove is an async process
+    const trie = await new MPTTrie().build(rawreceiptList)
+    for (let i = 0; i < filteredRawReceiptIndexList.length; i++) {
+      const idx = filteredRawReceiptIndexList[i]
+      await trie.prove(idx, true) // cache proof in trie
+    }
+    // cache all receipt rlp
+    block.setReceiptRLPs(rawreceiptList)
+    block.setReceiptTrie(trie)
   }
 
   // TODO: improve this, reduce getBlock times

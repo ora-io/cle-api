@@ -23,9 +23,11 @@ function cleanReceipt(r: string) {
   return trimPrefix(trimPrefix(r, '0x'), '02')
 }
 
+// TODO: merge filteredRawReceiptList and filteredRawReceiptIndexList (only keep index list)
 export function rlpDecodeAndEventFilter(rawreceiptList: any, srcAddrList: any, srcEsigsList: any) {
   const filteredRawReceiptList = []
   const filteredEventsList = []
+  const filteredRawReceiptIndexList = []
 
   for (const i in rawreceiptList) {
     const es = TxReceipt.fromRawStr(rawreceiptList[i]).filter(
@@ -35,9 +37,10 @@ export function rlpDecodeAndEventFilter(rawreceiptList: any, srcAddrList: any, s
     if (es.length > 0) {
       filteredRawReceiptList.push(rawreceiptList[i])
       filteredEventsList.push(es)
+      filteredRawReceiptIndexList.push(i)
     }
   }
-  return [filteredRawReceiptList, filteredEventsList]
+  return [filteredRawReceiptList, filteredEventsList, filteredRawReceiptIndexList]
 }
 
 export function genStreamAndMatchedEventOffsets(rawreceiptList: any[], eventList: any[]): [Uint8Array, any[]] {
@@ -88,9 +91,9 @@ export function formatVarLenInput(input: string) {
   return formatted
 }
 
-export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[]): [Uint8Array, Uint32Array] {
+export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], rawreceiptList: string | any[]): [Uint8Array, Uint32Array, number[]] {
   // RLP Decode and Filter
-  const [filteredRawReceiptList, filteredEventList] = rlpDecodeAndEventFilter(
+  const [filteredRawReceiptList, filteredEventList, filteredRawReceiptIndexList] = rlpDecodeAndEventFilter(
     rawreceiptList,
     eventDSAddrList.map(addr => fromHexString(addr)),
     eventDSEsigsList.map(esigList => esigList.map((esig: string) => fromHexString(esig))),
@@ -113,5 +116,5 @@ export function filterEvents(eventDSAddrList: any[], eventDSEsigsList: any[], ra
   // may remove
   const matchedEventOffsets = Uint32Array.from(_matchedEventOffsets) as any
 
-  return [rawReceipts, matchedEventOffsets]
+  return [rawReceipts, matchedEventOffsets, filteredRawReceiptIndexList]
 }

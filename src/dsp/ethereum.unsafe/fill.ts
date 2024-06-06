@@ -3,7 +3,7 @@ import { toHexString } from '../../common/utils'
 import type { BlockPrep } from '../ethereum/blockprep'
 
 export function unsafeFillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrList: string[], eventDSEsigsList: string[][]) {
-  const rawreceiptList = blockPrep?.getRLPReceipts()
+  const rawreceiptList = blockPrep?.getReceiptRLPs()
 
   // TODO: return list rather than appending string.
   // NODE: rm `matchedEventOffsets` already. please add it yourself.

@@ -2,6 +2,7 @@ import type { providers } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
 import { DataPrep } from '../interface'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
+import type { MPTTrie } from './trie'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
@@ -38,7 +39,7 @@ export class AccountPrep {
   rlpNode: any
   storageHash: any
   accountProof: any
-  slots: Map<any, any>
+  slots: Map<string, SlotPrep>
   constructor(
     address: any,
     rlpNode: any,
@@ -88,8 +89,10 @@ export class BlockPrep {
   receiptsRoot: string
   transactionsRoot: string
   accounts: Map<string, AccountPrep>
-  rlpreceipts: any[]
+  rlpreceipts: string[]
   transactions: providers.TransactionResponse[]
+  // tries
+  receiptTrie: MPTTrie
   // constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
   constructor(rawblock: Record<string, string>) {
     // console.log('rawblock:', rawblock)
@@ -134,23 +137,22 @@ export class BlockPrep {
     return nestedList
   }
 
-  addAccount(address: string, rlpAccount: string, storageHash: string, accountProof: any) {
+  setAccount(address: string, rlpAccount: string, storageHash: string, accountProof: any) {
     this.accounts.set(
-      address,
+      address.toLowerCase(),
       new AccountPrep(address, rlpAccount, storageHash, accountProof),
     )
   }
 
-  getAccount(address: string) {
-    if (!this.hasAccount(address))
+  getAccount(address: string): AccountPrep {
+    const acctPrep = this.accounts.get(address.toLowerCase())
+    if (!acctPrep)
       throw new Error(`Lack data in blockPrep: account (${address})`)
-
-    return this.accounts.get(address)
+    return acctPrep
   }
 
   hasAccount(address: string) {
-    const addressLowercase = address.toLowerCase()
-    return this.accounts.has(addressLowercase)
+    return this.accounts.has(address.toLowerCase())
   }
 
   addFromGetProofResult(ethproof: { address: any; accountProof: any; storageHash: any; storageProof: any }, accountRLP: string | null = null) {
@@ -161,23 +163,29 @@ export class BlockPrep {
       if (accountRLP == null)
         throw new Error('lack of accountRLP when new Account')
 
-      this.addAccount(accountAddress, accountRLP, ethproof.storageHash, ethproof.accountProof)
+      this.setAccount(accountAddress, accountRLP, ethproof.storageHash, ethproof.accountProof)
     }
 
     this.getAccount(accountAddress)?.addFromStorageProofList(ethproof.storageProof)
   }
 
-  addRLPReceipts(rlpReceiptList: any[]) {
-    rlpReceiptList.forEach((rlpRcpt: any) => {
+  setReceiptRLPs(rlpReceiptList: string[]) {
+    this.rlpreceipts = []
+    // deep copy
+    rlpReceiptList.forEach((rlpRcpt: string) => {
       this.rlpreceipts.push(rlpRcpt)
     })
   }
 
-  setTransactions(transactions: providers.TransactionResponse[]) {
-    this.transactions = transactions
+  getReceiptRLPs(): string[] {
+    return this.rlpreceipts
   }
 
-  getRLPReceipts() {
-    return this.rlpreceipts
+  setReceiptTrie(trie: MPTTrie) {
+    this.receiptTrie = trie
+  }
+
+  setTransactions(transactions: providers.TransactionResponse[]): void {
+    this.transactions = transactions
   }
 }
