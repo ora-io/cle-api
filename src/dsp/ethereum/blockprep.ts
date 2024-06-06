@@ -2,7 +2,7 @@ import type { providers } from 'ethers'
 import { RLP } from '@ethereumjs/rlp'
 import { DataPrep } from '../interface'
 import { safeHex, uint8ArrayToHex } from '../../common/utils'
-import type { MPTTrie } from './trie'
+import { MPTTrie } from './trie'
 
 // includes both exec & prove params
 export class EthereumDataPrep extends DataPrep {
@@ -106,6 +106,7 @@ export class BlockPrep {
     this.accounts = new Map() // <string, Account>
     this.rlpreceipts = []
     this.transactions = []
+    this.receiptTrie = new MPTTrie()
   }
 
   calcHeaderRLP(rawblock: Record<string, string>): string {
