@@ -59,7 +59,7 @@ export async function requestSetup(
 
   const md5 = ZkWasmUtil.convertToMd5(wasmUint8Array).toLowerCase()
 
-  let taskDetails
+  let taskDetails = {}
   let taskId = ''
   // let setupStatus
 
@@ -70,7 +70,8 @@ export async function requestSetup(
   )
     .then(async (response) => {
       taskId = response.data.result.id
-      taskDetails = response.data.result.data[0]
+      taskDetails = response.data.result
+      // taskDetails = response.data.result.data[0]
       // result.status = response.data.result.data[0].status
 
       logger.log(`[+] SET UP TASK STARTED. TASK ID: ${taskId}`, '\n')
