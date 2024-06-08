@@ -91,6 +91,8 @@ export class BlockPrep {
   accounts: Map<string, AccountPrep>
   rlpreceipts: string[]
   transactions: providers.TransactionResponse[]
+  // filter cache
+  filterReceiptsIdx: number[]
   // tries
   receiptTrie: MPTTrie
   // constructor(blocknum: number | bigint | BytesLike | Hexable, hash: string, stateRoot: string, receiptsRoot: string, transactionsRoot: string) {
@@ -107,6 +109,7 @@ export class BlockPrep {
     this.rlpreceipts = []
     this.transactions = []
     this.receiptTrie = new MPTTrie()
+    this.filterReceiptsIdx = []
   }
 
   calcHeaderRLP(rawblock: Record<string, string>): string {
@@ -182,8 +185,24 @@ export class BlockPrep {
     return this.rlpreceipts
   }
 
+  setFilterReceiptsIdx(filterReceiptsIdx: number[]) {
+    this.filterReceiptsIdx = []
+    // deep copy
+    filterReceiptsIdx.forEach((rcpIdx: number) => {
+      this.filterReceiptsIdx.push(rcpIdx)
+    })
+  }
+
+  getFilterReceiptsIdx(): number[] {
+    return this.filterReceiptsIdx
+  }
+
   setReceiptTrie(trie: MPTTrie) {
     this.receiptTrie = trie
+  }
+
+  getReceiptTrie(): MPTTrie {
+    return this.receiptTrie
   }
 
   setTransactions(transactions: providers.TransactionResponse[]): void {

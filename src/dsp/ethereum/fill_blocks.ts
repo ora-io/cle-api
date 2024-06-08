@@ -167,7 +167,8 @@ export function fillInputEvents(input: any, blockPrep: BlockPrep, eventDSAddrLis
 
   // TODO: return list rather than appending string.
   // NODE: rm `matchedEventOffsets` already. please add it yourself.
-  const [rawReceipts, , filteredRawReceiptIndexList] = filterEvents(
+  const filteredRawReceiptIndexList = blockPrep.getFilterReceiptsIdx()
+  const [rawReceipts, ,] = filterEvents(
     eventDSAddrList,
     eventDSEsigsList,
     rawreceiptList as any,

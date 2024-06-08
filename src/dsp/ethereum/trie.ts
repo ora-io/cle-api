@@ -6,7 +6,7 @@ import { fromHexString, safeHex, uint8ArrayToHex } from '../../common/utils'
 
 // TODO: move this to rek
 export class MPTTrie {
-  trie: Trie
+  trie?: Trie
   keys: string[]
   values: string[]
   proof = new Map<number, string[]>() // cache, only fill with prove()
@@ -41,7 +41,7 @@ export class MPTTrie {
   }
 
   root(): Uint8Array {
-    return this.trie.root()
+    return this.trie!.root()
   }
 
   async prove(idx: number, cache = false): Promise<string[]> {
@@ -54,7 +54,7 @@ export class MPTTrie {
 
   async _prove(key: string): Promise<string[]> {
   // _proof(key: string): string[] {
-    const { stack } = await this.trie.findPath(fromHexString(key))
+    const { stack } = await this.trie!.findPath(fromHexString(key))
     const proof_paths = []
     for (let i = 0; i < stack.length; i++)
       proof_paths.push(uint8ArrayToHex(stack[i].serialize()))
@@ -64,7 +64,7 @@ export class MPTTrie {
   }
 
   lastNodeRlp(proof: string[]) {
-    const last = proof.pop()
+    const last = proof.at(-1)
     if (!last)
       throw new Error('can\'t find last node.')
     return last

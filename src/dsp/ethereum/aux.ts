@@ -1,14 +1,9 @@
-import { Trie } from '@ethereumjs/trie'
-import { MapDB } from '@ethereumjs/util'
-import { RLP } from '@ethereumjs/rlp'
-
-import { utils } from 'ethers'
 import { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types'
-import { u32ListToUint8Array } from '../../common/utils'
-import { fromHexString, safeHex, uint8ArrayToHex } from '../../common/utils'
+import { u32ListToUint8Array, uint8ArrayToHex } from '../../common/utils'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
 import { MptInput, ReceiptMptInput } from './mpt_input'
+import type { MPTTrie } from './trie'
 
 export function genAuxParams(
   cleYaml: CLEYaml,
@@ -33,60 +28,47 @@ function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPre
   // account and storage slot
   const mptIpt = new MptInput(dataPrep.blocknumberOrder.length)
   for (const blockNum of dataPrep.blocknumberOrder) {
-    console.log('block number:', blockNum)
+    // console.log('block number:', blockNum)
     const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
     // console.log('blcokPrepData:', blcokPrepData)
-    console.log('receipts root:', blcokPrepData.receiptsRoot)
+    // console.log('receipts root:', blcokPrepData.receiptsRoot)
     // console.log("blcokPrepData.accounts:", blcokPrepData.accounts)
   }
-  console.log('ctx:', mptIpt.getCtx())
-  console.log('private input:', mptIpt.getPriIpt())
+  // console.log('ctx:', mptIpt.getCtx())
+  // console.log('private input:', mptIpt.getPriIpt())
   input.append(mptIpt.getCtx(), 2)
-  input.append(mptIpt.getPriIpt(), 0);
+  input.append(mptIpt.getPriIpt(), 0)
 
   // receipts
-  (async () => {
-    for (const blockNum of dataPrep.blocknumberOrder) {
-      const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
-      const receiptCount = blcokPrepData.rlpreceipts.length
-      if (receiptCount === 0)
-        continue
-      console.log('block number:', blockNum)
-      const trie = await Trie.create({ db: new MapDB() })
-      const keys = []
-      const values = []
-      for (let txIndex = 0; txIndex < receiptCount; txIndex++) {
-        const key = uint8ArrayToHex(RLP.encode(txIndex))
-        const rlp = safeHex(blcokPrepData.rlpreceipts[txIndex])
-        keys.push(key)
-        values.push(rlp)
+  for (const blockNum of dataPrep.blocknumberOrder) {
+    const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
+    // built in prepare stage
+    const trie: MPTTrie = blcokPrepData.getReceiptTrie()
+    const filterReceiptsIdx = blcokPrepData.getFilterReceiptsIdx()
 
-        // console.log('key: ', key)
-        // console.log('rlp: ', rlp)
-        await trie.put(fromHexString(key), fromHexString(rlp))
-      }
+    const receiptRoot = uint8ArrayToHex(trie.root())
+    // console.log('Built receipt mpt root:', receiptRoot)
 
-      const receiptRoot = uint8ArrayToHex(trie.root())
-      console.log('Built receipt mpt root:', receiptRoot)
+    const receiptMptIpt = new ReceiptMptInput(filterReceiptsIdx.length, receiptRoot)
 
-      const proveReceiptCnt = 2
-      // const proveReceiptCnt = keys.length
-      const receiptMptIpt = new ReceiptMptInput(proveReceiptCnt, receiptRoot)
-      for (let i = 0; i < proveReceiptCnt; i++) {
-        // console.log('key: ', keys[i])
-        // console.log('value: ', values[i])
-        const proof_paths = await getProof(keys[i], trie)
-        const lastNodeRlp = proof_paths.pop()
-        const lastNodeRlpHash = utils.keccak256(fromHexString(lastNodeRlp))
-        console.log('lastNodeRlpHash: ', lastNodeRlpHash)
-        receiptMptIpt.addReceipt(uint8ArrayToHex(keys[i]), lastNodeRlpHash, proof_paths)
-      }
-      console.log('ctx:', receiptMptIpt.getCtx())
-      console.log('private input:', receiptMptIpt.getPriIpt())
-    }
-  })()
-
+    filterReceiptsIdx.forEach((idx: number) => {
+      // cached in prepare stage
+      const proof_paths = trie.proof.get(idx)
+      if (!proof_paths)
+        throw new Error(`receipt ${idx} mpt proof missing in blockprep`)
+      const lastNodeRlpHash = trie.lastNodeRlpHash(proof_paths)
+      // console.log('lastNodeRlpHash: ', lastNodeRlpHash)
+      receiptMptIpt.addReceipt(trie.keys[idx], lastNodeRlpHash, proof_paths)
+    })
+    // console.log('ctx:', receiptMptIpt.getCtx())
+    // console.log('private input:', receiptMptIpt.getPriIpt())
+    input.append(receiptMptIpt.getCtx(), 2)
+    input.append(receiptMptIpt.getPriIpt(), 0)
+  }
+  // console.log("mpt pri input:", input.getPrivateInputStr())
+  // console.log("mpt pub input:", input.getPublicInputStr())
+  // console.log("mpt ctx input:", input.getContextInputStr())
   return input
 }
 
@@ -125,14 +107,4 @@ function genExtra(_cleYaml: CLEYaml, dataPrep: EthereumDataPrep): Uint8Array {
       (bn: any) => { return isRecentBlock(bn, dataPrep.latestBlocknumber) ? (dataPrep.blockPrepMap.get(bn) as BlockPrep).number : null }), // ['0xrecentblockheaderrlp', '' for bho blocknum]
   }
   return encode(verifyExtra)
-}
-
-async function getProof(key: string, trie: Trie): Promise<string[]> {
-  const { stack } = await trie.findPath(fromHexString(key))
-  const proof_paths = []
-  for (let i = 0; i < stack.length; i++)
-    proof_paths.push(uint8ArrayToHex(stack[i].serialize()))
-
-  console.log('proof paths: ', proof_paths)
-  return proof_paths
 }

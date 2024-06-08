@@ -108,6 +108,7 @@ export async function prepareOneBlock(
     // cache all receipt rlp
     block.setReceiptRLPs(rawreceiptList)
     block.setReceiptTrie(trie)
+    block.setFilterReceiptsIdx(filteredRawReceiptIndexList)
   }
 
   // TODO: improve this, reduce getBlock times
