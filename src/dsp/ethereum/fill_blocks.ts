@@ -152,7 +152,7 @@ export function fillInputStorage(input: any, blockPrep: BlockPrep, stateDSAddrLi
     for (let j = 0; j < sourceSlots.length; j++) {
       const slotPrep = acctPrep?.getSlot(sourceSlots[j])
       // slot might doesn't exist. can't proceed in this case.
-      if (slotPrep.storageProof == null)
+      if (!slotPrep || slotPrep.storageProof == null)
         throw new Error(`In ExecInputGen: slot ${sourceSlots[j]} doesn't exist on given block height, storage proof == null. \n Please update yaml or use later blocknumber.`)
 
       input.addHexString(sourceSlots[j], false)

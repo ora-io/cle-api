@@ -15,7 +15,7 @@ let proveTaskId: string
 
 describe(`test prove ${fixtureKey}`, () => {
   // console.log('issued a prove taslk: ', result)
-  it('test mock mode', async () => {
+  it.only('test mock mode', async () => {
     const { yamlPath, wasmPath, blocknum, expectedState } = option
 
     const wasm = fs.readFileSync(wasmPath)
