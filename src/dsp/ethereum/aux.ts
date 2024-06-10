@@ -1,9 +1,8 @@
 import { Input } from 'zkwasm-toolchain'
 import type { CLEYaml } from '../../types'
-import { u32ListToUint8Array, uint8ArrayToHex } from '../../common/utils'
+import { u32ListToUint8Array } from '../../common/utils'
 import type { BlockPrep, EthereumDataPrep } from './blockprep'
-import { MptInput, ReceiptMptInput } from './mpt_input'
-import type { MPTTrie } from './trie'
+import { MptInput } from './mpt_input'
 
 export function genAuxParams(
   cleYaml: CLEYaml,
@@ -25,47 +24,17 @@ export function genAuxParams(
 }
 
 function fillMPTInput(input: Input, _cleYaml: CLEYaml, dataPrep: EthereumDataPrep) {
-  // account and storage slot
   const mptIpt = new MptInput(dataPrep.blocknumberOrder.length)
   for (const blockNum of dataPrep.blocknumberOrder) {
     // console.log('block number:', blockNum)
     const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
     mptIpt.addBlock(blcokPrepData)
-    // console.log('blcokPrepData:', blcokPrepData)
-    // console.log('receipts root:', blcokPrepData.receiptsRoot)
-    // console.log("blcokPrepData.accounts:", blcokPrepData.accounts)
   }
   // console.log('ctx:', mptIpt.getCtx())
   // console.log('private input:', mptIpt.getPriIpt())
   input.append(mptIpt.getCtx(), 2)
   input.append(mptIpt.getPriIpt(), 0)
 
-  // receipts
-  for (const blockNum of dataPrep.blocknumberOrder) {
-    const blcokPrepData = dataPrep.blockPrepMap.get(blockNum)
-    // built in prepare stage
-    const trie: MPTTrie = blcokPrepData.getReceiptTrie()
-    const filterReceiptsIdx = blcokPrepData.getFilterReceiptsIdx()
-
-    const receiptRoot = uint8ArrayToHex(trie.root())
-    // console.log('Built receipt mpt root:', receiptRoot)
-
-    const receiptMptIpt = new ReceiptMptInput(filterReceiptsIdx.length, receiptRoot)
-
-    filterReceiptsIdx.forEach((idx: number) => {
-      // cached in prepare stage
-      const proof_paths = trie.proof.get(idx)
-      if (!proof_paths)
-        throw new Error(`receipt ${idx} mpt proof missing in blockprep`)
-      const lastNodeRlpHash = trie.lastNodeRlpHash(proof_paths)
-      // console.log('lastNodeRlpHash: ', lastNodeRlpHash)
-      receiptMptIpt.addReceipt(trie.keys[idx], lastNodeRlpHash, proof_paths)
-    })
-    // console.log('ctx:', receiptMptIpt.getCtx())
-    // console.log('private input:', receiptMptIpt.getPriIpt())
-    input.append(receiptMptIpt.getCtx(), 2)
-    input.append(receiptMptIpt.getPriIpt(), 0)
-  }
   // console.log("mpt pri input:", input.getPrivateInputStr())
   // console.log("mpt pub input:", input.getPublicInputStr())
   // console.log("mpt ctx input:", input.getContextInputStr())

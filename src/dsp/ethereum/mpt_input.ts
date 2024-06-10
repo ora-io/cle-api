@@ -1,5 +1,6 @@
 import { safeHex } from '../../common/utils'
 import type { BlockPrep } from './blockprep'
+import type { MPTTrie } from './trie'
 
 function i32ToLittleEndian(value: number) {
   /**
@@ -75,17 +76,24 @@ export class MptInput {
   }
 
   addBlock(blockPrep: BlockPrep) {
-    this.ctx += this.addBlock2Ctx(blockPrep)
-    this.priIpt += this.addBlock2PriIpt(blockPrep)
+    // block number
+    this.ctx += padHexString(toLittleEndian(safeHex(blockPrep.number.toString(16))))
+    // timestamp
+    this.ctx += padHexString(toLittleEndian(safeHex(blockPrep.timestamp.toString(16))))
+    // storage
+    this.addStorage(blockPrep)
+    // receipt
+    this.addReceipt(blockPrep)
   }
 
-  addBlock2Ctx(blockPrep: BlockPrep) {
+  /** ********* Storage ************/
+  addStorage(blockPrep: BlockPrep) {
+    this.ctx += this.storage2Ctx(blockPrep)
+    this.priIpt += this.storage2Pri(blockPrep)
+  }
+
+  storage2Ctx(blockPrep: BlockPrep) {
     let currCtx = ''
-    // block number
-    currCtx += padHexString(toLittleEndian(safeHex(blockPrep.number.toString(16))))
-    // timestamp
-    currCtx += padHexString(toLittleEndian(safeHex(blockPrep.timestamp.toString(16))))
-    // account count
     const accCnt = blockPrep.accounts.size
     currCtx += pad2LittleEndian(safeHex(accCnt.toString(16)))
     for (const [addr, accData] of blockPrep.accounts) {
@@ -106,7 +114,7 @@ export class MptInput {
     return currCtx
   }
 
-  addBlock2PriIpt(blockPrep: BlockPrep) {
+  storage2Pri(blockPrep: BlockPrep) {
     let currPriIpt = ''
     // state root
     currPriIpt += `0x${safeHex(blockPrep.stateRoot)}:bytes-packed `
@@ -141,6 +149,53 @@ export class MptInput {
     return currPriIpt
   }
 
+  /** ********* Receipts ************/
+  addReceipt(blockPrep: BlockPrep) {
+    // filtered receipt count
+    const filterReceiptsIdx = blockPrep.getFilterReceiptsIdx()
+    const rcptCount = filterReceiptsIdx.length
+    this.priIpt = `0x${safeHex(blockPrep.receiptsRoot)}:bytes-packed `
+    this.ctx += `0x${pad2LittleEndian(safeHex(rcptCount.toString()))}`
+
+    const trie: MPTTrie = blockPrep.getReceiptTrie()
+    filterReceiptsIdx.forEach((idx: number) => {
+      // cached in prepare stage
+      const key = safeHex(trie.keys[idx])
+      const proofPath = trie.proof.get(idx)
+      if (!proofPath)
+        throw new Error(`receipt ${idx} mpt proof missing in blockprep`)
+
+      this.ctx += this.receipt2Ctx(key, trie.lastNodeRlpHash(proofPath))// key, safeHex(lastNodeRlpHash))
+      this.priIpt += this.receipt2Pri(proofPath)// key, proofPath)
+    })
+  }
+
+  receipt2Ctx(key: string, lastNodeRlpHash: string) {
+    // receipt index/ key
+    let currCtx = pad2LittleEndian(safeHex((key.length / 2).toString(16)))
+    currCtx += padHexString(safeHex(key))
+    // receipt value
+    currCtx += padHexString(safeHex(lastNodeRlpHash))
+    return currCtx
+  }
+
+  receipt2Pri(proofPath: string[]) {
+    // proof count
+    let currPriIpt = `0x${safeHex(proofPath.length.toString(16))}:i64 `
+    let slotPrfStream = ''
+    for (const proof of proofPath)
+      slotPrfStream += formatProofPath(safeHex(proof))
+
+    // slot proof stream length
+    currPriIpt += `0x${safeHex((slotPrfStream.length / 2).toString(16))}:i64 `
+    // slot proof steam
+    currPriIpt += `0x${slotPrfStream}:bytes-packed `
+    // slot proof hash steam
+    return currPriIpt
+  }
+
+  /** ********* get results ************/
+
   getCtx() {
     return `${this.ctx}:bytes-packed`
   }
@@ -152,6 +207,7 @@ export class MptInput {
 
 module.exports = MptInput
 
+// TODO: remove this after validated
 export class ReceiptMptInput {
   receiptCnt: number
   receiptRoot: string
