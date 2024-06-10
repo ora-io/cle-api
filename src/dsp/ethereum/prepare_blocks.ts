@@ -100,7 +100,12 @@ export async function prepareOneBlock(
       rawreceiptList as any,
     )
     // cache trie proof for receipts since prove is an async process
-    const trie = await new MPTTrie().build(rawreceiptList)
+    const trie = new MPTTrie()
+    if (filteredRawReceiptIndexList.length > 0) {
+      await trie.build(rawreceiptList)
+      if (safeHex(uint8ArrayToHex(trie.root())) !== safeHex(block.receiptsRoot))
+        throw new Error('prepare: mpt root built from receipts != block.receiptsRoot')
+    }
     for (let i = 0; i < filteredRawReceiptIndexList.length; i++) {
       const idx = filteredRawReceiptIndexList[i]
       await trie.prove(idx, true) // cache proof in trie
