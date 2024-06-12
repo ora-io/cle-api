@@ -155,7 +155,7 @@ export class MptInput {
     const filterReceiptsIdx = blockPrep.getFilterReceiptsIdx()
     const rcptCount = filterReceiptsIdx.length
     this.priIpt = `0x${safeHex(blockPrep.receiptsRoot)}:bytes-packed `
-    this.ctx += `0x${pad2LittleEndian(safeHex(rcptCount.toString()))}`
+    this.ctx += `${pad2LittleEndian(safeHex(rcptCount.toString()))}`
 
     const trie: MPTTrie = blockPrep.getReceiptTrie()
     filterReceiptsIdx.forEach((idx: number) => {
